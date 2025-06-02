@@ -3,6 +3,6 @@ type Supplier = {
     cpf?: string;
     cnpj?: string;
     phoneNumber: string;
-    email: string;
-    additionalInformation: string;
+    email?: string;
+    additionalInformation?: string;
 }
