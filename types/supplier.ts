@@ -6,3 +6,5 @@ type Supplier = {
     email?: string;
     additionalInformation?: string;
 }
+
+export default Supplier;
