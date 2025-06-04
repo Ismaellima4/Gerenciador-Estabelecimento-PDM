@@ -1,9 +1,16 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import React from "react";
+import InputPhoto from "@/components/InputPhoto";
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 function ProductsRegisterScreen() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleImagePicked = (uri: string) => {
+    setSelectedImage(uri);
+  };
+
   const handleSave = () => {
     // Implement save logic here
   };
@@ -18,41 +25,46 @@ function ProductsRegisterScreen() {
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text style={styles.textAboveInput}>Nome do Produto</Text>
+      <View style={{ width: "100%", padding: 20 }}>
+        <Text style={styles.textAboveInput}>Nome </Text>
         <Input onChangeText={handleInputChange} placeholder="Digite aqui..." />
-        <Text style={styles.textAboveInput}>Descrição do Produto</Text>
+        <Text style={styles.textAboveInput}>Descrição </Text>
         <Input onChangeText={handleInputChange} placeholder="Digite aqui..." />
-        <Text style={styles.textAboveInput}>Preço do Produto</Text>
-        <Input onChangeText={handleInputChange} placeholder="Digite aqui..." />
-        <Text style={styles.textAboveInput}>Quantidade do Produto</Text>
-        <Input onChangeText={handleInputChange} placeholder="Digite aqui..." />
-        {/* <Text style={styles.textAboveInput}>Categoria do Produto</Text>
-        <Input
-          onChangeText={handleInputChange}
-          placeholder="Digite aqui..."
-        />
-        <Text style={styles.textAboveInput}>Imagem do Produto</Text>
-        <Input
-          onChangeText={handleInputChange}
-          placeholder="Digite aqui..."
-        />
-        <Text style={styles.textAboveInput}>Data de Validade do Produto</Text>
-        <Input
-          onChangeText={handleInputChange}
-          placeholder="Digite aqui..."
-        />
-        <Text style={styles.textAboveInput}>Fornecedor do Produto</Text>
-        <Input
-          onChangeText={handleInputChange}
-          placeholder="Digite aqui..."
-        />
-        <Text style={styles.textAboveInput}>Codigo de barras do produto</Text>
-        <Input
-          onChangeText={handleInputChange}
-          placeholder="Digite aqui..."
-        /> */}
+        <Text style={styles.textAboveInput}>Imagem </Text>
+        <InputPhoto onImageSelected={handleImagePicked} />{" "}
+        {selectedImage && <Text>Imagem selecionada: {selectedImage}</Text>}
+        <Text style={styles.textAboveInput}>Fornecedor </Text>
+        {/* Deve ser um modal */}
+        <View style={styles.containerMenor}>
+          <View>
+            <Text style={styles.textAboveInput}>Preço </Text>
+            <Input
+              onChangeText={handleInputChange}
+              placeholder="Digite aqui..."
+            />
+
+            <Text style={styles.textAboveInput}>Quantidade em estoque</Text>
+            <Input
+              onChangeText={handleInputChange}
+              placeholder="Digite aqui..."
+            />
+          </View>
+          <View>
+            <Text style={styles.textAboveInput}>Categoria </Text>
+            {/* Deve ser um modal */}
+
+            <Text style={styles.textAboveInput}>Data de Validade </Text>
+            <Input
+              onChangeText={handleInputChange}
+              placeholder="Digite aqui..."
+            />
+          </View>
+        </View>
+        <Text style={styles.textAboveInput}>Codigo de barras </Text>
+        <InputPhoto onImageSelected={handleImagePicked} />{" "}
+        {selectedImage && <Text>Imagem selecionada: {selectedImage}</Text>}
       </View>
+
       <View style={styles.buttonContainer}>
         <Button onPress={handleSave}>
           <Text>Salvar</Text>
@@ -86,5 +98,11 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: 16,
     marginBottom: 5,
+  },
+  containerMenor: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
   },
 });
