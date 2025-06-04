@@ -1,11 +1,27 @@
 import Button from "@/components/Button";
+import CustomModal from "@/components/CustomModal";
 import Input from "@/components/Input";
 import InputPhoto from "@/components/InputPhoto";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function ProductsRegisterScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState("");
+
+  const suppliers = [
+    "Fornecedor 1",
+    "Fornecedor 2",
+    "Fornecedor 3",
+    "Fornecedor 4",
+    "Fornecedor 5",
+  ];
+
+  const handleSelectSupplier = (supplier: string) => {
+    setSelectedSupplier(supplier);
+    setIsModalVisible(false);
+  };
 
   const handleImagePicked = (uri: string) => {
     setSelectedImage(uri);
@@ -33,20 +49,43 @@ function ProductsRegisterScreen() {
         <Text style={styles.textAboveInput}>Imagem </Text>
         <InputPhoto onImageSelected={handleImagePicked} />{" "}
         {selectedImage && <Text>Imagem selecionada: {selectedImage}</Text>}
-        <Text style={styles.textAboveInput}>Fornecedor </Text>
-        {/* Deve ser um modal */}
-        <View style={styles.containerMenor}>
-          <View>
-            <Text style={styles.textAboveInput}>Preço </Text>
+        <View>
+          <Text style={styles.textAboveInput}>Fornecedor </Text>
+          <TouchableOpacity onPress={() => setIsModalVisible(true)}>
             <Input
               onChangeText={handleInputChange}
-              placeholder="Digite aqui..."
+              placeholder="Selecione um fornecedor"
+              editable={false}
+              value={selectedSupplier}
             />
+          </TouchableOpacity>
+          <CustomModal
+            visible={isModalVisible}
+            onClose={() => setIsModalVisible(false)}
+            title="Lista de Fornecedores"
+          >
+            <View>
+              {suppliers.map((suppliers) => (
+                <TouchableOpacity
+                  key={suppliers}
+                  onPress={() => handleSelectSupplier(suppliers)}
+                >
+                  <Text>{suppliers}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </CustomModal>
+        </View>
+        <View style={styles.containerMenor}>
+          <View>
+            <Text style={styles.textAboveInput}>Preço</Text>
+            <Input onChangeText={handleInputChange} placeholder="R$ 0,00" />
 
             <Text style={styles.textAboveInput}>Quantidade em estoque</Text>
             <Input
               onChangeText={handleInputChange}
-              placeholder="Digite aqui..."
+              placeholder="0 unidades"
+              keyboardType="numeric"
             />
           </View>
           <View>
@@ -56,7 +95,8 @@ function ProductsRegisterScreen() {
             <Text style={styles.textAboveInput}>Data de Validade </Text>
             <Input
               onChangeText={handleInputChange}
-              placeholder="Digite aqui..."
+              placeholder="dd/mm/aaaa"
+              keyboardType="numeric"
             />
           </View>
         </View>
