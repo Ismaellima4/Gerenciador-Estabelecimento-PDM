@@ -7,6 +7,7 @@ type Product = {
     amount: number;
     expirationDate: Date;
     barCode: string;
+    manufacturingDate: Date;
 }
 
 export default Product;
