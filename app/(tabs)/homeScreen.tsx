@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 const produtos = [
   { id: '1', nome: 'Nome do produto', categoria: 'categoria' },
@@ -34,26 +35,25 @@ export default function ProdutosScreen() {
         data={produtos}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.cardInfo}>
-              <View style={styles.avatar}><Text style={styles.avatarText}>F</Text></View>
-              <View>
-                <Text style={styles.productName}>{item.nome}</Text>
-                <Text style={styles.productCategory}>{item.categoria}</Text>
+          <Link href="/productDetails" asChild>
+            <TouchableOpacity>
+              <View style={styles.card}>
+                <View style={styles.cardInfo}>
+                  <View style={styles.avatar}><Text style={styles.avatarText}>F</Text></View>
+                  <View>
+                    <Text style={styles.productName}>{item.nome}</Text>
+                    <Text style={styles.productCategory}>{item.categoria}</Text>
+                  </View>
+                </View>
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="image" size={24} color="#fff" />
+                </View>
               </View>
-            </View>
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="image" size={24} color="#fff" />
-            </View>
-          </View>
+            </TouchableOpacity>
+          </Link>
         )}
         contentContainerStyle={styles.productList}
       />
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}><Text>Produtos</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}><Text>Fornecedores</Text></TouchableOpacity>
-      </View>
     </View>
   );
 }
@@ -160,19 +160,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  footerButton: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    marginHorizontal: 4,
   },
 });
