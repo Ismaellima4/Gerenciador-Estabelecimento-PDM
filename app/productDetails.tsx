@@ -1,17 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProductDetailScreen() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => console.log('Back button pressed')}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <View style={styles.headerRightPlaceholder} />
-      </View>
-
+    <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.imagePlaceholder}>
           <Ionicons name="image-outline" size={80} color="#ccc" />
@@ -48,7 +42,7 @@ export default function ProductDetailScreen() {
       <TouchableOpacity style={styles.editButton}>
         <Text style={styles.editButtonText}>Editar</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

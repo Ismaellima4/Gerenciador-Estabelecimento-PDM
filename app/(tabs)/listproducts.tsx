@@ -1,18 +1,21 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import React from 'react';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const produtos = [
   { id: '1', titulo: 'Titulo Produto', categoria: 'Categoria', fornecedor: 'Fornecedor', qtdInicial: 100, qtdAtual: 75 },
   { id: '2', titulo: 'Titulo Produto', categoria: 'Categoria', fornecedor: 'Fornecedor', qtdInicial: 200, qtdAtual: 180 },
   { id: '3', titulo: 'Titulo Produto', categoria: 'Categoria', fornecedor: 'Fornecedor', qtdInicial: 50, qtdAtual: 30 },
   { id: '4', titulo: 'Titulo Produto', categoria: 'Categoria', fornecedor: 'Fornecedor', qtdInicial: 150, qtdAtual: 150 },
+  { id: '5', titulo: 'Titulo Produto', categoria: 'Categoria', fornecedor: 'Fornecedor', qtdInicial: 150, qtdAtual: 150 },
 ];
 
 export default function ProdutosScreen() {
 
   return (
-     <View style={styles.container}>
+     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Produtos</Text>
         <TouchableOpacity style={styles.addButton}>
@@ -33,26 +36,25 @@ export default function ProdutosScreen() {
         data={produtos}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View>
-              <Text style={styles.productTitle}>{item.titulo}</Text>
-              <Text style={styles.productInfo}>{item.categoria}</Text>
-              <Text style={styles.productInfo}>{item.fornecedor}</Text>
+          <Link href='/productDetails' asChild>
+          <TouchableOpacity >
+            <View style={styles.card}>
+              <View>
+                <Text style={styles.productTitle}>{item.titulo}</Text>
+                <Text style={styles.productInfo}>{item.categoria}</Text>
+                <Text style={styles.productInfo}>{item.fornecedor}</Text>
+              </View>
+              <View>
+                <Text style={styles.quantityText}>Qtd. inicial</Text>
+                <Text style={styles.quantityText}>Qtd. atual</Text>
+              </View>
             </View>
-            <View>
-              <Text style={styles.quantityText}>Qtd. inicial</Text>
-              <Text style={styles.quantityText}>Qtd. atual</Text>
-            </View>
-          </View>
+          </TouchableOpacity>
+          </Link>
         )}
         contentContainerStyle={styles.productList}
       />
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}><Text>Produtos</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}><Text>Fornecedores</Text></TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

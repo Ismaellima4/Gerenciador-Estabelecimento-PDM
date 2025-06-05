@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const suppliers = [
     {id:'1', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
@@ -12,9 +13,9 @@ const suppliers = [
 export default function listSuppliers(){
 
     return (
-     <View style={styles.container}>
+     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Produtos</Text>
+        <Text style={styles.title}>Fornecedores</Text>
         <TouchableOpacity style={styles.addButton}>
           <Text style={styles.addText}>ADICIONAR</Text>
         </TouchableOpacity>
@@ -43,12 +44,7 @@ export default function listSuppliers(){
         )}
         contentContainerStyle={styles.productList}
       />
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}><Text>Produtos</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}><Text>Fornecedores</Text></TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
