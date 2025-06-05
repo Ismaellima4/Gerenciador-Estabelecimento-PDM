@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import React from 'react';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const produtos = [
   { id: '1', nome: 'Nome do produto', categoria: 'categoria' },
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
