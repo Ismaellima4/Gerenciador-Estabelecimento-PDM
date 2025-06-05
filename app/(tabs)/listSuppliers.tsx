@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import React from 'react';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const suppliers = [
@@ -34,13 +35,17 @@ export default function listSuppliers(){
         data={suppliers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View>
-              <Text style={styles.productTitle}>{item.fornecedor}</Text>
-              <Text style={styles.productInfo}>{item.contato}</Text>
-              <Text style={styles.productInfo}>{item.cnpj}</Text>
-            </View>
-          </View>
+          <Link href="/suppliersDetails" asChild>
+            <TouchableOpacity>
+                <View style={styles.card}>
+                  <View>
+                    <Text style={styles.productTitle}>{item.fornecedor}</Text>
+                    <Text style={styles.productInfo}>{item.contato}</Text>
+                    <Text style={styles.productInfo}>{item.cnpj}</Text>
+                  </View>
+                </View>
+            </TouchableOpacity>
+          </Link>
         )}
         contentContainerStyle={styles.productList}
       />
