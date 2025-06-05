@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
 
 function ProductsRegisterScreen() {
   const [form, setForm] = useState({
@@ -113,9 +112,6 @@ function ProductsRegisterScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={handleVoltar} style={styles.backButton}>
-        <Icon name="arrow-back" size={30} color="black" />
-      </TouchableOpacity>
       <View>
         <Text style={styles.textAboveInput}>Nome</Text>
         <Input
