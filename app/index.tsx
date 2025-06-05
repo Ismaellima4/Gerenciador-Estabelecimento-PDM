@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // se quiser usar ícone real
 
 const CadastroFornecedor: React.FC = () => {
@@ -33,7 +33,7 @@ const CadastroFornecedor: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Topo com botão de voltar */}
         <TouchableOpacity onPress={handleVoltar} style={styles.backButton}>
-          <Icon name="arrow-back" size={26} color="black" /> 
+          <Icon name="arrow-back" size={30} color="black" /> 
         </TouchableOpacity>
 
         <View style={styles.container}>
@@ -42,7 +42,7 @@ const CadastroFornecedor: React.FC = () => {
           </Text>
           <TextInput
             style={styles.input}
-            placeholder="Digite o nome do fornecedor"
+            placeholder="Digite o nome"
             value={nome}
             onChangeText={setNome}
           />
@@ -50,6 +50,7 @@ const CadastroFornecedor: React.FC = () => {
           <Text style={styles.label}>CPF/CNPJ</Text>
           <TextInput
             style={styles.input}
+            placeholder="123.456.789-12 ou 12.345.678/0001-95"
             value={cpfCnpj}
             onChangeText={setCpfCnpj}
           />
@@ -57,6 +58,7 @@ const CadastroFornecedor: React.FC = () => {
           <Text style={styles.label}>Endereço</Text>
           <TextInput
             style={styles.input}
+            placeholder="Digite o endereço"
             value={endereco}
             onChangeText={setEndereco}
           />
@@ -66,7 +68,7 @@ const CadastroFornecedor: React.FC = () => {
           </Text>
           <TextInput
             style={styles.input}
-            placeholder="(00) 00000-0000"
+            placeholder="(12) 34567-8901"
             keyboardType="phone-pad"
             value={telefone}
             onChangeText={setTelefone}
@@ -76,6 +78,8 @@ const CadastroFornecedor: React.FC = () => {
           <TextInput
             style={styles.input}
             keyboardType="email-address"
+            placeholder="Digite o e-mail"
+            autoComplete="email"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
@@ -85,6 +89,7 @@ const CadastroFornecedor: React.FC = () => {
           <TextInput
             style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
             multiline
+            placeholder="Digite informações adicionais"
             value={infoAdicional}
             onChangeText={setInfoAdicional}
           />
@@ -109,10 +114,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   backButton: {
-    paddingVertical: 20,
-    width: 20,
+    paddingVertical: 30,
+    width: 30,
     marginTop: 20,
-    marginLeft: 10,
+    marginLeft: 20,
   },
   backText: {
     fontSize: 24,
@@ -135,12 +140,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: 30,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 50,
   },
   button: {
     backgroundColor: 'black',
