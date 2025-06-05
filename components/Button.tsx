@@ -21,12 +21,15 @@ export default Button;
 const styles = StyleSheet.create({
   button: {
     backgroundColor: "black",
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    flex: 1,
+    alignItems: "center",
+    marginHorizontal: 5,
   },
   textButton: {
-    color: "white",
+    color: "#fff",
     fontSize: 16,
-    textAlign: "center",
   },
 });

@@ -4,22 +4,23 @@ import { launchImageLibrary } from "react-native-image-picker";
 
 type ImagePickerInputProps = {
   onImageSelected: (uri: string) => void;
+  onClear: () => void;
+  imageUri?: string | null;
 };
 
 const InputPhoto = ({ onImageSelected }: ImagePickerInputProps) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
 
   const pickImage = () => {
-    launchImageLibrary({ mediaType: "photo" }),
-      (response: any) => {
-        if (!response.didCancel && !response.errorCode) {
-          const uri = response.assets?.[0].uri;
-          if (uri) {
-            setImageUri(uri);
-            onImageSelected(uri);
-          }
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.assets && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        if (uri) {
+          setImageUri(uri);
+          onImageSelected(uri);
         }
-      };
+      }
+    });
   };
 
   return (
@@ -27,14 +28,9 @@ const InputPhoto = ({ onImageSelected }: ImagePickerInputProps) => {
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} />
       ) : (
-        <View style={styles.placeholder}>
-          <TouchableOpacity
-            style={styles.buttonPlaceholder}
-            onPress={pickImage}
-          >
-            <Text style={styles.textButton}>Selecionar Imagem</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.placeholder} onPress={pickImage}>
+          <Text style={styles.textButton}>Selecionar Imagem</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -47,37 +43,31 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 10,
-    marginBottom: 16,
   },
   container: {
+    backgroundColor: "#C9C9C9",
+    borderWidth: 1,
+    borderColor: "black",
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 10,
+    width: "100%",
+    justifyContent: "center",
     alignItems: "center",
   },
   placeholder: {
-    width: "100%",
-    height: 100,
-    backgroundColor: "#C9C9C9",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    borderColor: "black",
-    borderWidth: 1,
-  },
-  buttonPlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     width: "80%",
-    height: "80%",
-    backgroundColor: "skyblue",
-    borderRadius: 20,
+    height: 100,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
     borderStyle: "dashed",
-    borderColor: "black",
     borderWidth: 1,
+    borderColor: "black",
   },
   textButton: {
-    color: "white",
-    fontSize: 24,
-    fontFamily: "lato",
-    textAlign: "center",
+    color: "black",
+    fontSize: 14,
   },
 });
