@@ -1,22 +1,46 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import  supplier  from '@/types/supplier';
+import { router, useFocusEffect } from 'expo-router';
 
-const suppliers = [
-    {id:'1', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'2', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'3', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'4', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'}
-]
+const STORAGE_KEY = '@suppliers_list';
 
-export default function listSuppliers(){
+export default function ListSuppliers() {
+  const [suppliers, setSuppliers] = useState<supplier[]>([]);
 
-    return (
-     <SafeAreaView style={styles.container}>
+  useFocusEffect(
+    useCallback(() => {
+      loadSuppliers();
+    }, [])
+  );
+
+  const loadSuppliers = async () => {
+    try {
+      const data = await AsyncStorage.getItem(STORAGE_KEY);
+      setSuppliers(data ? JSON.parse(data) : []);
+    } catch (error) {
+      console.error('Erro ao carregar fornecedores:', error);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Fornecedores</Text>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => router.push('/(tabs)/FornecedorForm')}
+        >
           <Text style={styles.addText}>ADICIONAR</Text>
         </TouchableOpacity>
       </View>
@@ -29,30 +53,29 @@ export default function listSuppliers(){
         </TouchableOpacity>
       </View>
 
-
       <FlatList
         data={suppliers}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <View>
-              <Text style={styles.productTitle}>{item.fornecedor}</Text>
-              <Text style={styles.productInfo}>{item.contato}</Text>
-              <Text style={styles.productInfo}>{item.cnpj}</Text>
-            </View>
+            <Text style={styles.cardTitle}>{item.name}</Text>
+            <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
+            {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
+            {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
+            {item.additionalInformation && <Text style={styles.cardInfo}>Informações adicionais: {item.additionalInformation}</Text>}
           </View>
         )}
-        contentContainerStyle={styles.productList}
+        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
       />
     </SafeAreaView>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 24,
     backgroundColor: '#fff',
   },
   header: {
@@ -62,25 +85,28 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#000',
     paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    borderRadius: 8,
   },
   addText: {
+    fontSize: 10,
     fontWeight: 'bold',
-    fontSize: 12,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     marginBottom: 16,
   },
   searchIcon: {
@@ -88,49 +114,32 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    height: 40,
+    fontSize: 14,
+    color: '#333',
   },
   menuIcon: {
     marginLeft: 8,
   },
-  productList: {
-    paddingBottom: 16,
-  },
   card: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     backgroundColor: '#e0e0e0',
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 12,
     marginBottom: 12,
-  },
-  productTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  productInfo: {
-    color: '#555',
-    fontSize: 13,
-  },
-  quantityText: {
-    textAlign: 'right',
-    fontSize: 13,
-    color: '#555',
-    marginBottom: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  footerButton: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 12,
     borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 6,
-    marginHorizontal: 4,
-    backgroundColor: '#e0e0e0'
+    borderColor: '#999',
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  cardInfo: {
+    fontSize: 12,
+    color: '#444',
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#999',
   },
 });
