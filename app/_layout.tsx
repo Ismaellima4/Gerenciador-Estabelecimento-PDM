@@ -8,7 +8,7 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <Slot /> 
+        <Slot />
       </PersistGate>
     </Provider>
   );
