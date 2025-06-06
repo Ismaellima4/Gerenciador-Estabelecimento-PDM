@@ -1,37 +1,18 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 import {
+  SafeAreaView,
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   FlatList,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import  supplier  from '@/types/supplier';
-import { router, useFocusEffect } from 'expo-router';
-
-const STORAGE_KEY = '@suppliers_list';
+import { router } from 'expo-router';
 
 export default function ListSuppliers() {
-  const [suppliers, setSuppliers] = useState<supplier[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadSuppliers();
-    }, [])
-  );
-
-  const loadSuppliers = async () => {
-    try {
-      const data = await AsyncStorage.getItem(STORAGE_KEY);
-      setSuppliers(data ? JSON.parse(data) : []);
-    } catch (error) {
-      console.error('Erro ao carregar fornecedores:', error);
-    }
-  };
+  const suppliers = useSelector((state: RootState) => state.supplier.list);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,14 +26,6 @@ export default function ListSuppliers() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput style={styles.searchInput} placeholder="Buscar" placeholderTextColor="#888" />
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={20} color="#888" style={styles.menuIcon} />
-        </TouchableOpacity>
-      </View>
-
       <FlatList
         data={suppliers}
         keyExtractor={(item, index) => `${item.name}-${index}`}
@@ -62,7 +35,11 @@ export default function ListSuppliers() {
             <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
             {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
             {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
-            {item.additionalInformation && <Text style={styles.cardInfo}>Informações adicionais: {item.additionalInformation}</Text>}
+            {item.additionalInformation && (
+              <Text style={styles.cardInfo}>
+                Informações adicionais: {item.additionalInformation}
+              </Text>
+            )}
           </View>
         )}
         ListEmptyComponent={<Text style={styles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
@@ -72,74 +49,13 @@ export default function ListSuppliers() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  addButton: {
-    borderWidth: 1,
-    borderColor: '#000',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  addText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginBottom: 16,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
-  },
-  menuIcon: {
-    marginLeft: 8,
-  },
-  card: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#999',
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  cardInfo: {
-    fontSize: 12,
-    color: '#444',
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 20,
-    color: '#999',
-  },
+  container: { flex: 1, paddingHorizontal: 16, paddingTop: 24, backgroundColor: '#fff' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: 'bold' },
+  addButton: { borderWidth: 1, borderColor: '#000', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
+  addText: { fontSize: 12, fontWeight: 'bold' },
+  card: { backgroundColor: '#e0e0e0', borderRadius: 10, padding: 12, marginBottom: 12 },
+  cardTitle: { fontWeight: 'bold', fontSize: 14, marginBottom: 4 },
+  cardInfo: { fontSize: 12, color: '#444' },
+  emptyText: { textAlign: 'center', marginTop: 20, color: '#999' },
 });
