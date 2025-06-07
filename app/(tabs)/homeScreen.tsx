@@ -10,12 +10,12 @@ const produtos = [
   { id: '4', nome: 'Nome do produto', categoria: 'categoria' },
 ];
 
-export default function ProdutosScreen() {
+export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Produtos</Text>
-        <Link href='/supplierRegistration'>
+        <Link href='/productsRegisterScreen' asChild>
           <TouchableOpacity style={styles.addButton}>
             <Text style={styles.addText}>ADICIONAR</Text>
           </TouchableOpacity>

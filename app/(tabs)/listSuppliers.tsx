@@ -1,15 +1,15 @@
+import { Link } from 'expo-router';
 import React from 'react';
+import {
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import {
-  SafeAreaView,
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import { Link, router } from 'expo-router';
 
 export default function ListSuppliers() {
   const suppliers = useSelector((state: RootState) => state.supplier.list);
@@ -18,12 +18,11 @@ export default function ListSuppliers() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Fornecedores</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push('/FornecedorForm')}
-        >
+        <Link href='/supplierRegister' asChild>
+        <TouchableOpacity style={styles.addButton}>
           <Text style={styles.addText}>ADICIONAR</Text>
         </TouchableOpacity>
+        </Link>
       </View>
 
       <FlatList
