@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 export default function ListSuppliers() {
   const suppliers = useSelector((state: RootState) => state.supplier.list);
@@ -20,7 +20,7 @@ export default function ListSuppliers() {
         <Text style={styles.title}>Fornecedores</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('/(tabs)/FornecedorForm')}
+          onPress={() => router.push('/FornecedorForm')}
         >
           <Text style={styles.addText}>ADICIONAR</Text>
         </TouchableOpacity>
@@ -30,17 +30,21 @@ export default function ListSuppliers() {
         data={suppliers}
         keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.name}</Text>
-            <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
-            {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
-            {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
-            {item.additionalInformation && (
-              <Text style={styles.cardInfo}>
-                Informações adicionais: {item.additionalInformation}
-              </Text>
-            )}
-          </View>
+          <Link href="/suppliersDetails" asChild>
+              <TouchableOpacity>
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
+                {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
+                {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
+                {item.additionalInformation && (
+                  <Text style={styles.cardInfo}>
+                    Informações adicionais: {item.additionalInformation}
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          </Link>
         )}
         ListEmptyComponent={<Text style={styles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
       />

@@ -24,7 +24,6 @@ export default function SuppliersDetails() {
 
   const handleEditSave = () => {
     setIsEditing(!isEditing);
-    // Se o modo de edição for desativado (salvando), você pode adicionar lógica para salvar os dados aqui
     if (isEditing) {
       console.log('Dados salvos:', { name, cnpj, phone, address, email, description });
       // Aqui você faria uma chamada à API para salvar os dados no backend

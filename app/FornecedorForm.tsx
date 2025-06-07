@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { addSupplier } from '../../store/supplierSlice';
+import { addSupplier } from '../store/supplierSlice';
 import { router } from 'expo-router';
 import type Supplier from '@/types/supplier';
 
