@@ -1,110 +1,188 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // For the profile picture placeholder icon
+import React, { useState } from 'react';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-// Import the new component
-import InfoDisplayBox from '@/components/InfoDisPlayBox'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SuppliersDetails() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState('João Silva');
+  const [cnpj, setCnpj] = useState('00.000.000/0000-00');
+  const [phone, setPhone] = useState('(11) 99999-9999');
+  const [address, setAddress] = useState('Endereço');
+  const [email, setEmail] = useState('joao@exemplo.com');
+  const [description, setDescription] = useState(
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been'
+  );
+
+  const handleEditSave = () => {
+    setIsEditing(!isEditing);
+    // Se o modo de edição for desativado (salvando), você pode adicionar lógica para salvar os dados aqui
+    if (isEditing) {
+      console.log('Dados salvos:', { name, cnpj, phone, address, email, description });
+      // Aqui você faria uma chamada à API para salvar os dados no backend
+    }
+  };
+
+  const handleDelete = () => {
+    // Lógica para deletar o perfil
+    console.log('Deletar perfil');
+    // Aqui você faria uma chamada à API para deletar o perfil
+    alert('Funcionalidade de deletar implementada.');
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.profilePictureContainer}>
-          <View style={styles.profilePicturePlaceholder}>
-            <MaterialCommunityIcons name="image" size={60} color="black" />
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.profileImageContainer}>
+          <Image
+            source={require('../assets/images/icon.png')}
+            style={styles.profileImage}
+          />
         </View>
 
-        {/* Using the reusable InfoDisplayBox component */}
-        <InfoDisplayBox text="Nome do fornecedor" />
-        <InfoDisplayBox text="CPF/CPNJ" />
-        <InfoDisplayBox text="(00) 00000-0000" />
-        <InfoDisplayBox text="Endereço" />
-        <InfoDisplayBox text="email@seudominio.com" />
+        {/* Inputs de texto */}
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          editable={isEditing}
+          placeholder="Nome"
+        />
+        <TextInput
+          style={styles.input}
+          value={cnpj}
+          onChangeText={setCnpj}
+          editable={isEditing}
+          placeholder="CNPJ"
+          keyboardType="numeric"
+        />
+        <TextInput
+          style={styles.input}
+          value={phone}
+          onChangeText={setPhone}
+          editable={isEditing}
+          placeholder="Telefone"
+          keyboardType="phone-pad"
+        />
+        <TextInput
+          style={styles.input}
+          value={address}
+          onChangeText={setAddress}
+          editable={isEditing}
+          placeholder="Endereço"
+        />
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          editable={isEditing}
+          placeholder="Email"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={[styles.input, styles.descriptionInput]}
+          value={description}
+          onChangeText={setDescription}
+          editable={isEditing}
+          placeholder="Descrição"
+          multiline
+        />
 
-        <View style={styles.descriptionBox}>
-          <Text style={styles.descriptionText}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
-          </Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleEditSave}>
+            <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
+          </TouchableOpacity>
+
+          {!isEditing && ( // O botão "Deletar" só aparece quando não está editando
+            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDelete}>
+              <Text style={styles.buttonText}>DELETAR</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
-        <TouchableOpacity style={styles.editButton}>
-          <Text style={styles.editButtonText}>Editar</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Light gray background
+    backgroundColor: '#f0f0f0',
   },
-  header: {
-    flexDirection: 'row',
+  container: {
+    flexGrow: 1, 
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    position: 'relative',
+    paddingVertical: 20, 
   },
-  backButton: {
-    padding: 10,
-  },
-  statusDot: {
-    position: 'absolute',
-    top: 20,
-    left: '50%',
-    transform: [{ translateX: -5 }],
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'black',
-  },
-  scrollViewContent: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  profilePictureContainer: {
-    marginBottom: 30,
-  },
-  profilePicturePlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  profileImageContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#d3d3d3',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 30,
     overflow: 'hidden',
   },
-  descriptionBox: {
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  placeholderIconContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 60,
+    color: '#888',
+  },
+  input: {
     width: '85%',
     backgroundColor: '#e0e0e0',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
     borderRadius: 10,
-    marginBottom: 30,
-    minHeight: 120,
-    justifyContent: 'flex-start',
-  },
-  descriptionText: {
-    fontSize: 14,
-    lineHeight: 20,
+    padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
     color: '#333',
   },
-  editButton: {
-    backgroundColor: 'black',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 10,
-    alignSelf: 'flex-end',
-    marginRight: '7.5%',
+  descriptionInput: {
+    height: 120,
+    textAlignVertical: 'top',
+    paddingTop: 15, 
   },
-  editButtonText: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center', 
+    marginTop: 20,
+    width: '85%',
+  },
+  button: {
+    backgroundColor: 'black',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginHorizontal: 7.5, 
+    width: '45%',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    // Estilos específicos para o botão de deletar, se necessário
+    // backgroundColor: '#dc3545', // Exemplo de cor de perigo
+  },
+  buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
