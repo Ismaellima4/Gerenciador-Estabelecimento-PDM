@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { launchImageLibrary } from "react-native-image-picker";
+import * as ImagePicker from 'expo-image-picker';
 
 type ImagePickerInputProps = {
   onImageSelected: (uri: string) => void;
@@ -9,24 +9,25 @@ type ImagePickerInputProps = {
 };
 
 const InputPhoto = ({ onImageSelected }: ImagePickerInputProps) => {
-  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
-  const pickImage = () => {
-    launchImageLibrary({ mediaType: "photo" }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        if (uri) {
-          setImageUri(uri);
-          onImageSelected(uri);
-        }
-      }
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
+
+     if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
   };
 
   return (
     <View style={styles.container}>
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.image} />
+      {image ? (
+        <Image source={{ uri: image }} style={styles.image} />
       ) : (
         <TouchableOpacity style={styles.placeholder} onPress={pickImage}>
           <Text style={styles.textButton}>Selecionar Imagem</Text>
