@@ -106,10 +106,6 @@ function ProductsRegisterScreen() {
     });
   };
 
-  const handleVoltar = () => {
-    // Aqui você pode implementar a lógica para voltar à tela anterior
-  };
-
   return (
     <ScrollView style={styles.container}>
       <View>
