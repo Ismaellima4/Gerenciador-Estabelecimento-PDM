@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProductDetailScreen() {
@@ -27,12 +28,16 @@ export default function ProductDetailScreen() {
           </View>
         </View>
 
-        <View style={styles.supplierContainer}>
-          <View style={styles.supplierInitialCircle}>
-            <Text style={styles.supplierInitial}>F</Text>
-          </View>
-          <Text style={styles.supplierName}>Nome do fornecedor</Text>
-        </View>
+        <Link href='/suppliersDetails' asChild>
+          <TouchableOpacity>
+            <View style={styles.supplierContainer}>
+              <View style={styles.supplierInitialCircle}>
+                <Text style={styles.supplierInitial}>F</Text>
+              </View>
+              <Text style={styles.supplierName}>Nome do fornecedor</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
 
         <View style={styles.barcodePlaceholder}>
           <Text style={styles.barcodeText}>[ BARCODE ]</Text>

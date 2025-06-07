@@ -15,9 +15,11 @@ export default function ProdutosScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Produtos</Text>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addText}>ADICIONAR</Text>
-        </TouchableOpacity>
+        <Link href='/supplierRegistration'>
+          <TouchableOpacity style={styles.addButton}>
+            <Text style={styles.addText}>ADICIONAR</Text>
+          </TouchableOpacity>
+        </Link>
       </View>
 
       <View style={styles.bannerSection}>
