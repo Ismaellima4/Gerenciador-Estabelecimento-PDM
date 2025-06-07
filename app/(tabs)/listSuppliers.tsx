@@ -1,141 +1,61 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import { router } from 'expo-router';
 
-const suppliers = [
-    {id:'1', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'2', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'3', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'},
-    {id:'4', fornecedor:'Nome Fornecedor', contato:'Contato', cnpj:'CNPJ'}
-]
+export default function ListSuppliers() {
+  const suppliers = useSelector((state: RootState) => state.supplier.list);
 
-export default function listSuppliers(){
-
-    return (
-     <SafeAreaView style={styles.container}>
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Fornecedores</Text>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => router.push('/(tabs)/FornecedorForm')}
+        >
           <Text style={styles.addText}>ADICIONAR</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput style={styles.searchInput} placeholder="Buscar" placeholderTextColor="#888" />
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={20} color="#888" style={styles.menuIcon} />
-        </TouchableOpacity>
-      </View>
-
-
       <FlatList
         data={suppliers}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={({ item }) => (
-          <Link href="/suppliersDetails" asChild>
-            <TouchableOpacity>
-                <View style={styles.card}>
-                  <View>
-                    <Text style={styles.productTitle}>{item.fornecedor}</Text>
-                    <Text style={styles.productInfo}>{item.contato}</Text>
-                    <Text style={styles.productInfo}>{item.cnpj}</Text>
-                  </View>
-                </View>
-            </TouchableOpacity>
-          </Link>
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>{item.name}</Text>
+            <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
+            {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
+            {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
+            {item.additionalInformation && (
+              <Text style={styles.cardInfo}>
+                Informações adicionais: {item.additionalInformation}
+              </Text>
+            )}
+          </View>
         )}
-        contentContainerStyle={styles.productList}
+        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
       />
     </SafeAreaView>
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  addButton: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  addText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-  },
-  menuIcon: {
-    marginLeft: 8,
-  },
-  productList: {
-    paddingBottom: 16,
-  },
-  card: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-  },
-  productTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  productInfo: {
-    color: '#555',
-    fontSize: 13,
-  },
-  quantityText: {
-    textAlign: 'right',
-    fontSize: 13,
-    color: '#555',
-    marginBottom: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  footerButton: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 6,
-    marginHorizontal: 4,
-    backgroundColor: '#e0e0e0'
-  },
+  container: { flex: 1, paddingHorizontal: 16, paddingTop: 24, backgroundColor: '#fff' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, alignItems: 'center' },
+  title: { fontSize: 20, fontWeight: 'bold' },
+  addButton: { borderWidth: 1, borderColor: '#000', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
+  addText: { fontSize: 12, fontWeight: 'bold' },
+  card: { backgroundColor: '#e0e0e0', borderRadius: 10, padding: 12, marginBottom: 12 },
+  cardTitle: { fontWeight: 'bold', fontSize: 14, marginBottom: 4 },
+  cardInfo: { fontSize: 12, color: '#444' },
+  emptyText: { textAlign: 'center', marginTop: 20, color: '#999' },
 });

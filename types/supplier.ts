@@ -1,6 +1,5 @@
 type Supplier = {
     name: string;
-    cpf?: string;
     cnpj?: string;
     phoneNumber: string;
     email?: string;
