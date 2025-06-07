@@ -1,3 +1,4 @@
+import { useLocalSearchParams } from 'expo-router/build/hooks';
 import React, { useState } from 'react';
 import {
   Image,
@@ -12,15 +13,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SuppliersDetails() {
+
+  const supplierParams = useLocalSearchParams();
+
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('João Silva');
-  const [cnpj, setCnpj] = useState('00.000.000/0000-00');
-  const [phone, setPhone] = useState('(11) 99999-9999');
-  const [address, setAddress] = useState('Endereço');
-  const [email, setEmail] = useState('joao@exemplo.com');
-  const [description, setDescription] = useState(
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been'
-  );
+  const [name, setName] = useState(String(supplierParams.name));
+  const [cnpj, setCnpj] = useState(String(supplierParams.cnpj));
+  const [phone, setPhone] = useState(String(supplierParams.phoneNumber));
+  const [address, setAddress] = useState(String(supplierParams.address));
+  const [email, setEmail] = useState(String(supplierParams.email));
+  const [description, setDescription] = useState(String(supplierParams.additionalInformation));
 
   const handleEditSave = () => {
     setIsEditing(!isEditing);

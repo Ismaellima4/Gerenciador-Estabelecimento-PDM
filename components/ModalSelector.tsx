@@ -38,12 +38,12 @@ export default function ModalSelector({
   selectText, // Destructure new prop
   addInputLabel, // Destructure new prop
 }: ModalSelectorProps) {
-  const [newItem, setNewItem] = useState('');
+  const [name, setName] = useState('');
 
   const handleAddItem = () => {
-    if (newItem.trim()) {
-      onAddSubmit?.(newItem.trim());
-      setNewItem('');
+    if (name.trim()) {
+      onAddSubmit?.(name.trim());
+      setName('');
     }
   };
 
@@ -85,8 +85,8 @@ export default function ModalSelector({
                   style={styles.addInput}
                   placeholder={placeholder || "Adicionar novo item"}
                   placeholderTextColor="#999"
-                  value={newItem}
-                  onChangeText={setNewItem}
+                  value={name}
+                  onChangeText={setName}
                 />
                 <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
                   <AntDesign name="plus" size={20} color="#fff" />

@@ -1,7 +1,8 @@
+import { Search } from '@/components/Search';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const produtos = [
   { id: '1', nome: 'Nome do produto', categoria: 'categoria' },
@@ -27,11 +28,7 @@ export default function HomeScreen() {
         <View style={styles.sideBanner} />
       </View>
 
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-        <TextInput style={styles.searchInput} placeholder="Buscar" placeholderTextColor="#888" />
-        <Ionicons name="ellipsis-vertical" size={20} color="#888" style={styles.menuIcon} />
-      </View>
+      <Search />
 
       <FlatList
         data={produtos}
@@ -101,24 +98,6 @@ const styles = StyleSheet.create({
     width: 60,
     backgroundColor: '#ddd',
     borderRadius: 30,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-  },
-  menuIcon: {
-    marginLeft: 8,
   },
   productList: {
     paddingBottom: 16,

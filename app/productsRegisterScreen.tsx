@@ -1,10 +1,12 @@
 import FormActionButtons from '@/components/FormActionButton';
 import ModalSelector from '@/components/ModalSelector';
+import { addCategory } from '@/store/categorySlice';
+import { RootState } from '@/store/store';
+import Category from '@/types/category';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Image,
@@ -16,38 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Dummy screen for adding new items - you would replace this with your actual screens
-const getSuppliersFromStorage = async () => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([
-        'Fornecedor A', 'Fornecedor B', 'Fornecedor C', 'Fornecedor D',
-        'Fornecedor E', 'Fornecedor F', 'Fornecedor G', 'Fornecedor H',
-        'Fornecedor I', 'Fornecedor J', 'Fornecedor K', 'Fornecedor L',
-        'Fornecedor M', 'Fornecedor N', 'Fornecedor O', 'Fornecedor P',
-        'Fornecedor Q', 'Fornecedor R', 'Fornecedor S', 'Fornecedor T',
-        'Novo Fornecedor Adicionado 1',
-        'Novo Fornecedor Adicionado 2',
-      ]);
-    }, 100);
-  });
-};
-
-const getCategoriesFromStorage = async () => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([
-        'Eletrônicos', 'Roupas', 'Alimentos', 'Livros', 'Decoração',
-        'Ferramentas', 'Brinquedos', 'Esportes', 'Saúde e Beleza',
-        'Automotivo', 'Pet Shop', 'Jardim', 'Móveis', 'Utensílios Domésticos',
-        'Informática', 'Construção', 'Artesanato', 'Música', 'Filmes', 'Jogos',
-        'Nova Categoria Adicionada 1',
-        'Nova Categoria Adicionada 2',
-      ]);
-    }, 100);
-  });
-};
+import { useDispatch, useSelector } from 'react-redux';
 
 
 export default function ProductFormScreen() {
@@ -61,24 +32,13 @@ export default function ProductFormScreen() {
   const [expirationDate, setExpirationDate] = useState('');
   const [barcode, setBarcode] = useState('');
 
+   const dispatch = useDispatch();
+
   const [isSupplierModalVisible, setSupplierModalVisible] = useState(false);
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
 
-  const [suppliers, setSuppliers] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      const loadData = async () => {
-        const loadedSuppliers = await getSuppliersFromStorage() as string[];
-        const loadedCategories = await getCategoriesFromStorage() as string[];
-        setSuppliers(loadedSuppliers);
-        setCategories(loadedCategories);
-      };
-
-      loadData();
-    }, [])
-  );
+  const suppliers = useSelector((state: RootState) => state.supplier.list)
+  const categories = useSelector((state: RootState) => state.category.list)
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -103,15 +63,6 @@ export default function ProductFormScreen() {
   };
 
   const handleSave = () => {
-    console.log('Product Name:', productName);
-    console.log('Description:', description);
-    console.log('Selected Image URI:', selectedImageUri);
-    console.log('Supplier:', supplier);
-    console.log('Price:', price);
-    console.log('Category:', category);
-    console.log('Quantity:', quantity);
-    console.log('Expiration Date:', expirationDate);
-    console.log('Barcode:', barcode);
     Alert.alert('Formulário Salvo', 'Os dados do produto foram registrados!');
   };
 
@@ -144,17 +95,18 @@ export default function ProductFormScreen() {
   };
 
   const handleAddCategorySubmit = (newCategory: string) => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setCategory(newCategory);
+    const category: Category = {
+        name: newCategory,
     }
+    dispatch(addCategory(category))
+    handleSelectCategory(newCategory)
     setCategoryModalVisible(false);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* Product Name */}
+
         <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
         <TextInput
           style={styles.input}
@@ -164,7 +116,7 @@ export default function ProductFormScreen() {
           onChangeText={setProductName}
         />
 
-        {/* Description */}
+
         <Text style={styles.label}>Descrição</Text>
         <TextInput
           style={styles.textArea}
@@ -174,7 +126,7 @@ export default function ProductFormScreen() {
           onChangeText={setDescription}
         />
 
-        {/* Add Images */}
+
         <Text style={styles.label}>Add. Imagens</Text>
         <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
           {selectedImageUri ? (
@@ -184,7 +136,7 @@ export default function ProductFormScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Fornecedor (Supplier) */}
+
         <Text style={styles.label}>Fornecedor</Text>
         <TouchableOpacity style={styles.dropdown} onPress={() => setSupplierModalVisible(true)}>
           <TextInput
@@ -197,7 +149,7 @@ export default function ProductFormScreen() {
           <AntDesign name="caretdown" size={14} color="#666" />
         </TouchableOpacity>
 
-        {/* Price and Category */}
+
         <View style={styles.row}>
           <View style={styles.column}>
             <Text style={styles.label}>Preço</Text>
@@ -227,7 +179,7 @@ export default function ProductFormScreen() {
           </View>
         </View>
 
-        {/* Qtd. em Estoque (Quantity in Stock) and Data de Validade (Expiration Date) */}
+
         <View style={styles.row}>
           <View style={styles.column}>
             <Text style={styles.label}>Qtd. em Estoque</Text>
@@ -266,29 +218,27 @@ export default function ProductFormScreen() {
         <FormActionButtons onSave={handleSave} onCancel={handleCancel} />
       </ScrollView>
 
-      {/* Supplier Modal (Navigation button, all black buttons) */}
       <ModalSelector
         visible={isSupplierModalVisible}
         onClose={() => setSupplierModalVisible(false)}
-        options={suppliers}
+        options={suppliers.map(supplier => supplier.name)}
         onSelect={handleSelectSupplier}
         title="Selecione um Fornecedor"
         showAddInput={false}
         onAddPress={handleAddSupplierPress}
       />
 
-      {/* Category Modal (In-modal input, labels, all black buttons) */}
       <ModalSelector
         visible={isCategoryModalVisible}
         onClose={() => setCategoryModalVisible(false)}
-        options={categories}
+        options={categories.map(category => category.name)}
         onSelect={handleSelectCategory}
-        title="Gerenciar Categorias" // Changed title for clarity
+        title="Gerenciar Categorias" 
         showAddInput={true}
         onAddSubmit={handleAddCategorySubmit}
         placeholder="Nome da nova categoria"
-        selectText="Selecione uma categoria:" // New label for selection list
-        addInputLabel="Adicione uma nova categoria:" // New label for add input
+        selectText="Selecione uma categoria:" 
+        addInputLabel="Adicione uma nova categoria:"
       />
     </SafeAreaView>
   );

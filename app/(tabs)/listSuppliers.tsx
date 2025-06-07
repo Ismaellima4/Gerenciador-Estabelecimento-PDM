@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { Search } from '@/components/Search';
 
 export default function ListSuppliers() {
   const suppliers = useSelector((state: RootState) => state.supplier.list);
@@ -25,11 +26,22 @@ export default function ListSuppliers() {
         </Link>
       </View>
 
+      <Search />
+
       <FlatList
         data={suppliers}
         keyExtractor={(item, index) => `${item.name}-${index}`}
         renderItem={({ item }) => (
-          <Link href="/suppliersDetails" asChild>
+          <Link href={{
+            pathname: '/suppliersDetails',
+            params: {
+              name: item.name,
+              phoneNumber: item.phoneNumber,
+              cnpj: item.cnpj,
+              email: item.email,
+              additionalInformation: item.additionalInformation
+            }
+          }} asChild>
               <TouchableOpacity>
               <View style={styles.card}>
                 <Text style={styles.cardTitle}>{item.name}</Text>
@@ -52,13 +64,50 @@ export default function ListSuppliers() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, paddingTop: 24, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, alignItems: 'center' },
-  title: { fontSize: 20, fontWeight: 'bold' },
-  addButton: { borderWidth: 1, borderColor: '#000', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 },
-  addText: { fontSize: 12, fontWeight: 'bold' },
-  card: { backgroundColor: '#e0e0e0', borderRadius: 10, padding: 12, marginBottom: 12 },
-  cardTitle: { fontWeight: 'bold', fontSize: 14, marginBottom: 4 },
-  cardInfo: { fontSize: 12, color: '#444' },
-  emptyText: { textAlign: 'center', marginTop: 20, color: '#999' },
+  container: { flex: 1, 
+    paddingHorizontal: 16, 
+    paddingTop: 24, 
+    backgroundColor: '#fff' 
+  },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 16, 
+    alignItems: 'center' 
+  },
+  title: { 
+    fontSize: 20, 
+    fontWeight: 'bold' 
+  },
+  addButton: { 
+    borderWidth: 1, 
+    borderColor: '#000', 
+    paddingVertical: 6, 
+    paddingHorizontal: 12, 
+    borderRadius: 8 
+  },
+  addText: { 
+    fontSize: 12, 
+    fontWeight: 'bold' 
+  },
+  card: { 
+    backgroundColor: '#e0e0e0', 
+    borderRadius: 10, 
+    padding: 12, 
+    marginBottom: 12 
+  },
+  cardTitle: { 
+    fontWeight: 'bold', 
+    fontSize: 14, 
+    marginBottom: 4 
+  },
+  cardInfo: { 
+    fontSize: 12, 
+    color: '#444' 
+  },
+  emptyText: { 
+    textAlign: 'center',
+    marginTop: 20, 
+    color: '#999' 
+  },
 });
