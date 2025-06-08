@@ -79,9 +79,9 @@ export default function ProductDetailScreen() {
           params: {
             name: supplier.name,
             phoneNumber: supplier.phoneNumber,
-            cnpj: supplier.cnpj,
-            email: supplier.email,
-            additionalInformation: supplier.additionalInformation
+            cnpj: supplier.cnpj ?? '',
+            email: supplier.email ?? '',
+            additionalInformation: supplier.additionalInformation ?? ''
           }
         }} asChild>
           <TouchableOpacity>
