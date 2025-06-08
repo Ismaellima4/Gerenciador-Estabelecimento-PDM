@@ -15,16 +15,16 @@ export default function ProductDetailScreen() {
   const dispatch = useDispatch();
   const ProductParams = useLocalSearchParams();
 
-  const [productName, setProductName] = useState(String(ProductParams.productName));
-  const [description, setDescription] = useState(String(ProductParams.description));
-  const [productImage, setProductImage] = useState(String(ProductParams.productImage));
-  const [price, setPrice] = useState(String(ProductParams.price));
-  const [category, setCategory] = useState(String(ProductParams.category));
-  const [amount,setAmount] =  useState(String(ProductParams.amount));
-  const [expirationDate, setExpirationDate] =  useState(String(ProductParams.expirationDate));
-  const [barCode, setBarCode] =  useState(String(ProductParams.barCode));
-  const [manufacturingDate, setManufacturingDate] = useState(String(ProductParams.manufacturingDate));
-  const [supplier, setSupplier] = useState(String(ProductParams.supplier))
+  const [productName] = useState(String(ProductParams.productName));
+  const [description] = useState(String(ProductParams.description));
+  const [productImage] = useState(String(ProductParams.productImage));
+  const [price] = useState(String(ProductParams.price));
+  const [category] = useState(JSON.parse(String(ProductParams.category)));
+  const [amount] =  useState(String(ProductParams.amount));
+  const [expirationDate] =  useState(String(ProductParams.expirationDate));
+  const [barCode] =  useState(String(ProductParams.barCode));
+  const [manufacturingDate] = useState(String(ProductParams.manufacturingDate));
+  const [supplier] = useState(JSON.parse(String(ProductParams.supplier)))
 
 
     const handleDelete = () => {
@@ -50,11 +50,15 @@ export default function ProductDetailScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.imagePlaceholder}>
-            <Image
+          {productImage ? (
+             <Image
               source={{ uri: productImage }}
               style={styles.image}
               resizeMode="contain"
-          />
+            />
+          ) : (
+            <Ionicons name="image-outline" size={50} color="#ccc" />
+          )}
         </View>
 
         <View style={styles.productDetails}>
@@ -65,21 +69,27 @@ export default function ProductDetailScreen() {
           </View>
           <Text style={styles.description}>{description}</Text>
           <View style={styles.categoryRow}>
-            <TouchableOpacity style={styles.categoryDropdown}>
-              <Ionicons name="chevron-down" size={20} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.categoryText}>{JSON.parse(category).name}</Text>
+            <Text style={styles.categoryText}>{category.name}</Text>
             <Text style={styles.price}>R$ {price}</Text>
           </View>
         </View>
 
-        <Link href='/suppliersDetails' asChild>
+        <Link href={{
+          pathname: '/suppliersDetails',
+          params: {
+            name: supplier.name,
+            phoneNumber: supplier.phoneNumber,
+            cnpj: supplier.cnpj,
+            email: supplier.email,
+            additionalInformation: supplier.additionalInformation
+          }
+        }} asChild>
           <TouchableOpacity>
             <View style={styles.supplierContainer}>
               <View style={styles.supplierInitialCircle}>
                 <Text style={styles.supplierInitial}>F</Text>
               </View>
-              <Text style={styles.supplierName}>{JSON.parse(supplier).name}</Text>
+              <Text style={styles.supplierName}>{supplier.name}</Text>
             </View>
           </TouchableOpacity>
         </Link>
