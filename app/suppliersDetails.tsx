@@ -117,7 +117,7 @@ export default function SuppliersDetails() {
           </TouchableOpacity>
 
           {!isEditing && ( 
-            <TouchableOpacity  onPress={handleDelete}>
+            <TouchableOpacity style={styles.button} onPress={handleDelete}>
               <Text style={styles.buttonText}>DELETAR</Text>
             </TouchableOpacity>
           )}
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', 
+    justifyContent: 'space-between', 
     marginTop: 20,
     width: '85%',
   },
@@ -187,13 +187,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
-    marginHorizontal: 7.5, 
+    marginHorizontal: 7.5,
     width: '45%',
     alignItems: 'center',
-  },
-   deleteButton: {
-    // Estilos específicos para o botão de deletar, se necessário
-    // backgroundColor: '#dc3545', // Exemplo de cor de perigo
   },
   buttonText: {
     color: 'white',

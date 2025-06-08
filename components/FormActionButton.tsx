@@ -12,8 +12,8 @@ interface FormActionButtonsProps {
 const FormActionButtons: React.FC<FormActionButtonsProps> = ({
   onSave,
   onCancel,
-  saveText = 'Salvar', // Valor padrão
-  cancelText = 'Cancelar', // Valor padrão
+  saveText = 'Salvar', 
+  cancelText = 'Cancelar', 
 }) => {
   return (
     <View style={styles.buttonContainer}>

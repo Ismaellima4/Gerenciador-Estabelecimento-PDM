@@ -39,7 +39,6 @@ export default function ProductFormScreen() {
 
 
   const saveProduct = () => {
-    // Validação mínima
     if (!productName || !supplier || !category || !price || !quantity) {
       Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
       return;
@@ -101,10 +100,6 @@ export default function ProductFormScreen() {
     }
   };
 
-  const handleSave = () => {
-    Alert.alert('Formulário Salvo', 'Os dados do produto foram registrados!');
-  };
-
   const handleCancel = () => {
     Alert.alert('Ação Cancelada', 'O formulário foi cancelado.');
     setProductName('');
@@ -141,8 +136,6 @@ export default function ProductFormScreen() {
     handleSelectCategory(newCategory)
     setCategoryModalVisible(false);
   };
-
-
 
 
   return (
