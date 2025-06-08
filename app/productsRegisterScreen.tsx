@@ -7,6 +7,7 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { addProduct } from '@/store/productSlice';
 import {
   Alert,
   Image,
@@ -19,9 +20,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import Product from '@/types/product';
 
 
 export default function ProductFormScreen() {
+
   const [productName, setProductName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
@@ -34,11 +37,47 @@ export default function ProductFormScreen() {
 
    const dispatch = useDispatch();
 
+
+  const saveProduct = () => {
+    // Validação mínima
+    if (!productName || !supplier || !category || !price || !quantity) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    const selectedSupplier = suppliers.find(s => s.name === supplier);
+    const selectedCategory = categories.find(c => c.name === category);
+
+    if (!selectedSupplier || !selectedCategory) {
+      Alert.alert('Erro', 'Fornecedor ou categoria inválidos.');
+      return;
+    }
+
+    const newProduct: Product = {
+      productName,
+      description,
+      productImage: selectedImageUri || undefined,
+      price: parseFloat(price),
+      category: selectedCategory,
+      amount: parseInt(quantity),
+      expirationDate: new Date(expirationDate),
+      barCode: barcode,
+      manufacturingDate: new Date(), 
+      supplier: selectedSupplier,
+    };
+
+    dispatch(addProduct(newProduct));
+    Alert.alert('Sucesso', 'Produto salvo com sucesso!');
+    router.back();
+  };
+
+
   const [isSupplierModalVisible, setSupplierModalVisible] = useState(false);
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
 
   const suppliers = useSelector((state: RootState) => state.supplier.list)
   const categories = useSelector((state: RootState) => state.category.list)
+
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,6 +141,9 @@ export default function ProductFormScreen() {
     handleSelectCategory(newCategory)
     setCategoryModalVisible(false);
   };
+
+
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -214,8 +256,8 @@ export default function ProductFormScreen() {
           />
           <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
         </View>
-
-        <FormActionButtons onSave={handleSave} onCancel={handleCancel} />
+          
+        <FormActionButtons  onSave={saveProduct} onCancel={handleCancel} />
       </ScrollView>
 
       <ModalSelector
