@@ -1,6 +1,10 @@
+import { deleteSupplier, updateSupplier } from '@/store/supplierSlice';
+import Supplier from '@/types/supplier';
+import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import React, { useState } from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -11,32 +15,50 @@ import {
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
 
 export default function SuppliersDetails() {
 
   const supplierParams = useLocalSearchParams();
+  const dispatch = useDispatch();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(String(supplierParams.name));
-  const [cnpj, setCnpj] = useState(String(supplierParams.cnpj));
+  const [nameSupplier, setNameSupplier] = useState(String(supplierParams.name));
+  const [cnpjSupplier, setCnpjSupplier] = useState(String(supplierParams.cnpj));
   const [phone, setPhone] = useState(String(supplierParams.phoneNumber));
-  const [address, setAddress] = useState(String(supplierParams.address));
-  const [email, setEmail] = useState(String(supplierParams.email));
+  const [emailSupplier, setEmailSupplier] = useState(String(supplierParams.email));
   const [description, setDescription] = useState(String(supplierParams.additionalInformation));
+ 
 
-  const handleEditSave = () => {
-    setIsEditing(!isEditing);
+  const handleUpdate = () => {
+    if (!nameSupplier || !phone) {
+      Alert.alert('Erro', 'Nome e telefone são obrigatórios.');
+      return;
+    }
+    const oldCnpj = String(supplierParams.cnpj); 
+
     if (isEditing) {
-      console.log('Dados salvos:', { name, cnpj, phone, address, email, description });
-      // Aqui você faria uma chamada à API para salvar os dados no backend
+      const updatedSupplier: Supplier = {
+        name: nameSupplier,
+        cnpj: cnpjSupplier,
+        phoneNumber: phone,
+        email: emailSupplier,
+        additionalInformation: description,
+      };
+
+      dispatch(updateSupplier({ oldCnpj, supplier: updatedSupplier }));
+      Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
+      router.back();
+    } else {
+      setIsEditing(true);
     }
   };
 
+
   const handleDelete = () => {
-    // Lógica para deletar o perfil
-    console.log('Deletar perfil');
-    // Aqui você faria uma chamada à API para deletar o perfil
-    alert('Funcionalidade de deletar implementada.');
+    dispatch(deleteSupplier(cnpjSupplier));
+    Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
+    router.back(); 
   };
 
   return (
@@ -49,18 +71,17 @@ export default function SuppliersDetails() {
           />
         </View>
 
-        {/* Inputs de texto */}
         <TextInput
           style={styles.input}
-          value={name}
-          onChangeText={setName}
+          value={nameSupplier}
+          onChangeText={setNameSupplier}
           editable={isEditing}
           placeholder="Nome"
         />
         <TextInput
           style={styles.input}
-          value={cnpj}
-          onChangeText={setCnpj}
+          value={cnpjSupplier}
+          onChangeText={setCnpjSupplier}
           editable={isEditing}
           placeholder="CNPJ"
           keyboardType="numeric"
@@ -75,15 +96,8 @@ export default function SuppliersDetails() {
         />
         <TextInput
           style={styles.input}
-          value={address}
-          onChangeText={setAddress}
-          editable={isEditing}
-          placeholder="Endereço"
-        />
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
+          value={emailSupplier}
+          onChangeText={setEmailSupplier}
           editable={isEditing}
           placeholder="Email"
           keyboardType="email-address"
@@ -98,12 +112,12 @@ export default function SuppliersDetails() {
         />
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleEditSave}>
+          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
             <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
           </TouchableOpacity>
 
-          {!isEditing && ( // O botão "Deletar" só aparece quando não está editando
-            <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDelete}>
+          {!isEditing && ( 
+            <TouchableOpacity  onPress={handleDelete}>
               <Text style={styles.buttonText}>DELETAR</Text>
             </TouchableOpacity>
           )}
@@ -177,7 +191,7 @@ const styles = StyleSheet.create({
     width: '45%',
     alignItems: 'center',
   },
-  deleteButton: {
+   deleteButton: {
     // Estilos específicos para o botão de deletar, se necessário
     // backgroundColor: '#dc3545', // Exemplo de cor de perigo
   },

@@ -19,8 +19,19 @@ const supplierSlice = createSlice({
     setSuppliers: (state, action: PayloadAction<Supplier[]>) => {
       state.list = action.payload;
     },
+    deleteSupplier: (state, action: PayloadAction<string>) => {
+      state.list = state.list.filter(supplier => supplier.cnpj !== action.payload);
+    },
+    updateSupplier: (state, action: PayloadAction<{ oldCnpj: string; supplier: Supplier }>) => {
+      const { oldCnpj, supplier } = action.payload;
+      const index = state.list.findIndex(s => s.cnpj === oldCnpj);
+      if (index !== -1) {
+        state.list[index] = supplier;
+      }
+    },
+
   },
 });
 
-export const { addSupplier, setSuppliers } = supplierSlice.actions;
+export const { addSupplier, setSuppliers, deleteSupplier,updateSupplier} = supplierSlice.actions;
 export default supplierSlice.reducer;
