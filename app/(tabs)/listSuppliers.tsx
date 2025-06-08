@@ -77,14 +77,14 @@ const styles = StyleSheet.create({
   },
   title: { 
     fontSize: 20, 
-    fontWeight: 'bold' 
+    fontWeight: 'bold',
+    paddingHorizontal : 10
   },
   addButton: { 
-    borderWidth: 1, 
-    borderColor: '#000', 
-    paddingVertical: 6, 
-    paddingHorizontal: 12, 
-    borderRadius: 8 
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   addText: { 
     fontSize: 12, 
@@ -94,15 +94,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0', 
     borderRadius: 10, 
     padding: 12, 
-    marginBottom: 12 
+    marginBottom: 12, 
+    borderWidth: 1, 
+    borderColor: '#000'
   },
   cardTitle: { 
     fontWeight: 'bold', 
-    fontSize: 14, 
+    fontSize: 20, 
     marginBottom: 4 
   },
   cardInfo: { 
-    fontSize: 12, 
+    fontSize: 14, 
     color: '#444' 
   },
   emptyText: { 
