@@ -5,6 +5,7 @@ import { RootState } from '@/store/store';
 import Category from '@/types/category';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system'; // Importe o FileSystem
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { addProduct } from '@/store/productSlice';
@@ -27,7 +28,7 @@ export default function ProductFormScreen() {
 
   const [productName, setProductName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null); // Armazenará a URI persistente
   const [supplier, setSupplier] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
@@ -35,7 +36,7 @@ export default function ProductFormScreen() {
   const [expirationDate, setExpirationDate] = useState('');
   const [barcode, setBarcode] = useState('');
 
-   const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
 
   const saveProduct = () => {
@@ -55,13 +56,13 @@ export default function ProductFormScreen() {
     const newProduct: Product = {
       productName,
       description,
-      productImage: selectedImageUri || undefined,
+      productImage: selectedImageUri || undefined, // Agora selectedImageUri será a URI persistente
       price: parseFloat(price),
       category: selectedCategory,
       amount: parseInt(quantity),
       expirationDate: new Date(expirationDate),
       barCode: barcode,
-      manufacturingDate: new Date(), 
+      manufacturingDate: new Date(),
       supplier: selectedSupplier,
     };
 
@@ -96,7 +97,32 @@ export default function ProductFormScreen() {
     });
 
     if (!result.canceled) {
-      setSelectedImageUri(result.assets[0].uri);
+      const originalUri = result.assets[0].uri;
+      const fileName = originalUri.split('/').pop();
+      const productImagesDir = `${FileSystem.documentDirectory}product_images/`;
+
+      // Verifica se o diretório existe, se não, cria
+      const dirInfo = await FileSystem.getInfoAsync(productImagesDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(productImagesDir, { intermediates: true });
+      }
+
+      // Define o novo caminho para a imagem persistente
+      const newUri = `${productImagesDir}${fileName}`;
+
+      try {
+        // Copia a imagem original para o novo caminho persistente
+        await FileSystem.copyAsync({
+          from: originalUri,
+          to: newUri,
+        });
+        setSelectedImageUri(newUri); // Salva a URI da imagem copiada
+        console.log('Imagem salva em:', newUri);
+      } catch (error) {
+        console.error('Erro ao copiar imagem:', error);
+        Alert.alert('Erro', 'Não foi possível salvar a imagem.');
+        setSelectedImageUri(null); // Limpa a URI em caso de erro
+      }
     }
   };
 
@@ -249,7 +275,7 @@ export default function ProductFormScreen() {
           />
           <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
         </View>
-          
+
         <FormActionButtons  onSave={saveProduct} onCancel={handleCancel} />
       </ScrollView>
 
@@ -268,11 +294,11 @@ export default function ProductFormScreen() {
         onClose={() => setCategoryModalVisible(false)}
         options={categories.map(category => category.name)}
         onSelect={handleSelectCategory}
-        title="Gerenciar Categorias" 
+        title="Gerenciar Categorias"
         showAddInput={true}
         onAddSubmit={handleAddCategorySubmit}
         placeholder="Nome da nova categoria"
-        selectText="Selecione uma categoria:" 
+        selectText="Selecione uma categoria:"
         addInputLabel="Adicione uma nova categoria:"
       />
     </SafeAreaView>

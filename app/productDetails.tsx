@@ -12,8 +12,6 @@ import { useDispatch } from 'react-redux';
 
 export default function ProductDetailScreen() {
 
-
-
   const dispatch = useDispatch();
   const ProductParams = useLocalSearchParams();
 
@@ -29,24 +27,23 @@ export default function ProductDetailScreen() {
   const [supplier, setSupplier] = useState(String(ProductParams.supplier))
 
 
-
     const handleDelete = () => {
-    const parsedProduct: Product = {
-      productName,
-      description,
-      productImage,
-      price: parseFloat(price),
-      category: JSON.parse(String(ProductParams.category)) as Category,
-      amount: parseInt(amount),
-      expirationDate: new Date(expirationDate),
-      barCode,
-      manufacturingDate: new Date(manufacturingDate),
-      supplier: JSON.parse(String(ProductParams.supplier)) as Supplier,
-    };
+      const parsedProduct: Product = {
+        productName,
+        description,
+        productImage,
+        price: parseFloat(price),
+        category: JSON.parse(String(ProductParams.category)) as Category,
+        amount: parseInt(amount),
+        expirationDate: new Date(expirationDate),
+        barCode,
+        manufacturingDate: new Date(manufacturingDate),
+        supplier: JSON.parse(String(ProductParams.supplier)) as Supplier,
+      };
 
-    dispatch(deleteProduct(parsedProduct));
-    Alert.alert('Removido', 'Produto excluído com sucesso!');
-    router.back();
+      dispatch(deleteProduct(parsedProduct));
+      Alert.alert('Removido', 'Produto excluído com sucesso!');
+      router.back();
   };
 
   return (
@@ -54,9 +51,9 @@ export default function ProductDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.imagePlaceholder}>
             <Image
-            source={{ uri: productImage }}
-            style={styles.image}
-            resizeMode="contain"
+              source={{ uri: productImage }}
+              style={styles.image}
+              resizeMode="contain"
           />
         </View>
 
@@ -226,6 +223,7 @@ const styles = StyleSheet.create({
 },
 button: {
   backgroundColor: 'black',
+  margin: 17,
   paddingVertical: 15,
   paddingHorizontal: 30,
   borderRadius: 10,
@@ -241,5 +239,4 @@ image: {
     width: '100%',
     height: '100%',
   },
-
 });

@@ -1,9 +1,8 @@
 import { Search } from '@/components/Search';
 import { RootState } from '@/store/store';
-import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 
@@ -55,7 +54,9 @@ export default function HomeScreen() {
                   </View>
                 </View>
                 <View style={styles.imagePlaceholder}>
-                  <Ionicons name="image" size={24} color="#fff" />
+                  <Image style={styles.image} source={{
+                    uri: item.productImage
+                  }}/>
                 </View>
               </View>
             </TouchableOpacity>
@@ -69,20 +70,21 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    flex: 1, 
+    paddingHorizontal: 16, 
+    paddingTop: 24, 
+    backgroundColor: '#fff' 
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  
+    marginBottom: 16,  
   },
   title: {
-    fontSize: 24,
+    fontSize: 20, 
     fontWeight: 'bold',
-  
+    paddingHorizontal : 10
   },
   addButton: {
     backgroundColor: '#e0e0e0',
@@ -150,4 +152,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  image: {
+    width: '100%',
+    height: '100%'
+  }
 });
