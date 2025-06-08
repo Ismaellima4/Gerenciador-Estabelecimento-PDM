@@ -1,30 +1,78 @@
+import { deleteProduct } from '@/store/productSlice';
+import Category from '@/types/category';
+import Product from '@/types/product';
+import Supplier from '@/types/supplier';
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Link, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router/build/hooks';
+import React, { useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
 
 export default function ProductDetailScreen() {
+
+
+
+  const dispatch = useDispatch();
+  const ProductParams = useLocalSearchParams();
+
+  const [productName, setProductName] = useState(String(ProductParams.productName));
+  const [description, setDescription] = useState(String(ProductParams.description));
+  const [productImage, setProductImage] = useState(String(ProductParams.productImage));
+  const [price, setPrice] = useState(String(ProductParams.price));
+  const [category, setCategory] = useState(String(ProductParams.category));
+  const [amount,setAmount] =  useState(String(ProductParams.amount));
+  const [expirationDate, setExpirationDate] =  useState(String(ProductParams.expirationDate));
+  const [barCode, setBarCode] =  useState(String(ProductParams.barCode));
+  const [manufacturingDate, setManufacturingDate] = useState(String(ProductParams.manufacturingDate));
+  const [supplier, setSupplier] = useState(String(ProductParams.supplier))
+
+
+
+    const handleDelete = () => {
+    const parsedProduct: Product = {
+      productName,
+      description,
+      productImage,
+      price: parseFloat(price),
+      category: JSON.parse(String(ProductParams.category)) as Category,
+      amount: parseInt(amount),
+      expirationDate: new Date(expirationDate),
+      barCode,
+      manufacturingDate: new Date(manufacturingDate),
+      supplier: JSON.parse(String(ProductParams.supplier)) as Supplier,
+    };
+
+    dispatch(deleteProduct(parsedProduct));
+    Alert.alert('Removido', 'Produto excluído com sucesso!');
+    router.back();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.imagePlaceholder}>
-          <Ionicons name="image-outline" size={80} color="#ccc" />
+            <Image
+            source={{ uri: productImage }}
+            style={styles.image}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.productDetails}>
-          <Text style={styles.dateText}>Fab dd:mm:aaaa - Val dd:mm:aaaa</Text>
+          <Text style={styles.dateText}>{manufacturingDate}</Text>
           <View style={styles.productNameRow}>
-            <Text style={styles.productName}>Nome do produto</Text>
-            <Text style={styles.quantity}>4</Text>
+            <Text style={styles.productName}>{productName}</Text>
+            <Text style={styles.quantity}>{amount}</Text>
           </View>
-          <Text style={styles.description}>Descrição</Text>
+          <Text style={styles.description}>{description}</Text>
           <View style={styles.categoryRow}>
             <TouchableOpacity style={styles.categoryDropdown}>
               <Ionicons name="chevron-down" size={20} color="black" />
             </TouchableOpacity>
-            <Text style={styles.categoryText}>categoria</Text>
-            <Text style={styles.price}>$0</Text>
+            <Text style={styles.categoryText}>{JSON.parse(category).name}</Text>
+            <Text style={styles.price}>R$ {price}</Text>
           </View>
         </View>
 
@@ -34,19 +82,24 @@ export default function ProductDetailScreen() {
               <View style={styles.supplierInitialCircle}>
                 <Text style={styles.supplierInitial}>F</Text>
               </View>
-              <Text style={styles.supplierName}>Nome do fornecedor</Text>
+              <Text style={styles.supplierName}>{JSON.parse(supplier).name}</Text>
             </View>
           </TouchableOpacity>
         </Link>
 
         <View style={styles.barcodePlaceholder}>
-          <Text style={styles.barcodeText}>[ BARCODE ]</Text>
+          <Text style={styles.barcodeText}>{barCode}</Text>
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.editButton}>
-        <Text style={styles.editButtonText}>Editar</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>EDITAR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleDelete}>
+            <Text style={styles.buttonText}>DELETAR</Text>
+         </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -165,16 +218,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
-  editButton: {
-    backgroundColor: 'black',
-    padding: 15,
-    margin: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+  buttonContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 20,
+  width: '85%',
+},
+button: {
+  backgroundColor: 'black',
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  borderRadius: 10,
+  width: '48%', 
+  alignItems: 'center',
+},
+buttonText: {
+  color: 'white',
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+image: {
+    width: '100%',
+    height: '100%',
   },
-  editButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+
 });

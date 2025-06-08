@@ -19,8 +19,22 @@ const productSlice = createSlice({
     setProduct: (state, action: PayloadAction<Product[]>) => {
       state.list = action.payload;
     },
+    deleteProduct: (state, action: PayloadAction<Product>) => {
+      const {
+        productName,
+        supplier: { cnpj },
+      } = action.payload;
+
+      state.list = state.list.filter(
+        (product) =>
+          !(
+            product.productName === productName &&
+            product.supplier.cnpj === cnpj
+          )
+      );
+    },
   },
 });
 
-export const { addProduct, setProduct } = productSlice.actions;
+export const { addProduct, setProduct,deleteProduct } = productSlice.actions;
 export default productSlice.reducer;

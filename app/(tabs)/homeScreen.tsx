@@ -29,7 +29,22 @@ export default function HomeScreen() {
         data={product}
         keyExtractor={(item, index) => `${item.productName}-${index}`}
         renderItem={({ item }) => (
-          <Link href="/productDetails" asChild>
+          <Link href={{
+            pathname:'/productDetails',
+            params:{
+              productName: item.productName,
+              description: item.description ?? '',
+              productImage: item.productImage ?? '',
+              price: item.price,
+              category: JSON.stringify(item.category),
+              amount:  String(item.amount),
+              expirationDate: new Date(item.expirationDate).toDateString(),
+              barCode: item.barCode,
+              manufacturingDate: new Date(item.manufacturingDate).toDateString(),
+              supplier: JSON.stringify(item.supplier)
+            }
+          }}  
+          asChild>
             <TouchableOpacity>
               <View style={styles.card}>
                 <View style={styles.cardInfo}>
