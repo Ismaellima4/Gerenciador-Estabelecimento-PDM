@@ -1,5 +1,6 @@
 import { Search } from '@/components/Search';
 import { RootState } from '@/store/store';
+import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -54,9 +55,14 @@ export default function HomeScreen() {
                   </View>
                 </View>
                 <View style={styles.imagePlaceholder}>
-                  <Image style={styles.image} source={{
-                    uri: item.productImage
-                  }}/>
+                  {item.productImage ? (
+                    <Image style={styles.image} source={{
+                        uri: item.productImage
+                      }
+                    }/>
+                  ) : (
+                    <Ionicons name="image-outline" size={50} color="#ccc" />
+                  )}
                 </View>
               </View>
             </TouchableOpacity>
