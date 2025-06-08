@@ -1,17 +1,17 @@
 import { Search } from '@/components/Search';
+import { RootState } from '@/store/store';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
 
-const produtos = [
-  { id: '1', nome: 'Nome do produto', categoria: 'categoria' },
-  { id: '2', nome: 'Nome do produto', categoria: 'categoria' },
-  { id: '3', nome: 'Nome do produto', categoria: 'categoria' },
-  { id: '4', nome: 'Nome do produto', categoria: 'categoria' },
-];
 
 export default function HomeScreen() {
+
+  const product = useSelector((state : RootState) => state.product.list)
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -23,16 +23,11 @@ export default function HomeScreen() {
         </Link>
       </View>
 
-      <View style={styles.bannerSection}>
-        <View style={styles.mainBanner} />
-        <View style={styles.sideBanner} />
-      </View>
-
       <Search />
 
       <FlatList
-        data={produtos}
-        keyExtractor={(item) => item.id}
+        data={product}
+        keyExtractor={(item, index) => `${item.productName}-${index}`}
         renderItem={({ item }) => (
           <Link href="/productDetails" asChild>
             <TouchableOpacity>
@@ -40,8 +35,8 @@ export default function HomeScreen() {
                 <View style={styles.cardInfo}>
                   <View style={styles.avatar}><Text style={styles.avatarText}>F</Text></View>
                   <View>
-                    <Text style={styles.productName}>{item.nome}</Text>
-                    <Text style={styles.productCategory}>{item.categoria}</Text>
+                    <Text style={styles.productName}>{item.productName}</Text>
+                    <Text style={styles.productCategory}>{item.category.name}</Text>
                   </View>
                 </View>
                 <View style={styles.imagePlaceholder}>
@@ -67,11 +62,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
+  
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+  
   },
   addButton: {
     backgroundColor: '#e0e0e0',
@@ -82,10 +78,6 @@ const styles = StyleSheet.create({
   addText: {
     fontWeight: 'bold',
     fontSize: 12,
-  },
-  bannerSection: {
-    flexDirection: 'row',
-    marginVertical: 16,
   },
   mainBanner: {
     flex: 1,
