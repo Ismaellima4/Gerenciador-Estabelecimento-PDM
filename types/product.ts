@@ -2,9 +2,9 @@ import Category from "./category";
 import Supplier from "./supplier";
 
 type Product = {
-    name: string;
+    productName: string;
     description?: string;
-    image?: string;
+    productImage?: string;
     price: number;
     category: Category;
     amount: number;
