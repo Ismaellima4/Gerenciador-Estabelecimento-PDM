@@ -26,7 +26,6 @@ export default function ProductDetailScreen() {
   const [manufacturingDate] = useState(String(ProductParams.manufacturingDate));
   const [supplier] = useState(JSON.parse(String(ProductParams.supplier)))
 
-
     const handleDelete = () => {
       const parsedProduct: Product = {
         productName,
@@ -100,9 +99,27 @@ export default function ProductDetailScreen() {
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>EDITAR</Text>
-        </TouchableOpacity>
+        <Link href={{
+          pathname: '/productUpdate',
+          params: {
+            productName,
+            description,
+            productImage,
+            price,
+            category: category.name,
+            amount,
+            expirationDate,
+            barCode,
+            manufacturingDate,
+            supplier,
+          }
+        }}
+        asChild
+        >
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>EDITAR</Text>
+          </TouchableOpacity>
+        </Link>
         <TouchableOpacity style={styles.button} onPress={handleDelete}>
             <Text style={styles.buttonText}>DELETAR</Text>
          </TouchableOpacity>

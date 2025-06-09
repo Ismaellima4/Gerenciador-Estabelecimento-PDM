@@ -19,6 +19,14 @@ const productSlice = createSlice({
     setProduct: (state, action: PayloadAction<Product[]>) => {
       state.list = action.payload;
     },
+    updateProduct: (state, action: PayloadAction<Product>) => {
+      const index = state.list.findIndex(
+        (product) => product.barCode === action.payload.barCode // Assumindo barCode como um ID único
+      );
+      if (index !== -1) {
+        state.list[index] = action.payload; // Substitui o produto existente pelo atualizado
+      }
+    },
     deleteProduct: (state, action: PayloadAction<Product>) => {
       const {
         productName,
@@ -36,5 +44,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { addProduct, setProduct,deleteProduct } = productSlice.actions;
+export const { addProduct, setProduct, updateProduct, deleteProduct } = productSlice.actions;
 export default productSlice.reducer;
