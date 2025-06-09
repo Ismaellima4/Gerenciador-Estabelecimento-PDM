@@ -12,6 +12,8 @@ import { addProduct } from '@/store/productSlice';
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -165,143 +167,149 @@ export default function ProductFormScreen() {
 
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+     <KeyboardAvoidingView
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
 
-        <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o nome do produto"
-          placeholderTextColor="#999"
-          value={productName}
-          onChangeText={setProductName}
-        />
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.container}>
 
-
-        <Text style={styles.label}>Descrição</Text>
-        <TextInput
-          style={styles.textArea}
-          multiline
-          placeholderTextColor="#999"
-          value={description}
-          onChangeText={setDescription}
-        />
-
-
-        <Text style={styles.label}>Add. Imagens</Text>
-        <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
-          {selectedImageUri ? (
-            <Image source={{ uri: selectedImageUri }} style={styles.uploadedImage} />
-          ) : (
-            <AntDesign name="plus" size={30} color="#666" />
-          )}
-        </TouchableOpacity>
-
-
-        <Text style={styles.label}>Fornecedor</Text>
-        <TouchableOpacity style={styles.dropdown} onPress={() => setSupplierModalVisible(true)}>
+          <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
           <TextInput
-            style={styles.dropdownTextInput}
-            placeholder="Selecione o fornecedor"
+            style={styles.input}
+            placeholder="Digite o nome do produto"
             placeholderTextColor="#999"
-            value={supplier}
-            editable={false}
+            value={productName}
+            onChangeText={setProductName}
           />
-          <AntDesign name="caretdown" size={14} color="#666" />
-        </TouchableOpacity>
 
 
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.label}>Preço</Text>
-            <View style={styles.priceInputContainer}>
-              <Text style={styles.currency}>R$</Text>
+          <Text style={styles.label}>Descrição</Text>
+          <TextInput
+            style={styles.textArea}
+            multiline
+            placeholderTextColor="#999"
+            value={description}
+            onChangeText={setDescription}
+          />
+
+
+          <Text style={styles.label}>Add. Imagens</Text>
+          <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
+            {selectedImageUri ? (
+              <Image source={{ uri: selectedImageUri }} style={styles.uploadedImage} />
+            ) : (
+              <AntDesign name="plus" size={30} color="#666" />
+            )}
+          </TouchableOpacity>
+
+
+          <Text style={styles.label}>Fornecedor</Text>
+          <TouchableOpacity style={styles.dropdown} onPress={() => setSupplierModalVisible(true)}>
+            <TextInput
+              style={styles.dropdownTextInput}
+              placeholder="Selecione o fornecedor"
+              placeholderTextColor="#999"
+              value={supplier}
+              editable={false}
+            />
+            <AntDesign name="caretdown" size={14} color="#666" />
+          </TouchableOpacity>
+
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Preço</Text>
+              <View style={styles.priceInputContainer}>
+                <Text style={styles.currency}>R$</Text>
+                <TextInput
+                  style={styles.priceInput}
+                  keyboardType="numeric"
+                  placeholderTextColor="#999"
+                  value={price}
+                  onChangeText={setPrice}
+                />
+              </View>
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Categoria</Text>
+              <TouchableOpacity style={styles.dropdown} onPress={() => setCategoryModalVisible(true)}>
+                <TextInput
+                  style={styles.dropdownTextInput}
+                  placeholder="Selecione a categoria"
+                  placeholderTextColor="#999"
+                  value={category}
+                  editable={false}
+                />
+                <AntDesign name="caretdown" size={14} color="#666" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Qtd. em Estoque</Text>
               <TextInput
-                style={styles.priceInput}
+                style={styles.input}
                 keyboardType="numeric"
                 placeholderTextColor="#999"
-                value={price}
-                onChangeText={setPrice}
+                value={quantity}
+                onChangeText={setQuantity}
+              />
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Data de Validade</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="DD/MM/AAAA"
+                placeholderTextColor="#999"
+                value={expirationDate}
+                onChangeText={setExpirationDate}
               />
             </View>
           </View>
-          <View style={styles.column}>
-            <Text style={styles.label}>Categoria</Text>
-            <TouchableOpacity style={styles.dropdown} onPress={() => setCategoryModalVisible(true)}>
-              <TextInput
-                style={styles.dropdownTextInput}
-                placeholder="Selecione a categoria"
-                placeholderTextColor="#999"
-                value={category}
-                editable={false}
-              />
-              <AntDesign name="caretdown" size={14} color="#666" />
-            </TouchableOpacity>
-          </View>
-        </View>
 
-
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.label}>Qtd. em Estoque</Text>
+          <Text style={styles.label}>Código de Barras</Text>
+          <View style={styles.barcodeInputContainer}>
             <TextInput
-              style={styles.input}
-              keyboardType="numeric"
+              style={styles.barcodeInput}
               placeholderTextColor="#999"
-              value={quantity}
-              onChangeText={setQuantity}
+              value={barcode}
+              onChangeText={setBarcode}
             />
+            <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
           </View>
-          <View style={styles.column}>
-            <Text style={styles.label}>Data de Validade</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor="#999"
-              value={expirationDate}
-              onChangeText={setExpirationDate}
-            />
-          </View>
-        </View>
 
-        {/* Código de Barras (Barcode) */}
-        <Text style={styles.label}>Código de Barras</Text>
-        <View style={styles.barcodeInputContainer}>
-          <TextInput
-            style={styles.barcodeInput}
-            placeholderTextColor="#999"
-            value={barcode}
-            onChangeText={setBarcode}
-          />
-          <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
-        </View>
+          <FormActionButtons  onSave={saveProduct} onCancel={handleCancel} />
+        </ScrollView>
 
-        <FormActionButtons  onSave={saveProduct} onCancel={handleCancel} />
-      </ScrollView>
+        <ModalSelector
+          visible={isSupplierModalVisible}
+          onClose={() => setSupplierModalVisible(false)}
+          options={suppliers.map(supplier => supplier.name)}
+          onSelect={handleSelectSupplier}
+          title="Selecione um Fornecedor"
+          showAddInput={false}
+          onAddPress={handleAddSupplierPress}
+        />
 
-      <ModalSelector
-        visible={isSupplierModalVisible}
-        onClose={() => setSupplierModalVisible(false)}
-        options={suppliers.map(supplier => supplier.name)}
-        onSelect={handleSelectSupplier}
-        title="Selecione um Fornecedor"
-        showAddInput={false}
-        onAddPress={handleAddSupplierPress}
-      />
-
-      <ModalSelector
-        visible={isCategoryModalVisible}
-        onClose={() => setCategoryModalVisible(false)}
-        options={categories.map(category => category.name)}
-        onSelect={handleSelectCategory}
-        title="Gerenciar Categorias"
-        showAddInput={true}
-        onAddSubmit={handleAddCategorySubmit}
-        placeholder="Nome da nova categoria"
-        selectText="Selecione uma categoria:"
-        addInputLabel="Adicione uma nova categoria:"
-      />
-    </SafeAreaView>
+        <ModalSelector
+          visible={isCategoryModalVisible}
+          onClose={() => setCategoryModalVisible(false)}
+          options={categories.map(category => category.name)}
+          onSelect={handleSelectCategory}
+          title="Gerenciar Categorias"
+          showAddInput={true}
+          onAddSubmit={handleAddCategorySubmit}
+          placeholder="Nome da nova categoria"
+          selectText="Selecione uma categoria:"
+          addInputLabel="Adicione uma nova categoria:"
+        />
+        </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

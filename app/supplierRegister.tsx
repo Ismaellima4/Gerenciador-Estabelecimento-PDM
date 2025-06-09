@@ -6,6 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { addSupplier } from '../store/supplierSlice';
@@ -42,74 +45,80 @@ export default function SupplierRegistration() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Inputs ampliados */}
-        <View style={styles.inputsWrapper}>
-          <Text style={styles.label}>Nome *</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Nome do fornecedor"
-            placeholderTextColor="#888"
-          />
+    <KeyboardAvoidingView
+            style={{ flex: 1 }} 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView >
+          <View style={styles.container}>
+            <View style={styles.inputsWrapper}>
+              <Text style={styles.label}>Nome *</Text>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Nome do fornecedor"
+                placeholderTextColor="#888"
+              />
 
-          <Text style={styles.label}>CNPJ</Text>
-          <TextInput
-            style={styles.input}
-            value={cnpj}
-            onChangeText={setCnpj}
-            placeholder="CNPJ"
-            placeholderTextColor="#888"
-          />
+              <Text style={styles.label}>CNPJ</Text>
+              <TextInput
+                style={styles.input}
+                value={cnpj}
+                onChangeText={setCnpj}
+                placeholder="CNPJ"
+                placeholderTextColor="#888"
+              />
 
-          <Text style={styles.label}>Telefone *</Text>
-          <TextInput
-            style={styles.input}
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
-            placeholder="(00) 00000-0000"
-            placeholderTextColor="#888"
-            keyboardType="phone-pad"
-          />
+              <Text style={styles.label}>Telefone *</Text>
+              <TextInput
+                style={styles.input}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                placeholder="(00) 00000-0000"
+                placeholderTextColor="#888"
+                keyboardType="phone-pad"
+              />
 
-          <Text style={styles.label}>E-mail</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="email@exemplo.com"
-            placeholderTextColor="#888"
-            keyboardType="email-address"
-          />
+              <Text style={styles.label}>E-mail</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="email@exemplo.com"
+                placeholderTextColor="#888"
+                keyboardType="email-address"
+              />
 
-          <Text style={styles.label}>Informações adicionais</Text>
-          <TextInput
-            style={[styles.input, styles.multiline]}
-            multiline
-            numberOfLines={4}
-            value={additionalInformation}
-            onChangeText={setAdditionalInformation}
-            placeholder="Informações adicionais sobre o fornecedor"
-            placeholderTextColor="#888"
-          />
-        </View>
+              <Text style={styles.label}>Informações adicionais</Text>
+              <TextInput
+                style={[styles.input, styles.multiline]}
+                multiline
+                numberOfLines={4}
+                value={additionalInformation}
+                onChangeText={setAdditionalInformation}
+                placeholder="Informações adicionais sobre o fornecedor"
+                placeholderTextColor="#888"
+              />
+            </View>
 
-        {/* Botões na parte inferior, maiores e sem sombra */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={saveSupplier}>
-            <Text style={styles.buttonText}>Salvar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.buttonText}>Cancelar</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </SafeAreaView>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={saveSupplier}>
+                <Text style={styles.buttonText}>Salvar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
