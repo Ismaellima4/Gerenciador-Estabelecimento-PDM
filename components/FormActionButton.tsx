@@ -1,4 +1,3 @@
-// src/components/FormActionButtons.tsx
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   saveButton: {
-    backgroundColor: '#000', // Black background for Save
+    backgroundColor: '#000',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
@@ -43,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#000', // Black background for Cancel
+    backgroundColor: '#000',
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,

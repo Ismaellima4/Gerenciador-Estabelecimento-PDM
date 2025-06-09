@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -62,68 +64,74 @@ export default function SuppliersDetails() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.profileImageContainer}>
-          <Image
-            source={require('../assets/images/icon.png')}
-            style={styles.profileImage}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.profileImageContainer}>
+            <Image
+              source={require('../assets/images/icon.png')}
+              style={styles.profileImage}
+            />
+          </View>
+
+          <TextInput
+            style={styles.input}
+            value={nameSupplier}
+            onChangeText={setNameSupplier}
+            editable={isEditing}
+            placeholder="Nome"
           />
-        </View>
+          <TextInput
+            style={styles.input}
+            value={cnpjSupplier}
+            onChangeText={setCnpjSupplier}
+            editable={isEditing}
+            placeholder="CNPJ"
+            keyboardType="numeric"
+          />
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={setPhone}
+            editable={isEditing}
+            placeholder="Telefone"
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            style={styles.input}
+            value={emailSupplier}
+            onChangeText={setEmailSupplier}
+            editable={isEditing}
+            placeholder="Email"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={[styles.input, styles.descriptionInput]}
+            value={description}
+            onChangeText={setDescription}
+            editable={isEditing}
+            placeholder="Descrição"
+            multiline
+          />
 
-        <TextInput
-          style={styles.input}
-          value={nameSupplier}
-          onChangeText={setNameSupplier}
-          editable={isEditing}
-          placeholder="Nome"
-        />
-        <TextInput
-          style={styles.input}
-          value={cnpjSupplier}
-          onChangeText={setCnpjSupplier}
-          editable={isEditing}
-          placeholder="CNPJ"
-          keyboardType="numeric"
-        />
-        <TextInput
-          style={styles.input}
-          value={phone}
-          onChangeText={setPhone}
-          editable={isEditing}
-          placeholder="Telefone"
-          keyboardType="phone-pad"
-        />
-        <TextInput
-          style={styles.input}
-          value={emailSupplier}
-          onChangeText={setEmailSupplier}
-          editable={isEditing}
-          placeholder="Email"
-          keyboardType="email-address"
-        />
-        <TextInput
-          style={[styles.input, styles.descriptionInput]}
-          value={description}
-          onChangeText={setDescription}
-          editable={isEditing}
-          placeholder="Descrição"
-          multiline
-        />
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-            <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
-          </TouchableOpacity>
-
-          {!isEditing && ( 
-            <TouchableOpacity style={styles.button} onPress={handleDelete}>
-              <Text style={styles.buttonText}>DELETAR</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+              <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
             </TouchableOpacity>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            {!isEditing && ( 
+              <TouchableOpacity style={styles.button} onPress={handleDelete}>
+                <Text style={styles.buttonText}>DELETAR</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

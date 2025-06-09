@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -15,6 +14,7 @@ import { addSupplier } from '../store/supplierSlice';
 import { router } from 'expo-router';
 import type Supplier from '@/types/supplier';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FormActionButtons from '@/components/FormActionButton';
 
 export default function SupplierRegistration() {
   const [name, setName] = useState('');
@@ -104,17 +104,7 @@ export default function SupplierRegistration() {
               />
             </View>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={saveSupplier}>
-                <Text style={styles.buttonText}>Salvar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => router.back()}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
+            <FormActionButtons onSave={saveSupplier} onCancel={() => router.back} />
           </View>
         </ScrollView>
       </SafeAreaView>
