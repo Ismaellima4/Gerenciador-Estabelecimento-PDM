@@ -61,7 +61,7 @@ export default function ProductDetailScreen() {
         </View>
 
         <View style={styles.productDetails}>
-          <Text style={styles.dateText}>{manufacturingDate}</Text>
+          <Text style={styles.dateText}>{expirationDate}</Text>
           <View style={styles.productNameRow}>
             <Text style={styles.productName}>{productName}</Text>
             <Text style={styles.quantity}>{amount}</Text>

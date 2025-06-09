@@ -69,6 +69,7 @@ export default function HomeScreen() {
           </Link>
         )}
         contentContainerStyle={styles.productList}
+        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum produto cadastrado.</Text>}
       />
     </View>
   );
@@ -162,5 +163,10 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%'
-  }
+  },
+   emptyText: { 
+    textAlign: 'center',
+    marginTop: 20, 
+    color: '#999' 
+  },
 });

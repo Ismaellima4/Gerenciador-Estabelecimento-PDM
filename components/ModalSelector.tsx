@@ -1,4 +1,3 @@
-// components/ModalSelector.tsx
 import React, { useState } from 'react';
 import {
   Modal,
@@ -21,8 +20,8 @@ interface ModalSelectorProps {
   onAddSubmit?: (newItem: string) => void;
   onAddPress?: () => void;
   placeholder?: string;
-  selectText?: string; // New prop for "select a category" text
-  addInputLabel?: string; // New prop for "add a category" label
+  selectText?: string;
+  addInputLabel?: string;
 }
 
 export default function ModalSelector({
@@ -35,8 +34,8 @@ export default function ModalSelector({
   onAddSubmit,
   onAddPress,
   placeholder,
-  selectText, // Destructure new prop
-  addInputLabel, // Destructure new prop
+  selectText,
+  addInputLabel,
 }: ModalSelectorProps) {
   const [name, setName] = useState('');
 
