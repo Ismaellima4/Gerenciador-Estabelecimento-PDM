@@ -1,4 +1,4 @@
-// components/ProductForm.tsx
+
 import React, { useState } from 'react';
 import { 
   Alert,
@@ -21,7 +21,7 @@ import * as FileSystem from 'expo-file-system';
 import ModalSelector from '@/components/ModalSelector';
 import FormActionButtons from '@/components/FormActionButton';
 import { RootState } from '@/store/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addCategory } from '@/store/categorySlice';
 import Category from '@/types/category';
 import Product from '@/types/product';
@@ -33,6 +33,7 @@ interface ProductFormProps {
   submitButtonText: string;
   onAddSupplierPress: () => void;
 }
+
 
 const ProductForm = ({
   initialProduct,
@@ -60,6 +61,8 @@ const ProductForm = ({
 
   const suppliers = useSelector((state: RootState) => state.supplier.list);
   const categories = useSelector((state: RootState) => state.category.list);
+
+  const dispatch = useDispatch();
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -149,7 +152,7 @@ const ProductForm = ({
     const category: Category = {
       name: newCategory,
     };
-    addCategory(category);
+    dispatch(addCategory(category));
     handleSelectCategory(newCategory);
     setCategoryModalVisible(false);
   };
