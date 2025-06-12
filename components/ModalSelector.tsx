@@ -7,6 +7,7 @@ import {
   TextInput,
   FlatList,
   StyleSheet,
+  Alert
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
@@ -22,6 +23,7 @@ interface ModalSelectorProps {
   placeholder?: string;
   selectText?: string;
   addInputLabel?: string;
+  onDeleteItem?: (item: string) => void;
 }
 
 export default function ModalSelector({
@@ -36,6 +38,7 @@ export default function ModalSelector({
   placeholder,
   selectText,
   addInputLabel,
+  onDeleteItem,
 }: ModalSelectorProps) {
   const [name, setName] = useState('');
 
@@ -44,6 +47,24 @@ export default function ModalSelector({
       onAddSubmit?.(name.trim());
       setName('');
     }
+  };
+
+  const handleDeleteItem = (itemToDelete: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir a categoria "${itemToDelete}"?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          onPress: () => onDeleteItem?.(itemToDelete),
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   return (
@@ -62,12 +83,22 @@ export default function ModalSelector({
             data={options}
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.optionItem}
-                onPress={() => onSelect(item)}
-              >
-                <Text style={styles.optionText}>{item}</Text>
-              </TouchableOpacity>
+              <View style={styles.optionItemContainer}>
+                <TouchableOpacity
+                  style={styles.optionItem}
+                  onPress={() => onSelect(item)}
+                >
+                  <Text style={styles.optionText}>{item}</Text>
+                </TouchableOpacity>
+                {onDeleteItem && (
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteItem(item)}
+                  >
+                    <AntDesign name="delete" size={20} color="black" />
+                  </TouchableOpacity>
+                )}
+              </View>
             )}
             ListEmptyComponent={() => (
               <Text style={styles.emptyListText}>Nenhum item disponível.</Text>
@@ -138,32 +169,42 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#333',
   },
-  sectionLabel: { // New style for "Selecione uma categoria" and "Adicione uma categoria"
+  sectionLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    alignSelf: 'flex-start', // Align to the left
+    alignSelf: 'flex-start',
     marginBottom: 8,
-    marginTop: 15, // Add some top margin to separate from title/list
+    marginTop: 15,
     color: '#333',
   },
   optionsList: {
     width: '100%',
-    maxHeight: '45%', // Adjusted to make space for new labels and input
+    maxHeight: '45%',
     marginBottom: 15,
   },
   optionsListContent: {
     flexGrow: 1,
   },
-  optionItem: {
-    paddingVertical: 12,
+  optionItemContainer: { // Estilo para o contêiner do item e do botão de exclusão
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8, // Ajuste para dar espaço aos botões
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     width: '100%',
-    alignItems: 'center',
+  },
+  optionItem: {
+    flex: 1, // Permite que o texto da categoria ocupe o espaço disponível
+    paddingRight: 10, // Espaço entre o texto e o botão de exclusão
   },
   optionText: {
     fontSize: 16,
     color: '#333',
+  },
+  deleteButton: {
+    padding: 5,
+    // Opcional: Adicione um fundo para o botão se desejar
   },
   emptyListText: {
     fontSize: 16,
@@ -173,7 +214,7 @@ const styles = StyleSheet.create({
   },
   addInputContainer: {
     flexDirection: 'row',
-    marginTop: 10, // Adjusted margin
+    marginTop: 10,
     width: '100%',
   },
   addInput: {
@@ -186,7 +227,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   addButton: {
-    backgroundColor: '#000', // Changed to black
+    backgroundColor: '#000',
     padding: 10,
     borderRadius: 8,
     justifyContent: 'center',
@@ -194,7 +235,7 @@ const styles = StyleSheet.create({
   },
   addNewButton: {
     flexDirection: 'row',
-    backgroundColor: '#000', // Changed to black
+    backgroundColor: '#000',
     padding: 12,
     borderRadius: 8,
     width: '100%',
@@ -209,8 +250,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   cancelButton: {
-    marginTop: 15, // Adjusted margin
-    backgroundColor: '#000', // Changed to black
+    marginTop: 15,
+    backgroundColor: '#000',
     padding: 12,
     borderRadius: 8,
     width: '100%',

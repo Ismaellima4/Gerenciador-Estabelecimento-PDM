@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { 
+import {
   Alert,
   Image,
   KeyboardAvoidingView,
@@ -10,7 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  TouchableWithoutFeedback, 
+  TouchableWithoutFeedback,
   Keyboard,
   StyleSheet
 } from 'react-native';
@@ -22,7 +21,7 @@ import ModalSelector from '@/components/ModalSelector';
 import FormActionButtons from '@/components/FormActionButton';
 import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory } from '@/store/categorySlice';
+import { addCategory, deleteCategory } from '@/store/categorySlice'; // Importe removeCategory
 import Category from '@/types/category';
 import Product from '@/types/product';
 
@@ -157,6 +156,14 @@ const ProductForm = ({
     setCategoryModalVisible(false);
   };
 
+  const handleDeleteCategory = (categoryName: string) => {
+    dispatch(deleteCategory(categoryName));
+    if (category === categoryName) {
+      setCategory('');
+    }
+  };
+
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -269,10 +276,10 @@ const ProductForm = ({
               <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
             </View>
 
-            <FormActionButtons 
-              onSave={handleSubmit} 
-              onCancel={onCancel} 
-              saveText={submitButtonText} 
+            <FormActionButtons
+              onSave={handleSubmit}
+              onCancel={onCancel}
+              saveText={submitButtonText}
             />
           </ScrollView>
         </TouchableWithoutFeedback>
@@ -295,6 +302,7 @@ const ProductForm = ({
           title="Gerenciar Categorias"
           showAddInput={true}
           onAddSubmit={handleAddCategorySubmit}
+          onDeleteItem={handleDeleteCategory}
           placeholder="Nome da nova categoria"
           selectText="Selecione uma categoria:"
           addInputLabel="Adicione uma nova categoria:"
