@@ -14,7 +14,10 @@ const categorySlice = createSlice({
   initialState,
   reducers: {
     addCategory: (state, action: PayloadAction<Category>) => {
-      state.list.push(action.payload);
+      const hasCategory = state.list.find((category) => category.name.toLocaleLowerCase() === action.payload.name.toLocaleLowerCase())
+      if(!hasCategory) {
+        state.list.push(action.payload);
+      }
     },
     setCategory: (state, action: PayloadAction<Category[]>) => {
       state.list = action.payload;
