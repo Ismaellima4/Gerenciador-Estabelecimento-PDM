@@ -1,48 +1,67 @@
-import { deleteProduct } from '@/store/productSlice';
-import Category from '@/types/category';
-import Product from '@/types/product';
-import Supplier from '@/types/supplier';
+import FormActionButtons from '@/components/FormActionButton';
+import { deleteProductById, findProductById } from '@/store/productSlice'; 
+import { RootState } from '@/store/store';
 import { Ionicons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router/build/hooks';
-import React, { useState } from 'react';
+import { Link, router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function ProductDetailScreen() {
-
   const dispatch = useDispatch();
-  const ProductParams = useLocalSearchParams();
 
-  const [productName] = useState(String(ProductParams.productName));
-  const [description] = useState(String(ProductParams.description));
-  const [productImage] = useState(String(ProductParams.productImage));
-  const [price] = useState(String(ProductParams.price));
-  const [category] = useState(JSON.parse(String(ProductParams.category)));
-  const [amount] =  useState(String(ProductParams.amount));
-  const [expirationDate] =  useState(String(ProductParams.expirationDate));
-  const [barCode] =  useState(String(ProductParams.barCode));
-  const [manufacturingDate] = useState(String(ProductParams.manufacturingDate));
-  const [supplier] = useState(JSON.parse(String(ProductParams.supplier)))
+  const { id } = useLocalSearchParams();
 
-    const handleDelete = () => {
-      const parsedProduct: Product = {
-        productName,
-        description,
-        productImage,
-        price: parseFloat(price),
-        category: JSON.parse(String(ProductParams.category)) as Category,
-        amount: parseInt(amount),
-        expirationDate: new Date(expirationDate),
-        barCode,
-        manufacturingDate: new Date(manufacturingDate),
-        supplier: JSON.parse(String(ProductParams.supplier)) as Supplier,
-      };
+  const product = useSelector((state: RootState) =>
+    findProductById(state, String(id))
+  );
 
-      dispatch(deleteProduct(parsedProduct));
-      Alert.alert('Removido', 'Produto excluído com sucesso!');
-      router.back();
+  if (!product) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centeredMessage}>
+          <Text style={styles.errorMessage}>Produto não encontrado.</Text>
+            <TouchableOpacity style={styles.backButton} onPress={router.back}>
+              <Text style={styles.backButtonText}>Voltar para a lista</Text>
+            </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const {
+    productName,
+    description,
+    productImage,
+    price,
+    category,
+    amount,
+    expirationDate,
+    barCode,
+    supplier,
+  } = product;
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir o produto "${productName}"?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          onPress: () => {
+            dispatch(deleteProductById({ id: product.id }));
+            Alert.alert('Removido', 'Produto excluído com sucesso!');
+            router.back();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -50,7 +69,7 @@ export default function ProductDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.imagePlaceholder}>
           {productImage ? (
-             <Image
+            <Image
               source={{ uri: productImage }}
               style={styles.image}
               resizeMode="contain"
@@ -61,15 +80,17 @@ export default function ProductDetailScreen() {
         </View>
 
         <View style={styles.productDetails}>
-          <Text style={styles.dateText}>{expirationDate}</Text>
+          <Text style={styles.dateText}>
+            Data de Validade: {expirationDate instanceof Date ? expirationDate.toLocaleDateString() : String(expirationDate)}
+          </Text>
           <View style={styles.productNameRow}>
             <Text style={styles.productName}>{productName}</Text>
-            <Text style={styles.quantity}>{amount}</Text>
+            <Text style={styles.quantity}>{amount} un.</Text>
           </View>
           <Text style={styles.description}>{description}</Text>
           <View style={styles.categoryRow}>
             <Text style={styles.categoryText}>{category.name}</Text>
-            <Text style={styles.price}>R$ {price}</Text>
+            <Text style={styles.price}>R$ {price.toFixed(2).replace('.', ',')}</Text>
           </View>
         </View>
 
@@ -86,7 +107,7 @@ export default function ProductDetailScreen() {
           <TouchableOpacity>
             <View style={styles.supplierContainer}>
               <View style={styles.supplierInitialCircle}>
-                <Text style={styles.supplierInitial}>F</Text>
+                <Text style={styles.supplierInitial}>{supplier.name ? supplier.name.charAt(0).toUpperCase() : '?'}</Text>
               </View>
               <Text style={styles.supplierName}>{supplier.name}</Text>
             </View>
@@ -94,44 +115,28 @@ export default function ProductDetailScreen() {
         </Link>
 
         <View style={styles.barcodePlaceholder}>
-          <Text style={styles.barcodeText}>{barCode}</Text>
+          <Text style={styles.barcodeText}>Código de Barras: {barCode}</Text>
         </View>
       </ScrollView>
 
-      <View style={styles.buttonContainer}>
-        <Link href={{
-          pathname: '/productUpdate',
-          params: {
-            productName,
-            description,
-            productImage,
-            price,
-            category: category.name,
-            amount,
-            expirationDate,
-            barCode,
-            manufacturingDate,
-            supplier,
-          }
-        }}
-        asChild
-        >
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>EDITAR</Text>
-          </TouchableOpacity>
-        </Link>
-        <TouchableOpacity style={styles.button} onPress={handleDelete}>
-            <Text style={styles.buttonText}>DELETAR</Text>
-         </TouchableOpacity>
-      </View>
+      <FormActionButtons
+        onSave={() => router.push({ 
+          pathname: '/productUpdate', 
+          params: { id: product.id } 
+        })}
+        onCancel={handleDelete}
+        saveText="EDITAR"
+        cancelText="DELETAR"
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flexGrow: 1,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
@@ -190,9 +195,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  categoryDropdown: {
-    paddingRight: 5,
-  },
   categoryText: {
     fontSize: 16,
     color: '#555',
@@ -242,28 +244,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
-  buttonContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 20,
-  width: '85%',
-},
-button: {
-  backgroundColor: 'black',
-  margin: 17,
-  paddingVertical: 15,
-  paddingHorizontal: 30,
-  borderRadius: 10,
-  width: '48%', 
-  alignItems: 'center',
-},
-buttonText: {
-  color: 'white',
-  fontSize: 18,
-  fontWeight: 'bold',
-},
-image: {
+  image: {
     width: '100%',
     height: '100%',
+  },
+  centeredMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMessage: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20, // Adicionei um espaçamento
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    alignSelf: 'center'
   },
 });

@@ -1,29 +1,29 @@
+import FormActionButtons from '@/components/FormActionButton';
+import ModalSelector from '@/components/ModalSelector';
+import { addCategory, deleteCategory } from '@/store/categorySlice';
+import { RootState } from '@/store/store';
+import Category from '@/types/category';
+import Product from '@/types/product';
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  TouchableWithoutFeedback,
-  Keyboard,
-  StyleSheet
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import ModalSelector from '@/components/ModalSelector';
-import FormActionButtons from '@/components/FormActionButton';
-import { RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory, deleteCategory } from '@/store/categorySlice'; // Importe removeCategory
-import Category from '@/types/category';
-import Product from '@/types/product';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
@@ -33,14 +33,15 @@ interface ProductFormProps {
   onAddSupplierPress: () => void;
 }
 
-
 const ProductForm = ({
   initialProduct,
   onSubmit,
   onCancel,
   submitButtonText,
-  onAddSupplierPress
+  onAddSupplierPress,
 }: ProductFormProps) => {
+  // Se initialProduct existe, usamos o ID dele, caso contrário, será undefined
+  // O ID será gerado na action 'addProduct' do slice, se 'initialProduct' for null
   const [productName, setProductName] = useState(initialProduct?.productName || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(
@@ -51,7 +52,9 @@ const ProductForm = ({
   const [category, setCategory] = useState(initialProduct?.category?.name || '');
   const [quantity, setQuantity] = useState(initialProduct?.amount?.toString() || '');
   const [expirationDate, setExpirationDate] = useState(
-    initialProduct?.expirationDate ? new Date(initialProduct.expirationDate).toLocaleDateString('pt-BR') : ''
+    initialProduct?.expirationDate
+      ? new Date(initialProduct.expirationDate).toLocaleDateString('pt-BR')
+      : ''
   );
   const [barcode, setBarcode] = useState(initialProduct?.barCode || '');
 
@@ -120,21 +123,30 @@ const ProductForm = ({
       return;
     }
 
-    const product: Product = {
-      ...(initialProduct || {}),
+    // Ajuste aqui para incluir o 'id' se 'initialProduct' existir
+    // Se for um novo produto, 'id' será undefined neste ponto, o que é esperado
+    // porque ele será gerado na action 'addProduct' no slice.
+    const productData: Omit<Product, 'id'> & { id?: string } = { // Ajustado para aceitar id opcionalmente
       productName,
       description,
       productImage: selectedImageUri || '',
       price: parseFloat(price),
       category: selectedCategory,
       amount: parseInt(quantity),
-      expirationDate: new Date(expirationDate),
+      // Assumindo que expirationDate é string "DD/MM/AAAA", converter para Date
+      // Pode ser necessário uma biblioteca para parsing robusto de datas
+      expirationDate: new Date(expirationDate.split('/').reverse().join('-')), // Converte para YYYY-MM-DD para Date
       barCode: barcode,
-      manufacturingDate: initialProduct?.manufacturingDate || new Date(),
+      manufacturingDate: initialProduct?.manufacturingDate || new Date(), // Mantém a data de fabricação ou cria uma nova
       supplier: selectedSupplier,
     };
 
-    onSubmit(product);
+    if (initialProduct?.id) {
+      // Se estamos editando, adicione o ID existente
+      (productData as Product).id = initialProduct.id;
+    }
+
+    onSubmit(productData as Product); // Garante que o tipo final é Product
   };
 
   const handleSelectSupplier = (selectedSupplier: string) => {
@@ -163,7 +175,6 @@ const ProductForm = ({
     }
   };
 
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -171,7 +182,7 @@ const ProductForm = ({
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <SafeAreaView style={styles.safeArea}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <Pressable onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
             <TextInput
@@ -206,12 +217,11 @@ const ProductForm = ({
                 style={styles.dropdownTextInput}
                 placeholder="Selecione o fornecedor"
                 placeholderTextColor="#999"
-                value={supplier}
                 editable={false}
+                value={supplier}
               />
               <AntDesign name="caretdown" size={14} color="#666" />
             </TouchableOpacity>
-
             <View style={styles.row}>
               <View style={styles.column}>
                 <Text style={styles.label}>Preço</Text>
@@ -271,7 +281,7 @@ const ProductForm = ({
                 placeholderTextColor="#999"
                 value={barcode}
                 onChangeText={setBarcode}
-                editable={!initialProduct}
+                editable={!initialProduct} // Barcode só é editável para novos produtos
               />
               <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
             </View>
@@ -282,7 +292,7 @@ const ProductForm = ({
               saveText={submitButtonText}
             />
           </ScrollView>
-        </TouchableWithoutFeedback>
+        </Pressable>
 
         <ModalSelector
           visible={isSupplierModalVisible}

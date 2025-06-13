@@ -14,7 +14,7 @@ export default function RootLayout() {
           <Stack.Screen name="suppliersDetails" options={{headerTitle: "Detalhes do Fornecedor"}} />
           <Stack.Screen name="supplierRegister" options={{headerTitle: "Registrar Novo Fornecedor"}}/>
           <Stack.Screen name="productsRegisterScreen" options={{headerTitle: "Registrar de Produto"}} />
-          <Stack.Screen name="productUpdate" options={{headerTitle: "Atualizar de Produto"}} />
+          <Stack.Screen name="productUpdate" options={{headerTitle: "Atualizar Produto"}} />
         </Stack>
       </PersistGate>
     </Provider>

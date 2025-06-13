@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type Product from '@/types/product';
+import { randomUUID } from 'expo-crypto';
+import { RootState } from './store';
 
 interface ProductState {
   list: Product[];
@@ -14,35 +16,32 @@ const productSlice = createSlice({
   initialState,
   reducers: {
     addProduct: (state, action: PayloadAction<Product>) => {
-      state.list.push(action.payload);
+      const productWithId = {
+        ...action.payload,
+        id: randomUUID()
+      }
+      state.list.push(productWithId);
     },
     setProduct: (state, action: PayloadAction<Product[]>) => {
       state.list = action.payload;
     },
     updateProduct: (state, action: PayloadAction<Product>) => {
       const index = state.list.findIndex(
-        (product) => product.barCode === action.payload.barCode // Assumindo barCode como um ID único
+        (product) => product.id === action.payload.id
       );
       if (index !== -1) {
-        state.list[index] = action.payload; // Substitui o produto existente pelo atualizado
+        state.list[index] = action.payload;
       }
     },
-    deleteProduct: (state, action: PayloadAction<Product>) => {
-      const {
-        productName,
-        supplier: { cnpj },
-      } = action.payload;
-
+    deleteProductById: (state, action: PayloadAction<{id: string}>) => {
       state.list = state.list.filter(
-        (product) =>
-          !(
-            product.productName === productName &&
-            product.supplier.cnpj === cnpj
-          )
+        (product) => product.id !== action.payload.id
       );
     },
   },
 });
 
-export const { addProduct, setProduct, updateProduct, deleteProduct } = productSlice.actions;
+
+export const findProductById = (state: RootState, id: string) => state.product.list.find((product) => product.id === id);
+export const { addProduct, setProduct, updateProduct, deleteProductById } = productSlice.actions;
 export default productSlice.reducer;

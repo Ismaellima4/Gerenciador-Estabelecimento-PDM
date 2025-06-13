@@ -2,6 +2,7 @@ import Category from "./category";
 import Supplier from "./supplier";
 
 type Product = {
+    id: string;
     productName: string;
     description?: string;
     productImage?: string;

@@ -32,16 +32,7 @@ export default function HomeScreen() {
           <Link href={{
             pathname:'/productDetails',
             params:{
-              productName: item.productName,
-              description: item.description ?? '',
-              productImage: item.productImage ?? '',
-              price: item.price,
-              category: JSON.stringify(item.category),
-              amount:  String(item.amount),
-              expirationDate: new Date(item.expirationDate).toDateString(),
-              barCode: item.barCode,
-              manufacturingDate: new Date(item.manufacturingDate).toDateString(),
-              supplier: JSON.stringify(item.supplier)
+             id: item.id,
             }
           }}  
           asChild>
