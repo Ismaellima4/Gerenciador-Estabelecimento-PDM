@@ -47,7 +47,7 @@ const ProductForm = ({
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(
     initialProduct?.productImage || null
   );
-  const [supplier, setSupplier] = useState(initialProduct?.supplier?.name || '');
+  const [supplier, setSupplier] = useState(initialProduct?.supplier?.supplierName || '');
   const [price, setPrice] = useState(initialProduct?.price?.toString() || '');
   const [category, setCategory] = useState(initialProduct?.category?.name || '');
   const [quantity, setQuantity] = useState(initialProduct?.amount?.toString() || '');
@@ -115,7 +115,7 @@ const ProductForm = ({
       return;
     }
 
-    const selectedSupplier = suppliers.find(s => s.name === supplier);
+    const selectedSupplier = suppliers.find(s => s.supplierName === supplier);
     const selectedCategory = categories.find(c => c.name === category);
 
     if (!selectedSupplier || !selectedCategory) {
@@ -297,7 +297,7 @@ const ProductForm = ({
         <ModalSelector
           visible={isSupplierModalVisible}
           onClose={() => setSupplierModalVisible(false)}
-          options={suppliers.map(supplier => supplier.name)}
+          options={suppliers.map(supplier => supplier.supplierName)}
           onSelect={handleSelectSupplier}
           title="Selecione um Fornecedor"
           showAddInput={false}
