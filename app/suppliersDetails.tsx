@@ -1,4 +1,5 @@
-import { deleteSupplier, updateSupplier } from '@/store/supplierSlice';
+import { RootState } from '@/store/store';
+import {  deleteSupplierById, findSupplierById, updateSupplier } from '@/store/supplierSlice';
 import Supplier from '@/types/supplier';
 import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
@@ -17,57 +18,77 @@ import {
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function SuppliersDetails() {
-
-  const supplierParams = useLocalSearchParams();
   const dispatch = useDispatch();
+  const { id } = useLocalSearchParams();
+
+  const supplier = useSelector((state: RootState) =>
+    findSupplierById(state, String(id))
+  );
 
   const [isEditing, setIsEditing] = useState(false);
-  const [nameSupplier, setNameSupplier] = useState(String(supplierParams.name));
-  const [cnpjSupplier, setCnpjSupplier] = useState(String(supplierParams.cnpj));
-  const [phone, setPhone] = useState(String(supplierParams.phoneNumber));
-  const [emailSupplier, setEmailSupplier] = useState(String(supplierParams.email));
-  const [description, setDescription] = useState(String(supplierParams.additionalInformation));
- 
 
-  const handleUpdate = () => {
-    if (!nameSupplier || !phone) {
-      Alert.alert('Erro', 'Nome e telefone são obrigatórios.');
-      return;
-    }
-    const oldCnpj = String(supplierParams.cnpj); 
+  const [supplierNameState, setSupplierName] = useState(supplier?.supplierName || '');
+  const [cnpjState, setCnpjSupplier] = useState(supplier?.cnpj || '');
+  const [phoneState, setPhone] = useState(supplier?.phoneNumber || '');
+  const [emailState, setEmailSupplier] = useState(supplier?.email || '');
+  const [descriptionState, setDescription] = useState(supplier?.additionalInformation || '');
 
-    if (isEditing) {
-      const updatedSupplier: Supplier = {
-        name: nameSupplier,
-        cnpj: cnpjSupplier,
-        phoneNumber: phone,
-        email: emailSupplier,
-        additionalInformation: description,
-      };
-
-      dispatch(updateSupplier({ oldCnpj, supplier: updatedSupplier }));
-      Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
-      router.back();
-    } else {
-      setIsEditing(true);
-    }
-  };
-
+  if (!supplier) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centeredMessage}>
+          <Text style={styles.errorMessage}>Fornecedor não encontrado.</Text>
+          <TouchableOpacity style={styles.backButton} onPress={router.back}>
+            <Text style={styles.backButtonText}>Voltar para a lista</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleDelete = () => {
-    dispatch(deleteSupplier(cnpjSupplier));
-    Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
-    router.back(); 
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir o fornecedor "${supplierNameState}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          onPress: () => {
+            dispatch(deleteSupplierById({ id: supplier.id }));
+            Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
+            router.back();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleUpdate = () => {
+    if (isEditing) {
+      const updatedSupplier: Supplier = {
+        id: supplier.id,
+        supplierName: supplierNameState,
+        cnpj: cnpjState,
+        phoneNumber: phoneState,
+        email: emailState,
+        additionalInformation: descriptionState,
+      };
+
+      dispatch(updateSupplier(updatedSupplier));
+      Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
+    }
+    setIsEditing(!isEditing); 
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }} 
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.container}>
@@ -80,14 +101,14 @@ export default function SuppliersDetails() {
 
           <TextInput
             style={styles.input}
-            value={nameSupplier}
-            onChangeText={setNameSupplier}
+            value={supplierNameState}
+            onChangeText={setSupplierName}
             editable={isEditing}
             placeholder="Nome"
           />
           <TextInput
             style={styles.input}
-            value={cnpjSupplier}
+            value={cnpjState}
             onChangeText={setCnpjSupplier}
             editable={isEditing}
             placeholder="CNPJ"
@@ -95,7 +116,7 @@ export default function SuppliersDetails() {
           />
           <TextInput
             style={styles.input}
-            value={phone}
+            value={phoneState}
             onChangeText={setPhone}
             editable={isEditing}
             placeholder="Telefone"
@@ -103,7 +124,7 @@ export default function SuppliersDetails() {
           />
           <TextInput
             style={styles.input}
-            value={emailSupplier}
+            value={emailState}
             onChangeText={setEmailSupplier}
             editable={isEditing}
             placeholder="Email"
@@ -111,7 +132,7 @@ export default function SuppliersDetails() {
           />
           <TextInput
             style={[styles.input, styles.descriptionInput]}
-            value={description}
+            value={descriptionState}
             onChangeText={setDescription}
             editable={isEditing}
             placeholder="Descrição"
@@ -123,7 +144,7 @@ export default function SuppliersDetails() {
               <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
             </TouchableOpacity>
 
-            {!isEditing && ( 
+            {!isEditing && (
               <TouchableOpacity style={styles.button} onPress={handleDelete}>
                 <Text style={styles.buttonText}>DELETAR</Text>
               </TouchableOpacity>
@@ -203,5 +224,27 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+   centeredMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMessage: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20, // Adicionei um espaçamento
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    alignSelf: 'center'
   },
 });
