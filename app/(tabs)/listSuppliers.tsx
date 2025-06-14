@@ -30,21 +30,17 @@ export default function ListSuppliers() {
 
       <FlatList
         data={suppliers}
-        keyExtractor={(item, index) => `${item.name}-${index}`}
+        keyExtractor={(item, index) => `${item.supplierName}-${index}`}
         renderItem={({ item }) => (
           <Link href={{
             pathname: '/suppliersDetails',
             params: {
-              name: item.name,
-              phoneNumber: item.phoneNumber,
-              cnpj: item.cnpj,
-              email: item.email,
-              additionalInformation: item.additionalInformation
+                id: item.id,
             }
           }} asChild>
               <TouchableOpacity>
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardTitle}>{item.supplierName}</Text>
                 <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
                 {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
                 {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
