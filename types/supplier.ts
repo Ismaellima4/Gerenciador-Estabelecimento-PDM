@@ -1,5 +1,6 @@
 type Supplier = {
-    name: string;
+    id: string; 
+    supplierName: string;
     cnpj?: string;
     phoneNumber: string;
     email?: string;
