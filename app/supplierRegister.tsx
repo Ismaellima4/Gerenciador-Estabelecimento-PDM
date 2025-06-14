@@ -12,12 +12,11 @@ import {
 import { useDispatch } from 'react-redux';
 import { addSupplier } from '../store/supplierSlice';
 import { router } from 'expo-router';
-import type Supplier from '@/types/supplier';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormActionButtons from '@/components/FormActionButton';
 
 export default function SupplierRegistration() {
-  const [name, setName] = useState('');
+  const [supplierName, setSupplierName] = useState('');
   const [cnpj, setCnpj] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -26,13 +25,13 @@ export default function SupplierRegistration() {
   const dispatch = useDispatch();
 
   const saveSupplier = () => {
-    if (!name || !phoneNumber) {
+    if (!supplierName || !phoneNumber) {
       Alert.alert('Erro', 'Nome e telefone são obrigatórios.');
       return;
     }
 
-    const newSupplier: Supplier = {
-      name,
+    const newSupplier = {
+      supplierName,
       cnpj,
       phoneNumber,
       email,
@@ -46,19 +45,19 @@ export default function SupplierRegistration() {
 
   return (
     <KeyboardAvoidingView
-            style={{ flex: 1 }} 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView >
+        <ScrollView>
           <View style={styles.container}>
             <View style={styles.inputsWrapper}>
               <Text style={styles.label}>Nome *</Text>
               <TextInput
                 style={styles.input}
-                value={name}
-                onChangeText={setName}
+                value={supplierName}
+                onChangeText={setSupplierName}
                 placeholder="Nome do fornecedor"
                 placeholderTextColor="#888"
               />
@@ -104,7 +103,10 @@ export default function SupplierRegistration() {
               />
             </View>
 
-            <FormActionButtons onSave={saveSupplier} onCancel={() => router.back} />
+            <FormActionButtons
+              onSave={saveSupplier}
+              onCancel={() => router.back()}
+            />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -148,24 +150,5 @@ const styles = StyleSheet.create({
     minHeight: 120,
     textAlignVertical: 'top',
     lineHeight: 22,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 24,
-  },
-  button: {
-    flex: 1,
-    backgroundColor: '#000', // Mantido o preto original
-    paddingVertical: 18, // Mantido maior
-    borderRadius: 8,
-    marginHorizontal: 6,
-    // PROPRIEDADES DE SOMBRA REMOVIDAS AQUI
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 18, // Mantido maior
   },
 });
