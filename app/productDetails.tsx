@@ -97,19 +97,15 @@ export default function ProductDetailScreen() {
         <Link href={{
           pathname: '/suppliersDetails',
           params: {
-            name: supplier.name,
-            phoneNumber: supplier.phoneNumber,
-            cnpj: supplier.cnpj ?? '',
-            email: supplier.email ?? '',
-            additionalInformation: supplier.additionalInformation ?? ''
+            id: supplier.id
           }
         }} asChild>
           <TouchableOpacity>
             <View style={styles.supplierContainer}>
               <View style={styles.supplierInitialCircle}>
-                <Text style={styles.supplierInitial}>{supplier.name ? supplier.name.charAt(0).toUpperCase() : '?'}</Text>
+                <Text style={styles.supplierInitial}>{supplier.supplierName ? supplier.supplierName.charAt(0).toUpperCase() : '?'}</Text>
               </View>
-              <Text style={styles.supplierName}>{supplier.name}</Text>
+              <Text style={styles.supplierName}>{supplier.supplierName}</Text>
             </View>
           </TouchableOpacity>
         </Link>
