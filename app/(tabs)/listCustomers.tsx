@@ -4,7 +4,6 @@ import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
-
 export default function ListCustomers() {
   return (
     <View style={styles.container}>
@@ -16,9 +15,9 @@ export default function ListCustomers() {
           </TouchableOpacity>
         </Link>
       </View>
-
+    
       <Search />
-       ListEmptyComponent={<Text style={styles.emptyText}>Nenhum cliente cadastrado.</Text>}
+      <Text style={styles.emptyText}>Nenhum cliente cadastrado.</Text>
     
     </View>
   );
