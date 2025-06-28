@@ -19,6 +19,13 @@ export default function TabLayout() {
           tabBarIcon: () => <FontAwesome name="handshake-o" size={24} color="black" />,
         }}
       />
+      <Tabs.Screen
+        name="listCustomers"
+        options={{
+          title: 'Clientes',
+          tabBarIcon: () => <FontAwesome name="users" size={24} color="black" />,
+        }}
+      />
     </Tabs>
   );
 }
