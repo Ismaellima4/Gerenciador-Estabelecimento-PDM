@@ -21,9 +21,7 @@ export default function ListSuppliers() {
     <SafeAreaView style={listStyles.container}>
       <View style={listStyles.header}>
         <Text style={listStyles.title}>Fornecedores</Text>
-        <Link href='/supplierRegister' asChild>
-          <AddButton/>
-        </Link>
+          <AddButton pathname='supplierRegister'/>
       </View>
 
       <Search />

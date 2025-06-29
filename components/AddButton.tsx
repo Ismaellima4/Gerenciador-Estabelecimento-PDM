@@ -1,10 +1,16 @@
+import { Link } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
+type ButtonProps = {
+    pathname: string;
+}
 
-export const AddButton = () => (
-    <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addText}>ADICIONAR</Text>
-    </TouchableOpacity>
+export const AddButton = ({ pathname }: ButtonProps) => (
+    <Link href={pathname} asChild>
+        <TouchableOpacity style={styles.addButton}>
+            <Text style={styles.addText}>ADICIONAR</Text>
+        </TouchableOpacity>
+    </Link>
 );
 
 

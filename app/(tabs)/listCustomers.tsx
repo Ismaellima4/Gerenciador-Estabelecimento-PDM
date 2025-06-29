@@ -1,7 +1,6 @@
 import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
 import { listStyles } from '@/styles/listStyles';
-import { Link } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -11,9 +10,7 @@ export default function ListCustomers() {
     <View style={listStyles.container}>
       <View style={listStyles.header}>
         <Text style={listStyles.title}>Clientes</Text>
-        <Link href='/customerRegister' asChild>
-          <AddButton/>
-        </Link>
+          <AddButton pathname='customerRegister'/>
       </View>
     
       <Search />
