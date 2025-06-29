@@ -9,7 +9,7 @@ export default function CustomerRegistration() {
         <ScrollView>
           <View style={registerStyles.container}>
             <View style={registerStyles.inputsWrapper}>
-              <Text style={registerStyles.label}>Nome *</Text>
+              <Text style={registerStyles.label}>Nome <Text style={registerStyles.required}>*</Text></Text>
               <TextInput
                 style={registerStyles.input}
                 placeholder="Nome do cliente"
@@ -23,7 +23,7 @@ export default function CustomerRegistration() {
                 placeholderTextColor="#888"
               />
 
-              <Text style={registerStyles.label}>Telefone *</Text>
+              <Text style={registerStyles.label}>Telefone <Text style={registerStyles.required}>*</Text></Text>
               <TextInput
                 style={registerStyles.input}
                 placeholder="(00) 00000-0000"

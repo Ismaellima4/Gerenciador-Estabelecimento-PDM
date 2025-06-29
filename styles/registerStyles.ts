@@ -35,4 +35,7 @@ export const registerStyles = StyleSheet.create({
     flexGrow: 1,
     marginBottom: 150,
   },
+  required: {
+    color: 'red',
+  },
 });

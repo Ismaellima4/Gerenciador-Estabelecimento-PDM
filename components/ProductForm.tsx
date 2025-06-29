@@ -2,6 +2,7 @@ import FormActionButtons from '@/components/FormActionButton';
 import ModalSelector from '@/components/ModalSelector';
 import { addCategory, deleteCategory } from '@/store/categorySlice';
 import { RootState } from '@/store/store';
+import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
 import Product from '@/types/product';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -40,8 +41,6 @@ const ProductForm = ({
   submitButtonText,
   onAddSupplierPress,
 }: ProductFormProps) => {
-  // Se initialProduct existe, usamos o ID dele, caso contrário, será undefined
-  // O ID será gerado na action 'addProduct' do slice, se 'initialProduct' for null
   const [productName, setProductName] = useState(initialProduct?.productName || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(
@@ -123,30 +122,24 @@ const ProductForm = ({
       return;
     }
 
-    // Ajuste aqui para incluir o 'id' se 'initialProduct' existir
-    // Se for um novo produto, 'id' será undefined neste ponto, o que é esperado
-    // porque ele será gerado na action 'addProduct' no slice.
-    const productData: Omit<Product, 'id'> & { id?: string } = { // Ajustado para aceitar id opcionalmente
+    const productData: Omit<Product, 'id'> & { id?: string } = {
       productName,
       description,
       productImage: selectedImageUri || '',
       price: parseFloat(price),
       category: selectedCategory,
       amount: parseInt(quantity),
-      // Assumindo que expirationDate é string "DD/MM/AAAA", converter para Date
-      // Pode ser necessário uma biblioteca para parsing robusto de datas
       expirationDate: new Date(expirationDate.split('/').reverse().join('-')), // Converte para YYYY-MM-DD para Date
       barCode: barcode,
-      manufacturingDate: initialProduct?.manufacturingDate || new Date(), // Mantém a data de fabricação ou cria uma nova
+      manufacturingDate: initialProduct?.manufacturingDate || new Date(),
       supplier: selectedSupplier,
     };
 
     if (initialProduct?.id) {
-      // Se estamos editando, adicione o ID existente
       (productData as Product).id = initialProduct.id;
     }
 
-    onSubmit(productData as Product); // Garante que o tipo final é Product
+    onSubmit(productData as Product);
   };
 
   const handleSelectSupplier = (selectedSupplier: string) => {
@@ -181,19 +174,19 @@ const ProductForm = ({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={registerStyles.safeArea}>
         <Pressable onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
+          <ScrollView contentContainerStyle={registerStyles.container}>
+            <Text style={registerStyles.label}>Nome do produto <Text style={registerStyles.required}>*</Text></Text>
             <TextInput
-              style={styles.input}
+              style={registerStyles.input}
               placeholder="Digite o nome do produto"
               placeholderTextColor="#999"
               value={productName}
               onChangeText={setProductName}
             />
 
-            <Text style={styles.label}>Descrição</Text>
+            <Text style={registerStyles.label}>Descrição</Text>
             <TextInput
               style={styles.textArea}
               multiline
@@ -202,7 +195,7 @@ const ProductForm = ({
               onChangeText={setDescription}
             />
 
-            <Text style={styles.label}>Add. Imagens</Text>
+            <Text style={registerStyles.label}>Add. Imagens</Text>
             <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
               {selectedImageUri ? (
                 <Image source={{ uri: selectedImageUri }} style={styles.uploadedImage} />
@@ -211,7 +204,7 @@ const ProductForm = ({
               )}
             </TouchableOpacity>
 
-            <Text style={styles.label}>Fornecedor</Text>
+            <Text style={registerStyles.label}>Fornecedor</Text>
             <TouchableOpacity style={styles.dropdown} onPress={() => setSupplierModalVisible(true)}>
               <TextInput
                 style={styles.dropdownTextInput}
@@ -224,7 +217,7 @@ const ProductForm = ({
             </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Preço</Text>
+                <Text style={registerStyles.label}>Preço</Text>
                 <View style={styles.priceInputContainer}>
                   <Text style={styles.currency}>R$</Text>
                   <TextInput
@@ -237,7 +230,7 @@ const ProductForm = ({
                 </View>
               </View>
               <View style={styles.column}>
-                <Text style={styles.label}>Categoria</Text>
+                <Text style={registerStyles.label}>Categoria</Text>
                 <TouchableOpacity style={styles.dropdown} onPress={() => setCategoryModalVisible(true)}>
                   <TextInput
                     style={styles.dropdownTextInput}
@@ -253,9 +246,9 @@ const ProductForm = ({
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Qtd. em Estoque</Text>
+                <Text style={registerStyles.label}>Qtd. em Estoque</Text>
                 <TextInput
-                  style={styles.input}
+                  style={registerStyles.input}
                   keyboardType="numeric"
                   placeholderTextColor="#999"
                   value={quantity}
@@ -263,9 +256,9 @@ const ProductForm = ({
                 />
               </View>
               <View style={styles.column}>
-                <Text style={styles.label}>Data de Validade</Text>
+                <Text style={registerStyles.label}>Data de Validade</Text>
                 <TextInput
-                  style={styles.input}
+                  style={registerStyles.input}
                   placeholder="DD/MM/AAAA"
                   placeholderTextColor="#999"
                   value={expirationDate}
@@ -274,7 +267,7 @@ const ProductForm = ({
               </View>
             </View>
 
-            <Text style={styles.label}>Código de Barras</Text>
+            <Text style={registerStyles.label}>Código de Barras</Text>
             <View style={styles.barcodeInputContainer}>
               <TextInput
                 style={styles.barcodeInput}
@@ -323,33 +316,6 @@ const ProductForm = ({
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  required: {
-    color: 'red',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
   textArea: {
     borderWidth: 1,
     borderColor: '#ccc',
