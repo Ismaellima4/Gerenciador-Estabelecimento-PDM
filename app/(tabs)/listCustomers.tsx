@@ -1,18 +1,18 @@
+import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
+import { listStyles } from '@/styles/listStyles';
 import { Link } from 'expo-router';
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 
 export default function ListCustomers() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Clientes</Text>
-        <Link href='/custormerRegister' asChild>
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addText}>ADICIONAR</Text>
-          </TouchableOpacity>
+    <View style={listStyles.container}>
+      <View style={listStyles.header}>
+        <Text style={listStyles.title}>Clientes</Text>
+        <Link href='/customerRegister' asChild>
+          <AddButton/>
         </Link>
       </View>
     
@@ -24,33 +24,6 @@ export default function ListCustomers() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    paddingHorizontal: 16, 
-    paddingTop: 24, 
-    backgroundColor: '#fff' 
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,  
-  },
-  title: {
-    fontSize: 20, 
-    fontWeight: 'bold',
-    paddingHorizontal : 10
-  },
-  addButton: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  addText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
   mainBanner: {
     flex: 1,
     backgroundColor: '#ddd',

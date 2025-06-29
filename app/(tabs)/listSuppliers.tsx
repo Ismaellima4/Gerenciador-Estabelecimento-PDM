@@ -1,3 +1,6 @@
+import { AddButton } from '@/components/AddButton';
+import { Search } from '@/components/Search';
+import { listStyles } from '@/styles/listStyles';
 import { Link } from 'expo-router';
 import React from 'react';
 import {
@@ -10,19 +13,16 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { Search } from '@/components/Search';
 
 export default function ListSuppliers() {
   const suppliers = useSelector((state: RootState) => state.supplier.list);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Fornecedores</Text>
+    <SafeAreaView style={listStyles.container}>
+      <View style={listStyles.header}>
+        <Text style={listStyles.title}>Fornecedores</Text>
         <Link href='/supplierRegister' asChild>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addText}>ADICIONAR</Text>
-        </TouchableOpacity>
+          <AddButton/>
         </Link>
       </View>
 
@@ -60,33 +60,6 @@ export default function ListSuppliers() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    paddingHorizontal: 16, 
-    paddingTop: 24, 
-    backgroundColor: '#fff' 
-  },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 16, 
-    alignItems: 'center' 
-  },
-  title: { 
-    fontSize: 20, 
-    fontWeight: 'bold',
-    paddingHorizontal : 10
-  },
-  addButton: { 
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  addText: { 
-    fontSize: 12, 
-    fontWeight: 'bold' 
-  },
   card: { 
     backgroundColor: '#e0e0e0', 
     borderRadius: 10, 

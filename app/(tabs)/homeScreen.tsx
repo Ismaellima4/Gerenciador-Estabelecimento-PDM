@@ -1,5 +1,7 @@
+import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
 import { RootState } from '@/store/store';
+import { listStyles } from '@/styles/listStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React from 'react';
@@ -11,15 +13,12 @@ export default function HomeScreen() {
 
   const product = useSelector((state : RootState) => state.product.list)
 
-
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Produtos</Text>
+    <View style={listStyles.container}>
+      <View style={listStyles.header}>
+        <Text style={listStyles.title}>Produtos</Text>
         <Link href='/productsRegisterScreen' asChild>
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addText}>ADICIONAR</Text>
-          </TouchableOpacity>
+          <AddButton />
         </Link>
       </View>
 
@@ -67,45 +66,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    paddingHorizontal: 16, 
-    paddingTop: 24, 
-    backgroundColor: '#fff' 
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,  
-  },
-  title: {
-    fontSize: 20, 
-    fontWeight: 'bold',
-    paddingHorizontal : 10
-  },
-  addButton: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  addText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  mainBanner: {
-    flex: 1,
-    backgroundColor: '#ddd',
-    height: 120,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  sideBanner: {
-    width: 60,
-    backgroundColor: '#ddd',
-    borderRadius: 30,
-  },
   productList: {
     paddingBottom: 16,
   },
