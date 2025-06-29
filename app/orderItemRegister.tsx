@@ -1,24 +1,25 @@
+import { registerStyles } from '@/styles/registerStyles';
+import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
 import {
+  Keyboard,
+  Pressable,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Keyboard,
-  Pressable,
-  SafeAreaView,
 } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
 
 export default function OrderItemForm() {
   return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={registerStyles.safeArea}>
         <Pressable onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={styles.container}>
+          <ScrollView contentContainerStyle={registerStyles.container}>
 
-            <Text style={styles.label}>Produto <Text style={styles.required}>*</Text></Text>
+            <Text style={registerStyles.label}>Produto <Text style={styles.required}>*</Text></Text>
             <TouchableOpacity style={styles.dropdown}>
               <TextInput
                 style={styles.dropdownTextInput}
@@ -30,16 +31,16 @@ export default function OrderItemForm() {
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Quantidade</Text>
+                <Text style={registerStyles.label}>Quantidade</Text>
                 <TextInput
-                  style={styles.input}
+                  style={registerStyles.input}
                   placeholder="0"
                   keyboardType="numeric"
                   placeholderTextColor="#999"
                 />
               </View>
               <View style={styles.column}>
-                <Text style={styles.label}>Preço Unitário</Text>
+                <Text style={registerStyles.label}>Preço Unitário</Text>
                 <View style={styles.priceContainer}>
                  <Text style={styles.column}>R$</Text>
                   <TextInput
@@ -59,32 +60,8 @@ export default function OrderItemForm() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
   required: {
     color: 'red',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 15,
-    backgroundColor: '#fff',
   },
   textArea: {
     borderWidth: 1,

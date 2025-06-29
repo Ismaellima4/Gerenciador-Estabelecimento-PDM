@@ -1,19 +1,19 @@
+import FormActionButtons from '@/components/FormActionButton';
+import { registerStyles } from '@/styles/registerStyles';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Text,
+  TextInput,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { addSupplier } from '../store/supplierSlice';
-import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import FormActionButtons from '@/components/FormActionButton';
 
 export default function SupplierRegistration() {
   const [supplierName, setSupplierName] = useState('');
@@ -49,31 +49,31 @@ export default function SupplierRegistration() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={registerStyles.safeArea}>
         <ScrollView>
-          <View style={styles.container}>
-            <View style={styles.inputsWrapper}>
-              <Text style={styles.label}>Nome *</Text>
+          <View style={registerStyles.container}>
+            <View style={registerStyles.inputsWrapper}>
+              <Text style={registerStyles.label}>Nome *</Text>
               <TextInput
-                style={styles.input}
+                style={registerStyles.input}
                 value={supplierName}
                 onChangeText={setSupplierName}
                 placeholder="Nome do fornecedor"
                 placeholderTextColor="#888"
               />
 
-              <Text style={styles.label}>CNPJ</Text>
+              <Text style={registerStyles.label}>CNPJ</Text>
               <TextInput
-                style={styles.input}
+                style={registerStyles.input}
                 value={cnpj}
                 onChangeText={setCnpj}
                 placeholder="CNPJ"
                 placeholderTextColor="#888"
               />
 
-              <Text style={styles.label}>Telefone *</Text>
+              <Text style={registerStyles.label}>Telefone *</Text>
               <TextInput
-                style={styles.input}
+                style={registerStyles.input}
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
                 placeholder="(00) 00000-0000"
@@ -81,9 +81,9 @@ export default function SupplierRegistration() {
                 keyboardType="phone-pad"
               />
 
-              <Text style={styles.label}>E-mail</Text>
+              <Text style={registerStyles.label}>E-mail</Text>
               <TextInput
-                style={styles.input}
+                style={registerStyles.input}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="email@exemplo.com"
@@ -91,9 +91,9 @@ export default function SupplierRegistration() {
                 keyboardType="email-address"
               />
 
-              <Text style={styles.label}>Informações adicionais</Text>
+              <Text style={registerStyles.label}>Informações adicionais</Text>
               <TextInput
-                style={[styles.input, styles.multiline]}
+                style={[registerStyles.input, registerStyles.multiline]}
                 multiline
                 numberOfLines={4}
                 value={additionalInformation}
@@ -113,42 +113,3 @@ export default function SupplierRegistration() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-  inputsWrapper: {
-    flexGrow: 1,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    marginTop: 13,
-    color: '#333',
-  },
-  input: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 18,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    marginBottom: 15,
-  },
-  multiline: {
-    minHeight: 120,
-    textAlignVertical: 'top',
-    lineHeight: 22,
-  },
-});
