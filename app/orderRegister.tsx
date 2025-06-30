@@ -1,3 +1,4 @@
+
 import { registerStyles } from '@/styles/registerStyles';
 import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
@@ -19,7 +20,7 @@ export default function OrderItemForm() {
         <Pressable onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={registerStyles.container}>
 
-            <Text style={registerStyles.label}>Produto <Text style={styles.required}>*</Text></Text>
+            <Text style={registerStyles.label}> Adicionar Produto <Text style={styles.required}>*</Text></Text>
             <TouchableOpacity style={styles.dropdown}>
               <TextInput
                 style={styles.dropdownTextInput}
