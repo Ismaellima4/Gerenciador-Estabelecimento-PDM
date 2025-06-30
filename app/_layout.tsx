@@ -17,6 +17,7 @@ export default function RootLayout() {
           <Stack.Screen name="productUpdate" options={{headerTitle: "Atualizar Produto"}} />
           <Stack.Screen name="customerRegister" options={{headerTitle: "Registrar Cliente"}} />
           <Stack.Screen name="orderRegister" options={{headerTitle: "Pedido"}} />
+          <Stack.Screen name="paymentRegister" options={{headerTitle: "Registrar Pagamento"}} />
         </Stack>
       </PersistGate>
     </Provider>
