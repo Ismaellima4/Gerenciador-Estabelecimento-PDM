@@ -1,4 +1,3 @@
-
 import { registerStyles } from '@/styles/registerStyles';
 import { AntDesign } from '@expo/vector-icons';
 import React from 'react';
@@ -10,55 +9,121 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
+import GreenButton from '@/components/ButtonComp'; 
 
 export default function OrderItemForm() {
   return (
-      <SafeAreaView style={registerStyles.safeArea}>
-        <Pressable onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={registerStyles.container}>
+    <SafeAreaView style={registerStyles.safeArea}>
+      <Pressable onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={registerStyles.container}>
+          <Text style={registerStyles.label}>
+            Adicionar Produto <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.dropdown}>
+            <TextInput
+              style={styles.dropdownTextInput}
+              placeholder="Selecione um produto"
+              placeholderTextColor="#999"
+            />
+            <AntDesign name="caretdown" size={14} color="#666" />
+          </View>
 
-            <Text style={registerStyles.label}> Adicionar Produto <Text style={styles.required}>*</Text></Text>
-            <TouchableOpacity style={styles.dropdown}>
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={registerStyles.label}>Quantidade</Text>
               <TextInput
-                style={styles.dropdownTextInput}
-                placeholder="Selecione um produto"
+                style={registerStyles.input}
+                placeholder="0"
+                keyboardType="numeric"
                 placeholderTextColor="#999"
               />
-              <AntDesign name="caretdown" size={14} color="#666" />
-            </TouchableOpacity>
-
-            <View style={styles.row}>
-              <View style={styles.column}>
-                <Text style={registerStyles.label}>Quantidade</Text>
+            </View>
+            <View style={styles.column}>
+              <Text style={registerStyles.label}>Preço Unitário</Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.column}>R$</Text>
                 <TextInput
-                  style={registerStyles.input}
-                  placeholder="0"
+                  style={styles.price}
                   keyboardType="numeric"
                   placeholderTextColor="#999"
+                  editable={false}
+                  placeholder="0,00"
                 />
               </View>
-              <View style={styles.column}>
-                <Text style={registerStyles.label}>Preço Unitário</Text>
-                <View style={styles.priceContainer}>
-                 <Text style={styles.column}>R$</Text>
-                  <TextInput
-                    style={styles.price}
-                    keyboardType="numeric"
-                    placeholderTextColor="#999"
-                    editable={false} 
-                    placeholder='0,00'
-                  />
-                </View>
+            </View>
+          </View>
+
+          <GreenButton
+            title="Adicionar Produto"
+            onPress={() => {
+              console.log('Produto adicionado');
+            }}
+          />
+
+          <GreenButton
+            title="Escanear Barcode"
+            onPress={() => {
+              console.log('Escaneando barcode...');
+            }}
+          />
+
+          <Text style={registerStyles.label}>Produtos adicionados</Text>
+          <View style={styles.dropdown}>
+            <TextInput
+              style={styles.dropdownTextInput}
+              placeholder="Selecione um produto"
+              placeholderTextColor="#999"
+            />
+            <AntDesign name="caretdown" size={14} color="#666" />
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={registerStyles.label}>Qtd. Produtos</Text>
+              <TextInput
+                style={registerStyles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                placeholderTextColor="#999"
+              />
+            </View>
+            <View style={styles.column}>
+              <Text style={registerStyles.label}>Sub.total</Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.column}>R$</Text>
+                <TextInput
+                  style={styles.price}
+                  keyboardType="numeric"
+                  placeholderTextColor="#999"
+                  editable={false}
+                  placeholder="0,00"
+                />
               </View>
             </View>
-          </ScrollView>
-        </Pressable>
-      </SafeAreaView>
+          </View>
+          <View>
+           <GreenButton
+            title="Pagar"
+            onPress={() => {
+              console.log('Pagando...');
+            }}
+          />
+
+          <GreenButton
+            title="Terminar Compra"
+            onPress={() => {
+              console.log('Compra finalizada');
+            }}
+          />
+          </View>
+        </ScrollView>
+      </Pressable>
+    </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   required: {
@@ -115,5 +180,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
   },
+  button: {
+    backgroundColor: '#28a745',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+ 
 });
 
