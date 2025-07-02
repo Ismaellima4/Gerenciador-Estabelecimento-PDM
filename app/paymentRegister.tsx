@@ -49,8 +49,6 @@ export default function PaymentRegister() {
             >
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Produtos da Compra</Text>
-
-                <Text style={{ color: '#888' }}>(Lista de produtos aqui)</Text>
               </View>
             </TouchableOpacity>
           </Modal>
