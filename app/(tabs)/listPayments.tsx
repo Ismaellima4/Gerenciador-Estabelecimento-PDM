@@ -1,7 +1,8 @@
 
 import { Search } from "@/components/Search";
 import { listStyles } from "@/styles/listStyles";
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 
 
 
@@ -13,6 +14,13 @@ export default function ListPayments() {
           </View>
         
           <Search />
+
+           <FlatList
+            data={[]}
+            keyExtractor={(item, index) => `order-${index}`}
+            renderItem={() => null}>            
+          </FlatList>
+          
           <Text style={styles.emptyText}>Nenhum pagamento realizado.</Text>
         
         </View>
