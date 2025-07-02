@@ -16,6 +16,7 @@ export const registerStyles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#333',
+    marginTop: 20,
   },
   input: {
     borderWidth: 1,
