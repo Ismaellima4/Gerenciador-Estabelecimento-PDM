@@ -1,7 +1,8 @@
 
 import { Search } from "@/components/Search";
 import { listStyles } from "@/styles/listStyles";
-import { View, Text, StyleSheet } from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 
 
 
@@ -11,8 +12,15 @@ export default function ListOrders() {
           <View style={listStyles.header}>
             <Text style={listStyles.title}>Pedidos</Text>
           </View>
-        
+
           <Search />
+
+          <FlatList
+            data={[]}
+            keyExtractor={(item, index) => `order-${index}`}
+            renderItem={() => null}>            
+          </FlatList>
+
           <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
         
         </View>
