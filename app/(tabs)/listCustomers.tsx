@@ -2,7 +2,7 @@ import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
 import { listStyles } from '@/styles/listStyles';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 
 export default function ListCustomers() {
@@ -14,6 +14,13 @@ export default function ListCustomers() {
       </View>
     
       <Search />
+
+       <FlatList
+          data={[]}
+          keyExtractor={(item, index) => `order-${index}`}
+          renderItem={() => null}>            
+        </FlatList>
+        
       <Text style={styles.emptyText}>Nenhum cliente cadastrado.</Text>
     
     </View>
