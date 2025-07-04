@@ -2,6 +2,11 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import supplierReducer from './supplierSlice';
 import categoryReducer from './categorySlice';
 import productReducer from './productSlice';
+import paymentReducer from './paymentSlice';
+import orderReducer from './orderSlice';
+import customerReducer from './customerSlice';
+import orderItemReducer from './orderItemSlice';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistReducer, persistStore } from 'redux-persist';
 
@@ -9,6 +14,11 @@ const rootReducer = combineReducers({
   supplier: supplierReducer,
   category: categoryReducer,
   product: productReducer,
+  order: orderReducer,
+  payment: paymentReducer,
+  customer: customerReducer,
+  orderItem: orderItemReducer
+
 });
 
 const persistConfig = {
