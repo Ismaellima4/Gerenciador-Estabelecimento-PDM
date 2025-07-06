@@ -6,7 +6,6 @@ import React from 'react';
 import {
   FlatList,
   SafeAreaView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -28,7 +27,7 @@ export default function ListSuppliers() {
 
       <FlatList
         data={suppliers}
-        keyExtractor={(item, index) => `${item.supplierName}-${index}`}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item }) => (
           <Link href={{
             pathname: '/suppliersDetails',
@@ -37,13 +36,13 @@ export default function ListSuppliers() {
             }
           }} asChild>
               <TouchableOpacity>
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>{item.supplierName}</Text>
-                <Text style={styles.cardInfo}>Telefone: {item.phoneNumber}</Text>
-                {item.cnpj && <Text style={styles.cardInfo}>CNPJ: {item.cnpj}</Text>}
-                {item.email && <Text style={styles.cardInfo}>Email: {item.email}</Text>}
+              <View style={listStyles.card}>
+                <Text style={listStyles.cardTitle}>{item.supplierName}</Text>
+                <Text style={listStyles.cardInfo}>Telefone: {item.phoneNumber}</Text>
+                {item.cnpj && <Text style={listStyles.cardInfo}>CNPJ: {item.cnpj}</Text>}
+                {item.email && <Text style={listStyles.cardInfo}>Email: {item.email}</Text>}
                 {item.additionalInformation && (
-                  <Text style={styles.cardInfo}>
+                  <Text style={listStyles.cardInfo}>
                     Informações adicionais: {item.additionalInformation}
                   </Text>
                 )}
@@ -51,33 +50,8 @@ export default function ListSuppliers() {
             </TouchableOpacity>
           </Link>
         )}
-        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
+        ListEmptyComponent={<Text style={listStyles.emptyText}>Nenhum fornecedor cadastrado.</Text>}
       />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  card: { 
-    backgroundColor: '#e0e0e0', 
-    borderRadius: 10, 
-    padding: 12, 
-    marginBottom: 12, 
-    borderWidth: 1, 
-    borderColor: '#000'
-  },
-  cardTitle: { 
-    fontWeight: 'bold', 
-    fontSize: 20, 
-    marginBottom: 4 
-  },
-  cardInfo: { 
-    fontSize: 14, 
-    color: '#444' 
-  },
-  emptyText: { 
-    textAlign: 'center',
-    marginTop: 20, 
-    color: '#999' 
-  },
-});
