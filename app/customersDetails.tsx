@@ -1,49 +1,118 @@
+import { deleteCustomerById, findCustomerById, updateCustomer } from "@/store/customerSlice";
+import { RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
-import { useState } from "react";
-import { SafeAreaView, ScrollView, Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import customer from "@/types/customer";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
+import { SafeAreaView, ScrollView, Text, View, StyleSheet, TouchableOpacity, Alert, TextInput } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+
 
 
 export default function CustomersDetails() {
 
-    const [isEditing, setIsEditing] = useState(false);
+  const dispatch = useDispatch();
+  const { id } = useLocalSearchParams();
+
+  const customer = useSelector((state: RootState) =>
+    findCustomerById(state, String(id))
+  );
 
 
-    const handleDelete = () => {
-       
-         Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
+  const [isEditing, setIsEditing] = useState(false);
 
-        //falta implementar a lógica de exclusão
+  const [customerNameState, setCustomerName] = useState(customer?.name || '');
+  const [cpfState, setCpf] = useState(customer?.cpf || '');
+  const [phoneState, setPhone] = useState(customer?.phone || '');
+  const [emailState, setEmail] = useState(customer?.email || '');
+
+  if (!customer) {
+    return (
+        <SafeAreaView style={styles.container}>
+          <View style={styles.centeredMessage}>
+            <Text style={styles.errorMessage}>Fornecedor não encontrado.</Text>
+            <TouchableOpacity style={styles.backButton} onPress={router.back}>
+              <Text style={styles.backButtonText}>Voltar para a lista</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+    );
+  }
+
+  const handleDelete = () => {
+
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir o cliente "${customerNameState}"?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Excluir',
+              onPress: () => {
+                dispatch(deleteCustomerById({ id: customer.id }));
+                Alert.alert('Removido', 'Cliente excluído com sucesso!');
+                router.back();
+              },
+            },
+        ],
+
+          { cancelable: true }
+    );      
+  }
+
+  const handleUpdate = () => {
+    if (isEditing) {
+      const updatedCustomer: customer = {
+        id: customer.id,
+        name: customerNameState,
+        cpf: cpfState,
+        phone: phoneState,
+        email: emailState,
+        payments: customer.payments,
+      };
+      dispatch(updateCustomer(updatedCustomer));
+      Alert.alert('Sucesso', 'Cliente atualizado com sucesso!');
     }
-
-    const handleUpdate = () => {
-        setIsEditing(!isEditing);
-
-         Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
-        //falta implementar a lógica de atualização
-
-    }
+    setIsEditing(!isEditing); 
+  }
 
     return (
     <SafeAreaView style={registerStyles.safeArea}>
     
         <ScrollView contentContainerStyle={registerStyles.container}>
 
-          <View style={styles.box}>
-            <Text style={styles.text}>NOME</Text>
-          </View>
+           <TextInput
+            style={styles.input}
+            value={customerNameState}
+            onChangeText={setCustomerName}
+            editable={isEditing}
+            placeholder="Nome"
+          />
 
-          <View style={styles.box}>
-            <Text style={styles.text}>DADO SENSIVEL</Text>
-          </View>
+          <TextInput
+            style={styles.input}
+            value={cpfState}
+            onChangeText={setCpf}
+            editable={isEditing}
+            placeholder="CPF"
     
-          <View style={styles.box}>
-            <Text style={styles.text}>00-00-00-00</Text>
-          </View>
+          />
+          <TextInput
+            style={styles.input}
+            value={phoneState}
+            onChangeText={setPhone}
+            editable={isEditing}
+            placeholder="Telefone"
+          />
+          <TextInput
+            style={[styles.input, styles.descriptionInput]}
+            value={emailState}
+            onChangeText={setEmail}
+            editable={isEditing}
+            placeholder="E-mail"
           
-          <View style={styles.box}>
-            <Text style={styles.text}>exemplo@gmail.com</Text>
-          </View>
-
+          />
+          
            <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={handleUpdate}>
                  <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
@@ -60,7 +129,7 @@ export default function CustomersDetails() {
   );
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
 
   box: {
     width: '85%',
@@ -75,7 +144,55 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: '#333',
   },
-   buttonContainer: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
+  container: {
+    flexGrow: 1, 
+    alignItems: 'center',
+    paddingVertical: 20, 
+  },
+  profileImageContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#d3d3d3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 30,
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  placeholderIconContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 60,
+    color: '#888',
+  },
+  input: {
+    width: '85%',
+    backgroundColor: '#e0e0e0',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    color: '#333',
+  },
+  descriptionInput: {
+    height: 120,
+    textAlignVertical: 'top',
+    paddingTop: 15, 
+  },
+  buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between', 
     marginTop: 20,
@@ -95,6 +212,27 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-
+   centeredMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMessage: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20, 
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    alignSelf: 'center'
+  },
   
 });
