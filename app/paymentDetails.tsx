@@ -1,18 +1,42 @@
+import { findPaymentById } from "@/store/paymentSlice";
+import { RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
 import { AntDesign } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Keyboard, Modal, Pressable, SafeAreaView, ScrollView, TouchableOpacity, Text, View, StyleSheet, Alert } from "react-native";
+import { Keyboard, Modal, Pressable, SafeAreaView, ScrollView, TouchableOpacity, Text, View, StyleSheet, Alert, TextInput } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+;
 
-export default function CustomersDetails() {
+export default function PaymentDetails() {
+
+
+  const dispatch = useDispatch();
+  const { id } = useLocalSearchParams();
+
+  const payment = useSelector((state: RootState) =>
+    findPaymentById(state, String(id))
+  );
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || '');
+  const [paymentValueState, setPaymentValue] = useState(payment?.amount);
+  const [paymentDateState, setPaymentDate] = useState(payment?.date || '');
+  const [paymentStatusState, setPaymentStatus] = useState(payment?.paymentStatus || '');
+  const [paymentCustomerState, setPaymentCustomer] = useState(payment?.customer.name || '');
+  
+
+
+
+
   const [modalVisible, setModalVisible] = useState(false);
 
-    const handleDelete = () => {
-       
-         Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
 
-        //falta implementar a lógica de exclusão
-    }
 
+  const handleUpdate = () => {
+
+    setIsEditing(!isEditing); 
+  };
 
   return (
     <SafeAreaView style={registerStyles.safeArea}>
@@ -46,27 +70,49 @@ export default function CustomersDetails() {
             </TouchableOpacity>
           </Modal>
 
-          <Text style={registerStyles.label}>Valor Total</Text>
-          <View style={styles.box}>
-            <Text style={styles.text}>R$ 0,00</Text>
-          </View>
+          <TextInput
+            style={registerStyles.input}
+            value={paymentValueState?.toString()}
+            onChangeText={setPaymentValue.toString}
+            editable={false}
+            placeholder="Valor TOTAL"
+          />
 
-          <Text style={registerStyles.label}>Cliente</Text>
-          <View style={styles.box}>
-            <Text style={styles.text}>Clinte</Text>
-          </View>
-        
+          <TextInput
+            style={registerStyles.input}
+            value={paymentCustomerState}
+            onChangeText={setPaymentCustomer}
+            editable={isEditing}
+            placeholder="cliente"
+          />
 
-          <Text style={registerStyles.label}>Forma de pagamento</Text>
-          <View style={styles.box}>
-            <Text style={styles.text}>PIX</Text>
-          </View>
+          <TextInput
+            style={registerStyles.input}
+            value={paymentTypeState}
+            onChangeText={setPaymentType}
+            editable={isEditing}
+            placeholder="Tipo de pagamento"
+          />
 
+          <TextInput
+            style={registerStyles.input}
+            value={paymentDateState.toString()}
+            onChangeText={setPaymentDate}
+            editable={false}
+            placeholder="Data"
+            keyboardType="numeric"
+          />
 
-          
-              
-          <TouchableOpacity style={styles.buttonDelete} onPress={handleDelete}>
-            <Text style={styles.buttonTextDelete}>DELETAR</Text>
+          <TextInput
+            style={registerStyles.input}
+            value={paymentStatusState}
+            onChangeText={setPaymentStatus}
+            editable={isEditing}
+            placeholder="Status do pagamento"
+          />
+
+          <TouchableOpacity style={styles.buttonDelete} onPress={handleUpdate}>
+            <Text style={styles.buttonTextDelete}>EDITAR</Text>
           </TouchableOpacity>
         </ScrollView>
       </Pressable>
