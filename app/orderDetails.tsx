@@ -1,66 +1,155 @@
-import { registerStyles } from "@/styles/registerStyles";
-import { useState } from "react";
-import { SafeAreaView, ScrollView, Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { findOrderById, deleteOrderById, updateOrder } from '@/store/orderSlice';
+import { RootState } from '@/store/store';
+import { useLocalSearchParams, router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import { Feather } from '@expo/vector-icons';
 
 export default function OrderDetails() {
-    const [isEditing, setIsEditing] = useState(false);
-    
-    
-        const handleDelete = () => {
-           
-             Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
-    
-            //falta implementar a lógica de exclusão
-        }
-    
-        const handleUpdate = () => {
-            setIsEditing(!isEditing);
-    
-             Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
-            //falta implementar a lógica de atualização
-    
-        }
-    
-        return (
-        <SafeAreaView style={registerStyles.safeArea}>
-        
-            <ScrollView contentContainerStyle={registerStyles.container}>
-    
-              <View style={styles.box}>
-                <Text style={styles.text}>#######</Text>
-              </View>
-    
-              <View style={styles.box}>
-                <Text style={styles.text}>#######</Text>
-              </View>
-        
-              <View style={styles.box}>
-                <Text style={styles.text}>#########</Text>
-              </View>
-              
-              <View style={styles.box}>
-                <Text style={styles.text}>###########</Text>
-              </View>
-    
-               <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-                     <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
-                  </TouchableOpacity>
-                    {!isEditing && (
-                        <TouchableOpacity style={styles.button} onPress={handleDelete}>
-                        <Text style={styles.buttonText}>DELETAR</Text>
-                        </TouchableOpacity>
-                    )}
-               </View>
-    
-            </ScrollView>
-        </SafeAreaView>
-      );
+  const dispatch = useDispatch();
+  const { id } = useLocalSearchParams();
+
+  const order = useSelector((state: RootState) => findOrderById(state, String(id)));
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [status, setStatus] = useState(order?.orderStatus || '');
+
+  const orderValue = order?.orderItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  ).toFixed(2);
+
+  if (!order) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centeredMessage}>
+          <Text style={styles.errorMessage}>Pedido não encontrado.</Text>
+          <TouchableOpacity style={styles.backButton} onPress={router.back}>
+            <Text style={styles.backButtonText}>Voltar para a lista</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir o pedido?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          onPress: () => {
+            dispatch(deleteOrderById({ id: order.id }));
+            Alert.alert('Removido', 'Pedido excluído com sucesso!');
+            router.back();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleUpdate = () => {
+    if (isEditing) {
+      dispatch(updateOrder({ ...order, orderStatus: order.orderStatus}));
+      Alert.alert('Atualizado', 'Pedido atualizado com sucesso!');
+    }
+    setIsEditing(!isEditing);
+  };
+
+
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <TextInput
+          style={styles.input}
+          value={orderValue}
+          editable={false}
+          placeholder="Valor do Pedido"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={status}
+          onChangeText={setStatus}
+          editable={isEditing}
+          placeholder="Status"
+        />
+
+        <TouchableOpacity style={styles.itemsButton} onPress={() => setModalVisible(true)}>
+          <Text style={styles.itemsButtonText}>Ver Itens do Pedido</Text>
+        </TouchableOpacity>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+            <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
+          </TouchableOpacity>
+
+          {!isEditing && (
+            <TouchableOpacity style={styles.button} onPress={handleDelete}>
+              <Text style={styles.buttonText}>DELETAR</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Itens do Pedido</Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                {order.orderItems.map((item) => (
+                  <View key={item.id} style={styles.itemRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.itemName}>{item.product.productName}</Text>
+                      <Text style={styles.itemDetails}>
+                        {item.quantity} × R$ {item.product.price.toFixed(2)} = R${' '}
+                        {(item.quantity * item.product.price).toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.modalCloseButton}
+              >
+                <Text style={styles.modalCloseText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-
-  box: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
+  container: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  input: {
     width: '85%',
     backgroundColor: '#e0e0e0',
     borderRadius: 10,
@@ -69,13 +158,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  text: {
-    fontSize: 18,
-    color: '#333',
+  itemsButton: {
+    width: '85%',
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
   },
-   buttonContainer: {
+  itemsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     marginTop: 20,
     width: '85%',
   },
@@ -93,6 +191,63 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-
-  
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  itemDetails: {
+    fontSize: 14,
+    color: '#555',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalCloseButton: {
+    alignSelf: 'flex-end',
+    marginTop: 10,
+  },
+  modalCloseText: {
+    color: '#007AFF',
+    fontWeight: 'bold',
+  },
+  centeredMessage: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMessage: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });

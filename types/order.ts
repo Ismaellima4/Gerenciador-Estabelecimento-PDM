@@ -6,7 +6,7 @@ type order = {
     id: string;
     orderItems: orderItem[];
     orderStatus: OrderStatus;
-    payment: payment;
+    payment?: payment;
 }
 
 export default order;

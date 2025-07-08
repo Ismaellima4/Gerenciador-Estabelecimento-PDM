@@ -24,9 +24,7 @@ export default function SuppliersDetails() {
   const dispatch = useDispatch();
   const { id } = useLocalSearchParams();
 
-  const supplier = useSelector((state: RootState) =>
-    findSupplierById(state, String(id))
-  );
+  const supplier = useSelector((state: RootState) => findSupplierById(state, String(id)));
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -156,7 +154,7 @@ export default function SuppliersDetails() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#f0f0f0',
