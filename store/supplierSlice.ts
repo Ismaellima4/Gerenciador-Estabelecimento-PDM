@@ -35,10 +35,8 @@ const supplierSlice = createSlice({
 
       if (index !== -1) {
         state.list[index] = action.payload;
-      }
-      
+      }     
     },
-
   },
 });
 

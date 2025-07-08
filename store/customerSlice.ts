@@ -11,13 +11,14 @@ const initialState: custormerState = {
     list: [],
 };
 
+type NewCustomer = Omit<customer, 'id'>;
 
 
 const customerSlice =  createSlice({
     name: 'customer',
     initialState,
     reducers: {
-        addCustomer: (state, action: PayloadAction<customer>) => {
+        addCustomer: (state, action: PayloadAction<NewCustomer>) => {
             const customerWithId = {
                 ...action.payload,
                 id: randomUUID()

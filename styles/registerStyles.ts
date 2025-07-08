@@ -39,4 +39,21 @@ export const registerStyles = StyleSheet.create({
   required: {
     color: 'red',
   },
+  errorMessage: {
+    fontSize: 18,
+    color: 'red',
+    marginBottom: 20,
+  },
+   backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    alignSelf: 'center'
+  },
+  backButton: {
+   backgroundColor: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20, 
+  },
 });

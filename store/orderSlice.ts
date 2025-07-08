@@ -2,7 +2,6 @@
 
 import order from "@/types/order";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { randomUUID } from "expo-crypto";
 import { RootState } from "./store";
 
 
@@ -14,7 +13,6 @@ const initialState: OrderState = {
 };
 
 
-
 const orderSlice =  createSlice({
     name: 'order',
     initialState,
@@ -22,7 +20,6 @@ const orderSlice =  createSlice({
         addOrder: (state, action: PayloadAction<order>) => {
             const orderWithId = {
                 ...action.payload,
-                id: randomUUID()
             }
             state.list.push(orderWithId)
         },

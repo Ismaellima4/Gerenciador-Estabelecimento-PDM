@@ -12,13 +12,13 @@ const initialState: orderItemState = {
     list: [],
 };
 
-
+type NewOrderItem = Omit<orderItem, 'id'>;
 
 const orderItemSlice =  createSlice({
     name: 'orderItem',
     initialState,
     reducers: {
-        addOrderItem: (state, action: PayloadAction<orderItem>) => {
+        addOrderItem: (state, action: PayloadAction<NewOrderItem>) => {
             const orderItemWithId = {
                 ...action.payload,
                 id: randomUUID()
@@ -40,11 +40,17 @@ const orderItemSlice =  createSlice({
        state.list = state.list.filter(
         (orderItem) => orderItem.id !== action.payload.id
       );
-    },
+      
+      },
+      resetOrderItems: (state) => {
+       state.list = [];
+      }
+
+
     },
 });
 
 
 export const findOrderItemById = (state: RootState, id: string) => state.orderItem.list.find((orderItem) => orderItem.id === id);
-export const { addOrderItem, setOrderItem, updateOrderItem, deleteOrderItemById } = orderItemSlice.actions;
+export const { addOrderItem, setOrderItem, updateOrderItem, deleteOrderItemById, resetOrderItems } = orderItemSlice.actions;
 export default  orderItemSlice.reducer;

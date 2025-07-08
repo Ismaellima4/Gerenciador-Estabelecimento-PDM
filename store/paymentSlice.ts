@@ -1,7 +1,7 @@
 import payment from "@/types/payment";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { randomUUID } from "expo-crypto";
 import { RootState } from "./store";
+import { randomUUID } from "expo-crypto";
 
 
 interface PaymentState {
@@ -11,14 +11,17 @@ const initialState: PaymentState = {
     list: [],
 };
 
+type NewPayment = Omit<payment, 'id'>;
+
+
 const paymentSlice =  createSlice({
     name: 'payment',
     initialState,
     reducers: {
-        addPayment: (state, action: PayloadAction<payment>) => {
+        addPayment: (state, action: PayloadAction<NewPayment>) => {
             const paymentWithId = {
                 ...action.payload,
-                id: randomUUID()
+               id: randomUUID()
             }
             state.list.push(paymentWithId)
         },
