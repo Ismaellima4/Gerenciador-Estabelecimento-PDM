@@ -11,19 +11,15 @@ const initialState: PaymentState = {
     list: [],
 };
 
-type NewPayment = Omit<payment, 'id'>;
+
 
 
 const paymentSlice =  createSlice({
     name: 'payment',
     initialState,
     reducers: {
-        addPayment: (state, action: PayloadAction<NewPayment>) => {
-            const paymentWithId = {
-                ...action.payload,
-               id: randomUUID()
-            }
-            state.list.push(paymentWithId)
+        addPayment: (state, action: PayloadAction<payment>) => {
+            state.list.push(action.payload)
         },
        setPayment: (state, action: PayloadAction<payment[]>) => {
           state.list = action.payload;
