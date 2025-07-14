@@ -1,16 +1,25 @@
-import { findPaymentById } from "@/store/paymentSlice";
+import { deletePaymentById, findPaymentById } from "@/store/paymentSlice";
 import { RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
 import { AntDesign } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Keyboard, Modal, Pressable, SafeAreaView, ScrollView, TouchableOpacity, Text, View, StyleSheet, Alert, TextInput } from "react-native";
+import {
+  Keyboard,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Text,
+  View,
+  StyleSheet,
+  Alert,
+  TextInput,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-;
 
 export default function PaymentDetails() {
-
-
   const dispatch = useDispatch();
   const { id } = useLocalSearchParams();
 
@@ -19,73 +28,102 @@ export default function PaymentDetails() {
   );
 
   const [isEditing, setIsEditing] = useState(false);
-  const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || '');
+  const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || "");
   const [paymentValueState, setPaymentValue] = useState(payment?.amount);
-  const [paymentDateState, setPaymentDate] = useState(payment?.date || '');
-  const [paymentStatusState, setPaymentStatus] = useState(payment?.paymentStatus || '');
-  const [paymentCustomerState, setPaymentCustomer] = useState(payment?.customer.name || '');
-  
-
-
-
-
+  const [paymentDateState, setPaymentDate] = useState(payment?.date || "");
+  const [paymentStatusState, setPaymentStatus] = useState(payment?.paymentStatus || "");
+  const [paymentCustomerState, setPaymentCustomer] = useState(payment?.customer?.name || "");
   const [modalVisible, setModalVisible] = useState(false);
 
-
-
-  const handleUpdate = () => {
-
-    setIsEditing(!isEditing); 
+  const handleDelete = () => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      `Tem certeza que deseja excluir esse pagamento ?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Excluir",
+          onPress: () => {
+            if (payment) {
+              dispatch(deletePaymentById({ id: payment.id }));
+              Alert.alert("Removido", "Pagamento excluído com sucesso!");
+              router.back();
+            } else {
+              Alert.alert("Erro", "Pagamento não encontrado.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
     <SafeAreaView style={registerStyles.safeArea}>
       <Pressable onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={registerStyles.container}>
-
           <Text style={registerStyles.label}>Produtos Adicionados</Text>
           <TouchableOpacity
             style={styles.dropdown}
             onPress={() => setModalVisible(true)}
           >
-            <Text style={styles.dropdownText}>Visualizar produtos</Text>
+            <Text style={styles.dropdownText}>Ver Itens do Pedido</Text>
             <AntDesign name="caretdown" size={14} color="#666" />
           </TouchableOpacity>
 
-          <Modal
-            visible={modalVisible}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <TouchableOpacity
-              style={styles.modalOverlay}
-              activeOpacity={1}
-              onPressOut={() => setModalVisible(false)}
-            >
+          <Modal visible={modalVisible} animationType="slide" transparent={true}>
+            <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Produtos da Compra</Text>
-
+                <Text style={styles.modalTitle}>Itens do Pedido</Text>
+                <ScrollView style={{ maxHeight: 300 }}>
+                  {payment?.order?.orderItems?.length ? (
+                    payment.order.orderItems.map((item) => (
+                      <View key={item.id} style={styles.itemRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.itemName}>{item.product.productName}</Text>
+                          <Text style={styles.itemDetails}>
+                            {item.quantity} × R$ {item.product.price.toFixed(2)} = R${" "}
+                            {(item.quantity * item.product.price).toFixed(2)}
+                          </Text>
+                        </View>
+                      </View>
+                    ))
+                  ) : (
+                    <Text>Nenhum produto encontrado.</Text>
+                  )}
+                </ScrollView>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.modalCloseButton}
+                >
+                  <Text style={styles.modalCloseText}>Fechar</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           </Modal>
 
+          <Text style={registerStyles.labelItem}>Valor Total</Text>
           <TextInput
             style={registerStyles.input}
             value={paymentValueState?.toString()}
-            onChangeText={setPaymentValue.toString}
+            onChangeText={(text) => setPaymentValue(Number(text))}
             editable={false}
             placeholder="Valor TOTAL"
           />
 
+          <Text style={registerStyles.labelItem}>Cliente</Text>
           <TextInput
             style={registerStyles.input}
             value={paymentCustomerState}
             onChangeText={setPaymentCustomer}
             editable={isEditing}
-            placeholder="cliente"
+            placeholder="Cliente"
           />
 
+          <Text style={registerStyles.labelItem}>Tipo de pagamento</Text>
           <TextInput
             style={registerStyles.input}
             value={paymentTypeState}
@@ -94,6 +132,7 @@ export default function PaymentDetails() {
             placeholder="Tipo de pagamento"
           />
 
+          <Text style={registerStyles.labelItem}>Data</Text>
           <TextInput
             style={registerStyles.input}
             value={paymentDateState.toString()}
@@ -103,6 +142,7 @@ export default function PaymentDetails() {
             keyboardType="numeric"
           />
 
+          <Text style={registerStyles.labelItem}>Status do pagamento</Text>
           <TextInput
             style={registerStyles.input}
             value={paymentStatusState}
@@ -111,8 +151,8 @@ export default function PaymentDetails() {
             placeholder="Status do pagamento"
           />
 
-          <TouchableOpacity style={styles.buttonDelete} onPress={handleUpdate}>
-            <Text style={styles.buttonTextDelete}>EDITAR</Text>
+          <TouchableOpacity style={styles.buttonDelete} onPress={handleDelete}>
+            <Text style={styles.buttonTextDelete}>DELETAR</Text>
           </TouchableOpacity>
         </ScrollView>
       </Pressable>
@@ -122,78 +162,72 @@ export default function PaymentDetails() {
 
 const styles = StyleSheet.create({
   dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     height: 50,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   dropdownText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
-  box: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15,
-    backgroundColor: '#e0e0e0',
+  itemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
   },
-  text: {
-    fontSize: 18,
-    color: '#333',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
+  itemName: {
     fontSize: 16,
+    fontWeight: "600",
+  },
+  itemDetails: {
+    fontSize: 14,
+    color: "#555",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: '#00000044',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    padding: 20,
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "white",
     borderRadius: 12,
-    padding: 16,
-    maxHeight: '80%',
+    padding: 20,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 12,
   },
-
+  modalCloseButton: {
+    alignSelf: "flex-end",
+    marginTop: 10,
+  },
+  modalCloseText: {
+    color: "#007AFF",
+    fontWeight: "bold",
+  },
   buttonDelete: {
-    backgroundColor: 'black',
+    backgroundColor: "black",
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
+    marginTop: 10,
   },
   buttonTextDelete: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
