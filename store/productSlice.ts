@@ -38,10 +38,19 @@ const productSlice = createSlice({
         (product) => product.id !== action.payload.id
       );
     },
+    updateProductAmount: (state, action: PayloadAction<{ id: string; amount: number }[]>) => {
+      action.payload.forEach(({ id, amount }) => {
+        const index = state.list.findIndex((p) => p.id === id);
+        if (index !== -1) {
+          state.list[index].amount = amount;
+        }
+      });
+    }
+
   },
 });
 
 
 export const findProductById = (state: RootState, id: string) => state.product.list.find((product) => product.id === id);
-export const { addProduct, setProduct, updateProduct, deleteProductById } = productSlice.actions;
+export const { addProduct, setProduct, updateProduct, deleteProductById, updateProductAmount } = productSlice.actions;
 export default productSlice.reducer;
