@@ -9,7 +9,7 @@ type payment = {
     order: order;
     amount: number;
     date: Date;
-    custome?: customer;
+    customer?: customer;
     paymentType: PaymentType;
     paymentStatus: PaymentStatus;
 }
