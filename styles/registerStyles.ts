@@ -18,6 +18,13 @@ export const registerStyles = StyleSheet.create({
     color: '#333',
     marginTop: 20,
   },
+  labelItem: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+    marginTop: 5,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
