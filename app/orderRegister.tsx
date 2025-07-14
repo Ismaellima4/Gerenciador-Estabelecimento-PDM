@@ -25,6 +25,7 @@ import { addOrder } from '@/store/orderSlice';
 import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useRouter } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
+import { updateStockAfterOrder } from '@/utils/updateStock';
 
 export default function OrderRegistration() {
   const dispatch = useDispatch();
@@ -35,6 +36,9 @@ export default function OrderRegistration() {
   const [itemsModalVisible, setItemsModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<string>('');
+
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editedQty, setEditedQty] = useState<string>('');
 
   const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -56,6 +60,28 @@ export default function OrderRegistration() {
 
   const router = useRouter();
 
+  const handleFinishOrderAndGoToPayment = () => {
+    if (orderItems.length === 0) {
+      return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de pagar.');
+    }
+
+    const orderId = randomUUID();
+    const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+    dispatch(resetOrderItems());
+    setSelectedProduct(null);
+    setQuantity('');
+
+    router.push({
+      pathname: '/paymentRegister',
+      params: {
+        orderId,
+        orderItems: JSON.stringify(orderItems),
+        total: subtotal.toString(),
+      },
+    });
+  };
+
   const handleFinishOrderNotPay = () => {
     if (orderItems.length === 0) {
       return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de finalizar.');
@@ -71,24 +97,27 @@ export default function OrderRegistration() {
       })
     );
 
+    updateStockAfterOrder(products, orderItems, dispatch);
     Alert.alert('Pedido criado com sucesso!');
-
-   
     dispatch(resetOrderItems());
-
-    
     setSelectedProduct(null);
     setQuantity('');
-
     router.push('/listOrder');
+  };
+
+  const handleSaveEditQty = (itemId: string, product: Product) => {
+    const qty = parseInt(editedQty, 10);
+    if (isNaN(qty) || qty <= 0) return Alert.alert('Quantidade inválida');
+
+    dispatch(deleteOrderItemById({ id: itemId }));
+    dispatch(addOrderItem({ product, quantity: qty, order: undefined } as any));
+    setEditingItemId(null);
+    setEditedQty('');
   };
 
   return (
     <SafeAreaView style={registerStyles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
             <Text style={registerStyles.label}>
@@ -156,10 +185,11 @@ export default function OrderRegistration() {
               </View>
             </View>
 
-            <GreenButton title="Pagar" onPress={() => console.log('Pagando...')} />
+            <GreenButton title="Pagar" onPress={handleFinishOrderAndGoToPayment} />
             <GreenButton title="Terminar Compra" onPress={handleFinishOrderNotPay} />
           </ScrollView>
 
+         
           <Modal visible={productModalVisible} animationType="slide">
             <SafeAreaView style={{ flex: 1 }}>
               <View style={{ padding: 20, flex: 1 }}>
@@ -185,6 +215,7 @@ export default function OrderRegistration() {
             </SafeAreaView>
           </Modal>
 
+          
           <Modal visible={itemsModalVisible} animationType="slide" transparent={true}>
             <View style={styles.modalOrderListContainer}>
               <View style={styles.modalorderList}>
@@ -194,10 +225,32 @@ export default function OrderRegistration() {
                     <View style={styles.itemRow} key={item.id}>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.itemName}>{item.product.productName}</Text>
-                        <Text style={styles.itemDetails}>
-                          {item.quantity} × R$ {item.product.price.toFixed(2)} = R$ {(item.quantity * item.product.price).toFixed(2)}
-                        </Text>
+                        {editingItemId === item.id ? (
+                          <TextInput
+                            style={styles.editQtyInput}
+                            keyboardType="numeric"
+                            value={editedQty}
+                            onChangeText={setEditedQty}
+                          />
+                        ) : (
+                          <Text style={styles.itemDetails}>
+                            {item.quantity} × R$ {item.product.price.toFixed(2)} = R${' '}
+                            {(item.quantity * item.product.price).toFixed(2)}
+                          </Text>
+                        )}
                       </View>
+                      {editingItemId === item.id ? (
+                        <TouchableOpacity onPress={() => handleSaveEditQty(item.id, item.product)} style={{ marginHorizontal: 5 }}>
+                          <Feather name="check" size={20} color="green" />
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity onPress={() => {
+                          setEditingItemId(item.id);
+                          setEditedQty(item.quantity.toString());
+                        }} style={{ marginHorizontal: 5 }}>
+                          <Feather name="edit-2" size={20} color="#007AFF" />
+                        </TouchableOpacity>
+                      )}
                       <Pressable onPress={() => handleRemoveItem(item.id)}>
                         <Feather name="trash-2" size={20} color="#b00020" />
                       </Pressable>
@@ -281,7 +334,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 0,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -292,9 +344,13 @@ const styles = StyleSheet.create({
   itemDetails: {
     color: '#555',
   },
-  separator: {
-    height: 1,
-    backgroundColor: '#ccc',
+  editQtyInput: {
+    borderBottomWidth: 1,
+    borderColor: '#aaa',
+    paddingVertical: 4,
+    fontSize: 14,
+    width: 60,
+    color: '#333',
   },
   buttonClose: {
     color: '#007AFF',
