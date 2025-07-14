@@ -1,5 +1,6 @@
 import { findOrderById, deleteOrderById, updateOrder } from '@/store/orderSlice';
 import { RootState } from '@/store/store';
+import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -14,7 +15,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { Feather } from '@expo/vector-icons';
 
 export default function OrderDetails() {
   const dispatch = useDispatch();
@@ -25,7 +25,9 @@ export default function OrderDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [status, setStatus] = useState(order?.orderStatus || '');
+  const [status] = useState(order?.orderStatus || '');
+  const [paymentType] = useState(order?.payment?.paymentStatus);
+  const [customer] = useState(order?.payment?.customer?.name);
 
   const orderValue = order?.orderItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -66,13 +68,11 @@ export default function OrderDetails() {
 
   const handleUpdate = () => {
     if (isEditing) {
-      dispatch(updateOrder({ ...order, orderStatus: order.orderStatus}));
+      dispatch(updateOrder({ ...order, orderStatus: order.orderStatus }));
       Alert.alert('Atualizado', 'Pedido atualizado com sucesso!');
     }
     setIsEditing(!isEditing);
   };
-
-
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -87,14 +87,50 @@ export default function OrderDetails() {
         <TextInput
           style={styles.input}
           value={status}
-          onChangeText={setStatus}
+          editable={false}
+          placeholder="Status do pedido"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={paymentType}
+          editable={false}
+          placeholder="Status do pagamento"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={customer}
           editable={isEditing}
-          placeholder="Status"
+          placeholder="cliente (não obrigatório)"
+        />
+
+        <TextInput
+          style={styles.input}
+          value={order.payment?.paymentType}
+          editable={false}
+          placeholder="tipo do pagamento"
         />
 
         <TouchableOpacity style={styles.itemsButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.itemsButtonText}>Ver Itens do Pedido</Text>
         </TouchableOpacity>
+
+        
+        {order.orderStatus === OrderStatus.INITIATED && (
+          <TouchableOpacity
+            style={[styles.itemsButton, { backgroundColor: 'green' }]}
+            onPress={() =>
+              router.push({
+                pathname: '/paymentRegister',
+                params: { orderId: order.id },
+                
+              })
+            }
+          >
+            <Text style={styles.itemsButtonText}>Pagar</Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleUpdate}>
