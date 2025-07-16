@@ -1,26 +1,39 @@
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { router } from 'expo-router';
+import { login } from '@/store/authSlice';
+import { AppDispatch, RootState } from '@/store/store';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (email === 'teste@exemplo.com' && password === '12345') {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert('Erro', 'Informe usuário e senha');
+      return;
+    }
+
+    try {
+      await dispatch(login({ username, password })).unwrap();
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
-      router.push('/homeScreen')
-    } else {
-      Alert.alert('Erro', 'Email ou senha inválidos.');
+      router.push('/homeScreen');
+    } catch (err) {
+      Alert.alert('Erro', 'Credenciais inválidas.');
     }
   };
 
@@ -34,30 +47,44 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="Usuário"
           placeholderTextColor="#999"
-          keyboardType="email-address"
           autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
+          value={username}
+          onChangeText={setUsername}
+          editable={!loading}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Senha"
           placeholderTextColor="#999"
-          secureTextEntry // Esconde o texto da senha
+          secureTextEntry
           value={password}
           onChangeText={setPassword}
+          editable={!loading}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Entrar</Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => Alert.alert('Esqueceu a Senha', 'Funcionalidade a ser implementada.')}>
+        <TouchableOpacity
+          onPress={() => Alert.alert('Esqueceu a Senha', 'Funcionalidade a ser implementada.')}
+          disabled={loading}
+        >
           <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
         </TouchableOpacity>
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
     </KeyboardAvoidingView>
   );
@@ -104,12 +131,15 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     height: 50,
-    backgroundColor: 'black', 
+    backgroundColor: 'black',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
     marginBottom: 15,
+  },
+  buttonDisabled: {
+    backgroundColor: '#555',
   },
   buttonText: {
     color: '#fff',
@@ -120,5 +150,10 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 14,
     marginTop: 10,
+  },
+  errorText: {
+    marginTop: 10,
+    color: 'red',
+    fontSize: 14,
   },
 });

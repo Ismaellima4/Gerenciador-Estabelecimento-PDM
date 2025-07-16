@@ -1,0 +1,20 @@
+
+services:
+  backend:
+    image: ismaellima4/ge-backend:latest
+    container_name: ge-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: 
+      DB_PORT: 5432
+      DB_USER: neondb_owner
+      DB_PASSWORD: 
+      DB_DATABASE: neondb
+      SSL_MODE: true
+      JWT_SECRET: a1b2c3d4e5f6g7h8
+      UPLOAD_API_URL: 'http://localhost:4000/api/upload'
+
+
+
+

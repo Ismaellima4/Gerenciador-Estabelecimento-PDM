@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
-import { addSupplier } from '../store/supplierSlice';
+import { AppDispatch } from '@/store/store';
+import { createSupplier } from '@/store/supplierSlice';
 
 export default function SupplierRegistration() {
   const [supplierName, setSupplierName] = useState('');
@@ -22,9 +23,9 @@ export default function SupplierRegistration() {
   const [email, setEmail] = useState('');
   const [additionalInformation, setAdditionalInformation] = useState('');
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const saveSupplier = () => {
+  const saveSupplier = async () => {
     if (!supplierName || !phoneNumber) {
       Alert.alert('Erro', 'Nome e telefone são obrigatórios.');
       return;
@@ -38,9 +39,14 @@ export default function SupplierRegistration() {
       additionalInformation,
     };
 
-    dispatch(addSupplier(newSupplier));
-    Alert.alert('Sucesso', 'Fornecedor salvo!');
-    router.back();
+    try {
+      await dispatch(createSupplier(newSupplier)).unwrap();
+      Alert.alert('Sucesso', 'Fornecedor salvo com sucesso!');
+      router.back();
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Erro ao salvar fornecedor.');
+    }
   };
 
   return (

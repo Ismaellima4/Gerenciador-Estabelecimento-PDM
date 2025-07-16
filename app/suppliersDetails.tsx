@@ -1,5 +1,9 @@
-import { RootState } from '@/store/store';
-import {  deleteSupplierById, findSupplierById, updateSupplier } from '@/store/supplierSlice';
+import { RootState, AppDispatch } from '@/store/store';
+import {
+  deleteSupplier,
+  findSupplierById,
+  updateSupplier,
+} from '@/store/supplierSlice';
 import Supplier from '@/types/supplier';
 import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
@@ -21,10 +25,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function SuppliersDetails() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
-  const supplier = useSelector((state: RootState) => findSupplierById(state, String(id)));
+  const supplier = useSelector((state: RootState) =>
+    findSupplierById(state, String(id))
+  );
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -55,10 +61,14 @@ export default function SuppliersDetails() {
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Excluir',
-          onPress: () => {
-            dispatch(deleteSupplierById({ id: supplier.id }));
-            Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
-            router.back();
+          onPress: async () => {
+            try {
+              await dispatch(deleteSupplier(supplier.id)).unwrap();
+              Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
+              router.back();
+            } catch (error) {
+              Alert.alert('Erro', 'Falha ao excluir fornecedor.');
+            }
           },
         },
       ],
@@ -66,7 +76,7 @@ export default function SuppliersDetails() {
     );
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (isEditing) {
       const updatedSupplier: Supplier = {
         id: supplier.id,
@@ -77,10 +87,16 @@ export default function SuppliersDetails() {
         additionalInformation: descriptionState,
       };
 
-      dispatch(updateSupplier(updatedSupplier));
-      Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
+      try {
+        await dispatch(updateSupplier(updatedSupplier)).unwrap();
+        Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
+        setIsEditing(false);
+      } catch (error) {
+        Alert.alert('Erro', 'Falha ao atualizar fornecedor.');
+      }
+    } else {
+      setIsEditing(true);
     }
-    setIsEditing(!isEditing); 
   };
 
   return (
@@ -154,15 +170,15 @@ export default function SuppliersDetails() {
   );
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#f0f0f0',
   },
   container: {
-    flexGrow: 1, 
+    flexGrow: 1,
     alignItems: 'center',
-    paddingVertical: 20, 
+    paddingVertical: 20,
   },
   profileImageContainer: {
     width: 120,
@@ -179,16 +195,6 @@ export const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  placeholderIconContainer: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderIcon: {
-    fontSize: 60,
-    color: '#888',
-  },
   input: {
     width: '85%',
     backgroundColor: '#e0e0e0',
@@ -201,11 +207,11 @@ export const styles = StyleSheet.create({
   descriptionInput: {
     height: 120,
     textAlignVertical: 'top',
-    paddingTop: 15, 
+    paddingTop: 15,
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     marginTop: 20,
     width: '85%',
   },
@@ -223,7 +229,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-   centeredMessage: {
+  centeredMessage: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -238,11 +244,11 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 20, 
+    marginTop: 20,
   },
   backButtonText: {
     color: 'white',
     fontSize: 16,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
 });
