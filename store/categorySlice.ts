@@ -1,32 +1,59 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type Category from '@/types/category';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { API_URL_CATEGORY } from './env';
+import { create, fetchAll, remove } from './genericThunk';
 
 interface CategoryState {
   list: Category[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: CategoryState = {
   list: [],
+  loading: false,
+  error: null,
 };
 
-const categorySlice = createSlice({
+
+export const createCategory = create<Category, Omit<Category, 'id'>>('category/createCategory', API_URL_CATEGORY);
+export const fetchAllCategories = fetchAll<Category[]>('fetch/category', API_URL_CATEGORY);
+export const deleteCategory = remove('delete/category', API_URL_CATEGORY);
+
+const selectCategories = (state: { categories: { categories: Category[] } }) => state.categories.categories;
+
+export const selectCategoryByName = createSelector(
+  [selectCategories, (state, categoryName: string) => categoryName],
+  (categories: Category[], categoryName: string) => {
+    return categories.find(category => category.name.toLowerCase() === categoryName.toLowerCase());
+  }
+);
+
+const  categorySlice = createSlice({
   name: 'category',
   initialState,
-  reducers: {
-    addCategory: (state, action: PayloadAction<Category>) => {
-      const hasCategory = state.list.find((category) => category.name.toLocaleLowerCase() === action.payload.name.toLocaleLowerCase())
-      if(!hasCategory) {
-        state.list.push(action.payload);
-      }
+  reducers: {},
+  extraReducers: builder => {
+      builder
+        .addCase(fetchAllCategories.pending, state => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(fetchAllCategories.fulfilled, (state, action) => {
+          state.list = action.payload;
+          state.loading = false;
+        })
+        .addCase(fetchAllCategories.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.error.message || 'Erro ao buscar fornecedores';
+        })
+        .addCase(createCategory.fulfilled, (state, action) => {
+            state.list.push(action.payload);
+        })
+        .addCase(deleteCategory.fulfilled, (state, action) => {
+            state.list = state.list.filter(s => s.id !== action.payload);
+        })
     },
-    setCategory: (state, action: PayloadAction<Category[]>) => {
-      state.list = action.payload;
-    },
-    deleteCategory: (state, action: PayloadAction<string>)=> {
-      state.list = state.list.filter(category => category.name !== action.payload)
-    }
-  },
 });
 
-export const { addCategory, setCategory, deleteCategory } = categorySlice.actions;
 export default categorySlice.reducer;

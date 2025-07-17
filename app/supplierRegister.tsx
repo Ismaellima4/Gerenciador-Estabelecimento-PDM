@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/store';
 import { createSupplier } from '@/store/supplierSlice';
+import { AxiosError } from 'axios';
 
 export default function SupplierRegistration() {
   const [supplierName, setSupplierName] = useState('');
@@ -44,7 +45,7 @@ export default function SupplierRegistration() {
       Alert.alert('Sucesso', 'Fornecedor salvo com sucesso!');
       router.back();
     } catch (error) {
-      console.error(error);
+      console.error((error as AxiosError).response);
       Alert.alert('Erro', 'Erro ao salvar fornecedor.');
     }
   };

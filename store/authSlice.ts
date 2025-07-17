@@ -1,19 +1,19 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { API_URL_AUTH_SIGN_IN } from './env';
 
 interface AuthState {
-  token: string | null;
+  acessToken: string | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: AuthState = {
-  token: null,
+  acessToken: null,
   loading: false,
   error: null,
 };
 
-const API_URL = 'http://:3000/auth/sign-in';
 
 export const login = createAsyncThunk(
   'auth/sign-in',
@@ -22,9 +22,9 @@ export const login = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post(API_URL, { username, password });
+      const response = await axios.post(API_URL_AUTH_SIGN_IN, { username, password });
       console.log('Resposta do login:', response.data);
-      return response.data.token;
+      return response.data.acessToken;
     } catch (error: any) {
       console.error('Erro ao fazer login:', error.response?.data || error.message);
       return thunkAPI.rejectWithValue('Credenciais inválidas');
@@ -37,7 +37,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
-      state.token = null;
+      state.acessToken = null;
     },
   },
   extraReducers(builder) {
@@ -48,7 +48,7 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload;
+        state.acessToken = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

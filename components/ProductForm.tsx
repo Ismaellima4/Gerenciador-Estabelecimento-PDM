@@ -1,14 +1,14 @@
 import FormActionButtons from '@/components/FormActionButton';
 import ModalSelector from '@/components/ModalSelector';
-import { addCategory, deleteCategory } from '@/store/categorySlice';
-import { RootState } from '@/store/store';
+import { createCategory, deleteCategory, fetchAllCategories } from '@/store/categorySlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
 import Product from '@/types/product';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Image,
@@ -63,7 +63,12 @@ const ProductForm = ({
   const suppliers = useSelector((state: RootState) => state.supplier.list);
   const categories = useSelector((state: RootState) => state.category.list);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+
+
+  useEffect(() => {
+    dispatch(fetchAllCategories())
+  }, [dispatch])
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -152,19 +157,27 @@ const ProductForm = ({
     setCategoryModalVisible(false);
   };
 
-  const handleAddCategorySubmit = (newCategory: string) => {
-    const category: Category = {
+  const handleAddCategorySubmit = async (newCategory: string) => {
+    const category: Omit<Category, 'id'> = {
       name: newCategory,
     };
-    dispatch(addCategory(category));
-    handleSelectCategory(newCategory);
-    setCategoryModalVisible(false);
+    try {
+      await dispatch(createCategory(category)).unwrap();
+      handleSelectCategory(newCategory);
+      setCategoryModalVisible(false);
+    } catch(err) {
+      console.log(err)
+    }
   };
 
-  const handleDeleteCategory = (categoryName: string) => {
-    dispatch(deleteCategory(categoryName));
-    if (category === categoryName) {
-      setCategory('');
+  
+  const handleDeleteCategory = async (categoryName: string) => {
+    const category = categories.find((category) => category.name.toLowerCase() === categoryName.toLowerCase());
+    if (category) {
+      await dispatch(deleteCategory(categoryName)).unwrap();
+      if (category.name === categoryName) {
+        setCategory('');
+      }
     }
   };
 

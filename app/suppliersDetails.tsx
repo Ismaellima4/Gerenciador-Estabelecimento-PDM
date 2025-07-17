@@ -1,7 +1,7 @@
 import { RootState, AppDispatch } from '@/store/store';
 import {
-  deleteSupplier,
   findSupplierById,
+  removeSupplier,
   updateSupplier,
 } from '@/store/supplierSlice';
 import Supplier from '@/types/supplier';
@@ -63,10 +63,10 @@ export default function SuppliersDetails() {
           text: 'Excluir',
           onPress: async () => {
             try {
-              await dispatch(deleteSupplier(supplier.id)).unwrap();
+              await dispatch(removeSupplier(supplier.id)).unwrap();
               Alert.alert('Removido', 'Fornecedor excluído com sucesso!');
               router.back();
-            } catch (error) {
+            } catch  {
               Alert.alert('Erro', 'Falha ao excluir fornecedor.');
             }
           },
@@ -91,7 +91,7 @@ export default function SuppliersDetails() {
         await dispatch(updateSupplier(updatedSupplier)).unwrap();
         Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
         setIsEditing(false);
-      } catch (error) {
+      } catch {
         Alert.alert('Erro', 'Falha ao atualizar fornecedor.');
       }
     } else {

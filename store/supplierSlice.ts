@@ -1,9 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import type Supplier from '@/types/supplier';
 import { RootState } from './store';
-import axios from 'axios';
-
-const API_URL = 'http://:3000/suppliers';
+import { API_URL_SUPPLIER } from './env';
+import { create, fetchAll, remove, update } from './genericThunk';
 
 interface SupplierState {
   list: Supplier[];
@@ -18,50 +17,10 @@ const initialState: SupplierState = {
 };
 
 
-const getAuthHeaders = (state: RootState) => {
-  const token = state.auth.token;
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
-
-export const fetchSuppliers = createAsyncThunk(
-  'supplier/fetchSuppliers',
-  async (_, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    const response = await axios.get(API_URL, getAuthHeaders(state));
-    return response.data as Supplier[];
-  }
-);
-
-export const createSupplier = createAsyncThunk(
-  'supplier/createSupplier',
-  async (newSupplier: Omit<Supplier, 'id'>, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    const response = await axios.post(API_URL, newSupplier, getAuthHeaders(state));
-    return response.data as Supplier;
-  }
-);
-
-export const deleteSupplier = createAsyncThunk(
-  'supplier/deleteSupplier',
-  async (id: string, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    await axios.delete(`${API_URL}/${id}`, getAuthHeaders(state));
-    return id;
-  }
-);
-
-export const updateSupplier = createAsyncThunk(
-  'supplier/updateSupplier',
-  async (supplier: Supplier, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    const response = await axios.patch(`${API_URL}/${supplier.id}`, supplier, getAuthHeaders(state));
-    return response.data as Supplier;
-  }
-);
+export const fetchSuppliers = fetchAll<Supplier[]>('supplier/fetchSuppliers', API_URL_SUPPLIER);
+export const createSupplier = create<Supplier, Omit<Supplier, 'id'>>('supplier/createSupplier', API_URL_SUPPLIER);
+export const updateSupplier = update<Supplier, Supplier>('supplier/createSupplier', API_URL_SUPPLIER);
+export const removeSupplier = remove<string>('supplier/removeSupplier', API_URL_SUPPLIER);
 
 const supplierSlice = createSlice({
   name: 'supplier',
@@ -84,13 +43,10 @@ const supplierSlice = createSlice({
       .addCase(createSupplier.fulfilled, (state, action) => {
         state.list.push(action.payload);
       })
-      .addCase(deleteSupplier.fulfilled, (state, action) => {
+      .addCase(removeSupplier.fulfilled, (state, action) => {
         state.list = state.list.filter(s => s.id !== action.payload);
       })
-      .addCase(updateSupplier.fulfilled, (state, action) => {
-        const index = state.list.findIndex(s => s.id === action.payload.id);
-        if (index !== -1) state.list[index] = action.payload;
-      });
+     
   },
 });
 
