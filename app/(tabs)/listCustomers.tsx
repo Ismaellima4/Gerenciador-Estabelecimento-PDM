@@ -1,16 +1,21 @@
 import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
-import { RootState } from '@/store/store';
+import { fetchCustomers } from '@/store/customerSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { listStyles } from '@/styles/listStyles';
 import { Link } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 export default function ListCustomers() {
-
+  const dispatch = useDispatch<AppDispatch>();
   const customers = useSelector((state: RootState) => state.customer.list);
+
+  useEffect(() => {
+        dispatch(fetchCustomers())
+      }, [dispatch])
 
   return (
 
@@ -39,7 +44,6 @@ export default function ListCustomers() {
                   <View style={listStyles.card}>
                     <Text style={listStyles.cardTitle}>{item.name}</Text>
                     <Text style={listStyles.cardInfo}>Telefone: {item.phone}</Text>
-                    {item.cpf && <Text style={listStyles.cardInfo}>CPF: {item.cpf}</Text>}
                     {item.email && <Text style={listStyles.cardInfo}>Email: {item.email}</Text>}
                   </View>
                 </TouchableOpacity>
