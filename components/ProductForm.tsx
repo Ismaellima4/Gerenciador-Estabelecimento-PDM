@@ -313,7 +313,7 @@ const ProductForm = ({
                 placeholderTextColor="#999"
                 value={barcode}
                 onChangeText={setBarcode}
-                editable={!initialProduct} // Barcode só é editável para novos produtos
+                editable={!initialProduct} 
               />
               <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
             </View>

@@ -18,17 +18,17 @@ import {
 } from 'react-native';
 import GreenButton from '@/components/ButtonComp';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+import { RootState, AppDispatch } from '@/store/store';
 import Product from '@/types/product';
 import { addOrderItem, deleteOrderItemById, resetOrderItems } from '@/store/orderItemSlice';
-import { addOrder } from '@/store/orderSlice';
+import { createOrder } from '@/store/orderSlice';
 import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useRouter } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
 import { updateStockAfterOrder } from '@/utils/updateStock';
 
 export default function OrderRegistration() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const products = useSelector((state: RootState) => state.product.list);
   const orderItems = useSelector((state: RootState) => state.orderItem.list);
 
@@ -82,27 +82,32 @@ export default function OrderRegistration() {
     });
   };
 
-  const handleFinishOrderNotPay = () => {
+  const handleFinishOrderNotPay = async () => {
     if (orderItems.length === 0) {
       return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de finalizar.');
     }
 
-    const orderId = randomUUID();
+    const orderPayload = {
+      orderItems: orderItems.map(item => ({
+        productID: item.product.id,
+        quantity: item.quantity,
+      })),
+      orderStatus: OrderStatus.INITIATED,
+    };
 
-    dispatch(
-      addOrder({
-        id: orderId,
-        orderItems: orderItems,
-        orderStatus: OrderStatus.INITIATED,
-      })
-    );
+    try {
+      await dispatch(createOrder(orderPayload)).unwrap();
 
-    updateStockAfterOrder(products, orderItems, dispatch);
-    Alert.alert('Pedido criado com sucesso!');
-    dispatch(resetOrderItems());
-    setSelectedProduct(null);
-    setQuantity('');
-    router.push('/listOrder');
+      updateStockAfterOrder(products, orderItems, dispatch);
+      Alert.alert('Pedido criado com sucesso!');
+
+      dispatch(resetOrderItems());
+      setSelectedProduct(null);
+      setQuantity('');
+      router.push('/listOrder');
+    } catch (error: any) {
+      Alert.alert('Erro ao criar pedido', error.message || 'Tente novamente.');
+    }
   };
 
   const handleSaveEditQty = (itemId: string, product: Product) => {
@@ -189,7 +194,6 @@ export default function OrderRegistration() {
             <GreenButton title="Terminar Compra" onPress={handleFinishOrderNotPay} />
           </ScrollView>
 
-         
           <Modal visible={productModalVisible} animationType="slide">
             <SafeAreaView style={{ flex: 1 }}>
               <View style={{ padding: 20, flex: 1 }}>
@@ -215,7 +219,6 @@ export default function OrderRegistration() {
             </SafeAreaView>
           </Modal>
 
-          
           <Modal visible={itemsModalVisible} animationType="slide" transparent={true}>
             <View style={styles.modalOrderListContainer}>
               <View style={styles.modalorderList}>
@@ -244,10 +247,13 @@ export default function OrderRegistration() {
                           <Feather name="check" size={20} color="green" />
                         </TouchableOpacity>
                       ) : (
-                        <TouchableOpacity onPress={() => {
-                          setEditingItemId(item.id);
-                          setEditedQty(item.quantity.toString());
-                        }} style={{ marginHorizontal: 5 }}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setEditingItemId(item.id);
+                            setEditedQty(item.quantity.toString());
+                          }}
+                          style={{ marginHorizontal: 5 }}
+                        >
                           <Feather name="edit-2" size={20} color="#007AFF" />
                         </TouchableOpacity>
                       )}
