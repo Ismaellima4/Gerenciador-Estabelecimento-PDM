@@ -134,7 +134,7 @@ const ProductForm = ({
       price: parseFloat(price),
       category: selectedCategory,
       amount: parseInt(quantity),
-      expirationDate: new Date(expirationDate.split('/').reverse().join('-')), // Converte para YYYY-MM-DD para Date
+      expirationDate: new Date(expirationDate.split('/').reverse().join('-')), 
       barCode: barcode,
       manufacturingDate: initialProduct?.manufacturingDate || new Date(),
       supplier: selectedSupplier,
@@ -170,14 +170,22 @@ const ProductForm = ({
     }
   };
 
-  
-  const handleDeleteCategory = async (categoryName: string) => {
-    const category = categories.find((category) => category.name.toLowerCase() === categoryName.toLowerCase());
-    if (category) {
-      await dispatch(deleteCategory(categoryName)).unwrap();
-      if (category.name === categoryName) {
+  const handleDeleteCategory = async (categoryNameToDelete: string) => {
+    const categoryToDelete = categories.find(
+      (c) => c.name.toLowerCase() === categoryNameToDelete.toLowerCase()
+    );
+
+    if (!categoryToDelete) return;
+
+    try {
+      await dispatch(deleteCategory(categoryToDelete.id)).unwrap();
+
+      if (categoryToDelete.name === category) {
         setCategory('');
       }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível excluir a categoria.');
+      console.error(error);
     }
   };
 
