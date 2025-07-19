@@ -1,50 +1,63 @@
-import customer from "@/types/customer";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { randomUUID } from "expo-crypto";
-import { RootState } from "./store";
+import { createSlice } from '@reduxjs/toolkit';
+import type Customer from '@/types/customer';
+import { RootState } from './store';
+import { API_URL_CUSTOMER } from './env';
+import { create, fetchAll, update, remove } from './genericThunk';
 
 
-interface custormerState {
-    list: customer[];
+interface CustomerState {
+  list: Customer[];
+  loading: boolean;
+  error: string | null;
 }
-const initialState: custormerState = {
-    list: [],
+
+
+const initialState: CustomerState = {
+  list: [],
+  loading: false,
+  error: null,
 };
 
-type NewCustomer = Omit<customer, 'id'>;
+
+export const fetchCustomers = fetchAll<Customer[]>('customer/fetchCustomers', API_URL_CUSTOMER);
+export const createCustomer = create<Customer, Omit<Customer, 'id'>>('customer/createCustomer', API_URL_CUSTOMER);
+export const updateCustomer = update<Customer, Customer>('customer/updateCustomer', API_URL_CUSTOMER);
+export const removeCustomer = remove<string>('customer/removeCustomer', API_URL_CUSTOMER);
 
 
-const customerSlice =  createSlice({
-    name: 'customer',
-    initialState,
-    reducers: {
-        addCustomer: (state, action: PayloadAction<NewCustomer>) => {
-            const customerWithId = {
-                ...action.payload,
-                id: randomUUID()
-            }
-            state.list.push(customerWithId)
-        },
-       setCustomer: (state, action: PayloadAction<customer[]>) => {
-          state.list = action.payload;
-       },
-       updateCustomer: (state, action: PayloadAction<customer>) => {
-         const index = state.list.findIndex(
-            (customer) => customer.id === action.payload.id
-         );
-         if (index !== -1) {
-           state.list[index] = action.payload;
-        }
-       },
-       deleteCustomerById: (state, action: PayloadAction<{id: string}>) => {
-       state.list = state.list.filter(
-        (customer) => customer.id !== action.payload.id
-      );
-    },
-    },
+const customerSlice = createSlice({
+  name: 'customer',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchCustomers.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCustomers.fulfilled, (state, action) => {
+        state.list = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchCustomers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Erro ao buscar clientes';
+      })
+      .addCase(createCustomer.fulfilled, (state, action) => {
+        state.list.push(action.payload);
+      })
+      .addCase(updateCustomer.fulfilled, (state, action) => {
+        const index = state.list.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) state.list[index] = action.payload;
+      })
+      .addCase(removeCustomer.fulfilled, (state, action) => {
+        state.list = state.list.filter(c => c.id !== action.payload);
+      });
+  },
 });
 
-export const findCustomerById = (state: RootState, id: string) => state.customer.list.find((customer) => customer.id === id);
-export const { addCustomer, setCustomer, updateCustomer, deleteCustomerById } = customerSlice.actions;
 
-export default  customerSlice.reducer;
+export const findCustomerById = (state: RootState, id: string) =>
+  state.customer.list.find(customer => customer.id === id);
+
+export default customerSlice.reducer;
