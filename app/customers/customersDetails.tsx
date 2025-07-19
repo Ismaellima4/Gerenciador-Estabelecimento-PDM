@@ -29,8 +29,8 @@ export default function CustomersDetails() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [customerNameState, setCustomerName] = useState(customer?.name || '');
-  const [cpfState, setCpf] = useState(customer?.cpf || '');
-  const [phoneState, setPhone] = useState(customer?.phone || '');
+  const [cpfState] = useState(customer?.cpf || '');
+  const [phoneState, setPhone] = useState(customer?.phoneNumber || '');
   const [emailState, setEmail] = useState(customer?.email || '');
 
   if (!customer) {
@@ -75,7 +75,7 @@ export default function CustomersDetails() {
         id: customer.id,
         name: customerNameState,
         cpf: cpfState,
-        phone: phoneState,
+        phoneNumber: phoneState,
         email: emailState,
         payments: customer.payments, // mantém histórico de pagamentos
       };

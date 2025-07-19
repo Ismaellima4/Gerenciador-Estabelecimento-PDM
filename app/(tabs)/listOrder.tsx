@@ -48,7 +48,7 @@ export default function ListOrders() {
           return (
             <Link
               href={{
-                pathname: '/orderDetails',
+                pathname: 'orders/orderDetails',
                 params: { id: item.id },
               }}
               asChild

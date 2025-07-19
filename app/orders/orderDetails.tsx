@@ -1,5 +1,5 @@
-import { findOrderById, deleteOrderById, updateOrder } from '@/store/orderSlice';
-import { RootState } from '@/store/store';
+import { findOrderById, deleteOrder, updateOrder } from '@/store/orderSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useState } from 'react';
@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function OrderDetails() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
   const order = useSelector((state: RootState) => findOrderById(state, String(id)));
@@ -56,8 +56,9 @@ export default function OrderDetails() {
         {
           text: 'Excluir',
           onPress: () => {
-            dispatch(deleteOrderById({ id: order.id }));
-            Alert.alert('Removido', 'Pedido excluído com sucesso!');
+            dispatch(deleteOrder(order.id)).unwrap()
+              .then(() =>  Alert.alert('Removido', 'Pedido excluído com sucesso!'))
+              .catch(() =>  Alert.alert('Error', 'Error ao excluír um Pedido!'));
             router.back();
           },
         },

@@ -22,7 +22,7 @@ export default function ListCustomers() {
     <View style={listStyles.container}>
       <View style={listStyles.header}>
         <Text style={listStyles.title}>Clientes</Text>
-          <AddButton pathname='customerRegister'/>
+          <AddButton pathname='customers/customerRegister'/>
       </View>
     
       <Search />
@@ -33,7 +33,7 @@ export default function ListCustomers() {
           renderItem={({item}) => (
             <Link
               href={{
-                pathname: '/customersDetails',
+                pathname: 'customers/customersDetails',
                 params: {
                   id: item.id,
                 }
@@ -43,7 +43,7 @@ export default function ListCustomers() {
                 <TouchableOpacity>
                   <View style={listStyles.card}>
                     <Text style={listStyles.cardTitle}>{item.name}</Text>
-                    <Text style={listStyles.cardInfo}>Telefone: {item.phone}</Text>
+                    <Text style={listStyles.cardInfo}>Telefone: {item.phoneNumber}</Text>
                     {item.email && <Text style={listStyles.cardInfo}>Email: {item.email}</Text>}
                   </View>
                 </TouchableOpacity>

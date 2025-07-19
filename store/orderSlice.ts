@@ -25,7 +25,7 @@ export const createOrder = create<Order, { orderItems: { productID: string; quan
 );
 
 export const updateOrder = update<Order, Order>('order/updateOrder', API_URL_ORDER);
-export const deleteOrder = remove<string>('order/deleteOrder', API_URL_ORDER);
+export const deleteOrder = remove('order/deleteOrder', API_URL_ORDER);
 
 const orderSlice = createSlice({
   name: 'order',

@@ -15,14 +15,14 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
+import { AppDispatch, RootState } from '@/store/store';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { findCustomerById } from '@/store/customerSlice';
-import { addOrder, findOrderById } from '@/store/orderSlice';
+import { createOrder, findOrderById } from '@/store/orderSlice';
 import { PaymentType } from '@/types/enum/payment-type.enum';
 import { PaymentStatus } from '@/types/enum/payment-status.enum';
 import { OrderStatus } from '@/types/enum/order-status.enum';
-import { addPayment } from '@/store/paymentSlice';
+import { createPayment } from '@/store/paymentSlice';
 import { randomUUID } from 'expo-crypto';
 import { updateStockAfterOrder } from '@/utils/updateStock';
 
@@ -52,7 +52,7 @@ export default function PaymentRegister() {
     0
   );
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const paymentOptions = Object.entries(PaymentType).map(([key, value]) => ({
@@ -88,8 +88,8 @@ export default function PaymentRegister() {
       paymentStatus: PaymentStatus.COMPLETED,
     };
 
-    dispatch(addOrder({ ...orderData, payment: paymentData }));
-    dispatch(addPayment(paymentData));
+    dispatch(createOrder(orderData));
+    dispatch(createPayment(paymentData));
 
     updateStockAfterOrder(products, parsedItems, dispatch);
 
@@ -147,7 +147,7 @@ export default function PaymentRegister() {
               style={styles.dropdownTextInput}
               placeholder="Selecione um cliente"
               value={
-                selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : ''
+                selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phoneNumber}` : ''
               }
               editable={false}
               pointerEvents="none"
@@ -173,7 +173,7 @@ export default function PaymentRegister() {
                     style={{ paddingVertical: 10 }}
                   >
                     <Text style={{ fontSize: 16 }}>
-                      {cust.name} - {cust.phone}
+                      {cust.name} - {cust.phoneNumber}
                     </Text>
                   </TouchableOpacity>
                 ))}

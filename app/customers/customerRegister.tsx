@@ -18,7 +18,7 @@ import { AxiosError } from "axios";
 export default function CustomerRegistration() {
   const [customerName, setCustomerName] = useState("");
   const [cpf, setCpf] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
 
   const dispatch = useDispatch<AppDispatch>();
@@ -32,7 +32,7 @@ export default function CustomerRegistration() {
     const newCustomer = {
       name: customerName,
       cpf,
-      phone,
+      phoneNumber,
       email,
       payments: [],
     };
@@ -78,8 +78,8 @@ export default function CustomerRegistration() {
             </Text>
             <TextInput
               style={registerStyles.input}
-              value={phone}
-              onChangeText={setPhone}
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
               maxLength={15}
               placeholder="(00) 00000-0000"
               placeholderTextColor="#888"

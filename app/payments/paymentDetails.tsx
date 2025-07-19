@@ -1,5 +1,5 @@
-import { deletePaymentById, findPaymentById } from "@/store/paymentSlice";
-import { RootState } from "@/store/store";
+import { deletePayment, findPaymentById } from "@/store/paymentSlice";
+import { AppDispatch, RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
 import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -20,14 +20,14 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PaymentDetails() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
   const payment = useSelector((state: RootState) =>
     findPaymentById(state, String(id))
   );
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || "");
   const [paymentValueState, setPaymentValue] = useState(payment?.amount);
   const [paymentDateState, setPaymentDate] = useState(payment?.date || "");
@@ -48,8 +48,9 @@ export default function PaymentDetails() {
           text: "Excluir",
           onPress: () => {
             if (payment) {
-              dispatch(deletePaymentById({ id: payment.id }));
-              Alert.alert("Removido", "Pagamento excluído com sucesso!");
+              dispatch(deletePayment(payment.id)).unwrap()
+              .then(() => Alert.alert("Removido", "Pagamento excluído com sucesso!"))
+              .catch(() => Alert.alert("Erro", "Erro ao Excluir um Pagamento"));
               router.back();
             } else {
               Alert.alert("Erro", "Pagamento não encontrado.");
