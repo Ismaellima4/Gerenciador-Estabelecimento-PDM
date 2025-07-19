@@ -1,6 +1,7 @@
 import FormActionButtons from '@/components/FormActionButton';
 import ModalSelector from '@/components/ModalSelector';
 import { createCategory, deleteCategory, fetchAllCategories } from '@/store/categorySlice';
+import { createProduct, updateProduct } from '@/store/productSlice';
 import { AppDispatch, RootState } from '@/store/store';
 import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
@@ -65,10 +66,9 @@ const ProductForm = ({
 
   const dispatch = useDispatch<AppDispatch>();
 
-
   useEffect(() => {
-    dispatch(fetchAllCategories())
-  }, [dispatch])
+    dispatch(fetchAllCategories());
+  }, [dispatch]);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -127,24 +127,42 @@ const ProductForm = ({
       return;
     }
 
-    const productData: Omit<Product, 'id'> & { id?: string } = {
+    
+    let expirationDateISO: string;
+    try {
+      expirationDateISO = new Date(expirationDate.split('/').reverse().join('-')).toISOString();
+    } catch {
+      Alert.alert('Erro', 'Data de validade inválida.');
+      return;
+    }
+
+    const manufacturingDateISO = (initialProduct?.manufacturingDate || new Date()).toISOString();
+
+    const productData = {
       productName,
       description,
       productImage: selectedImageUri || '',
       price: parseFloat(price),
-      category: selectedCategory,
+      category: selectedCategory.id,
       amount: parseInt(quantity),
-      expirationDate: new Date(expirationDate.split('/').reverse().join('-')), 
-      barCode: barcode,
-      manufacturingDate: initialProduct?.manufacturingDate || new Date(),
-      supplier: selectedSupplier,
+      expirationDate: expirationDateISO,
+      barCode: barcode.trim() === '' ? undefined : barcode,
+      manufacturingDate: manufacturingDateISO,
+      supplier: selectedSupplier.id,
     };
 
     if (initialProduct?.id) {
-      (productData as Product).id = initialProduct.id;
+      (productData as any).id = initialProduct.id;
+      dispatch(updateProduct(productData as any))
+        .unwrap()
+        .then(() => onSubmit(productData as any))
+        .catch(() => Alert.alert('Erro', 'Não foi possível atualizar o produto.'));
+    } else {
+      dispatch(createProduct(productData as any))
+        .unwrap()
+        .then(() => onSubmit(productData as any))
+        .catch(() => Alert.alert('Erro', 'Não foi possível criar o produto.'));
     }
-
-    onSubmit(productData as Product);
   };
 
   const handleSelectSupplier = (selectedSupplier: string) => {
@@ -165,8 +183,8 @@ const ProductForm = ({
       await dispatch(createCategory(category)).unwrap();
       handleSelectCategory(newCategory);
       setCategoryModalVisible(false);
-    } catch(err) {
-      console.log(err)
+    } catch (err) {
+      console.log(err);
     }
   };
 

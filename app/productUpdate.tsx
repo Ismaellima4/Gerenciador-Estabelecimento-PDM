@@ -4,28 +4,32 @@ import { findProductById, updateProduct } from '@/store/productSlice';
 import Product from '@/types/product';
 import ProductForm from '@/components/ProductForm';
 import { Alert } from 'react-native';
-import { RootState } from '@/store/store';
+import { RootState, AppDispatch } from '@/store/store';
 import NotFoundItem from '@/components/NotFoundItem';
 
 export default function ProductUpdateScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
-  const product = useSelector((state: RootState) => findProductById(state, id.toString()));
+  const product = useSelector((state: RootState) => findProductById(state, id?.toString() || ''));
 
   if (!product) {
-    return <NotFoundItem /> 
+    return <NotFoundItem />;
   }
 
-  const handleSubmit = (product: Product) => {
-    dispatch(updateProduct(product));
-    Alert.alert('Sucesso', 'Produto atualizado com sucesso!');
-    router.replace({
-      pathname: '/productDetails',
-      params: {
-        id: product.id,
-      }
-    });
+  const handleSubmit = (updatedProduct: Product) => {
+    dispatch(updateProduct(updatedProduct))
+      .unwrap()
+      .then(() => {
+        Alert.alert('Sucesso', 'Produto atualizado com sucesso!');
+        router.replace({
+          pathname: '/productDetails',
+          params: { id: updatedProduct.id },
+        });
+      })
+      .catch(() => {
+        Alert.alert('Erro', 'Não foi possível atualizar o produto.');
+      });
   };
 
   return (
