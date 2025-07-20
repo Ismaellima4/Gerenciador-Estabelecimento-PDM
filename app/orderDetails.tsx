@@ -1,8 +1,8 @@
-import { findOrderById, deleteOrderById, updateOrder } from '@/store/orderSlice';
-import { RootState } from '@/store/store';
+import { updateOrder, deleteOrder, findOrderById } from '@/store/orderSlice';
+import { RootState, AppDispatch } from '@/store/store';
 import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useLocalSearchParams, router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   Modal,
@@ -17,29 +17,38 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function OrderDetails() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
+  // Pega pedido do redux pelo id vindo da rota
   const order = useSelector((state: RootState) => findOrderById(state, String(id)));
 
+ 
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [status] = useState(order?.orderStatus || '');
-  const [paymentType] = useState(order?.payment?.paymentStatus);
-  const [customer] = useState(order?.payment?.customer?.name);
+  // Estados controlados para editar campos
+  const [status, setStatus] = useState(order?.orderStatus || '');
+  const [customer, setCustomer] = useState(order?.payment?.customer?.id || '');
 
-  const orderValue = order?.orderItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  ).toFixed(2);
+  // Sincroniza estados controlados quando o pedido é carregado/alterado (evita inconsistência ao navegar entre pedidos)
+  useEffect(() => {
+    setStatus(order?.orderStatus || '');
+    setCustomer(order?.payment?.customer?.name || '');
+  }, [order]);
 
+  // Calcula valor total com tratamento caso order seja undefined
+  const orderValue = order
+    ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
+    : '0.00';
+
+  // Caso o pedido não exista (id inválido, carregamento, etc)
   if (!order) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centeredMessage}>
           <Text style={styles.errorMessage}>Pedido não encontrado.</Text>
-          <TouchableOpacity style={styles.backButton} onPress={router.back}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Text style={styles.backButtonText}>Voltar para a lista</Text>
           </TouchableOpacity>
         </View>
@@ -47,39 +56,36 @@ export default function OrderDetails() {
     );
   }
 
+  // Função para excluir pedido com confirmação e tratamento async
   const handleDelete = () => {
     Alert.alert(
       'Confirmar Exclusão',
-      `Tem certeza que deseja excluir o pedido?`,
+      'Tem certeza que deseja excluir o pedido?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Excluir',
-          onPress: () => {
-            dispatch(deleteOrderById({ id: order.id }));
-            Alert.alert('Removido', 'Pedido excluído com sucesso!');
-            router.back();
+          onPress: async () => {
+            try {
+              await dispatch(deleteOrder(order.id)).unwrap();
+              Alert.alert('Removido', 'Pedido excluído com sucesso!');
+              router.back();
+            } catch (error: any) {
+              Alert.alert('Erro', error.message || 'Erro ao excluir pedido');
+            }
           },
+          style: 'destructive',
         },
       ],
       { cancelable: true }
     );
-  };
-
-  const handleUpdate = () => {
-    if (isEditing) {
-      dispatch(updateOrder({ ...order, orderStatus: order.orderStatus }));
-      Alert.alert('Atualizado', 'Pedido atualizado com sucesso!');
-    }
-    setIsEditing(!isEditing);
-  };
-
+  };  
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <TextInput
           style={styles.input}
-          value={orderValue}
+          value={`R$ ${orderValue.replace('.', ',')}`}
           editable={false}
           placeholder="Valor do Pedido"
         />
@@ -87,13 +93,15 @@ export default function OrderDetails() {
         <TextInput
           style={styles.input}
           value={status}
-          editable={false}
+          onChangeText={setStatus}
+          editable={isEditing}
           placeholder="Status do pedido"
+          autoCapitalize="none"
         />
 
         <TextInput
           style={styles.input}
-          value={paymentType}
+          value={order.payment?.paymentStatus || ''}
           editable={false}
           placeholder="Status do pagamento"
         />
@@ -101,22 +109,23 @@ export default function OrderDetails() {
         <TextInput
           style={styles.input}
           value={customer}
+          onChangeText={setCustomer}
           editable={isEditing}
-          placeholder="cliente (não obrigatório)"
+          placeholder="Cliente (não obrigatório)"
+          autoCapitalize="words"
         />
 
         <TextInput
           style={styles.input}
-          value={order.payment?.paymentType}
+          value={order.payment?.paymentType || ''}
           editable={false}
-          placeholder="tipo do pagamento"
+          placeholder="Tipo do pagamento"
         />
 
         <TouchableOpacity style={styles.itemsButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.itemsButtonText}>Ver Itens do Pedido</Text>
         </TouchableOpacity>
 
-        
         {order.orderStatus === OrderStatus.INITIATED && (
           <TouchableOpacity
             style={[styles.itemsButton, { backgroundColor: 'green' }]}
@@ -124,7 +133,6 @@ export default function OrderDetails() {
               router.push({
                 pathname: '/paymentRegister',
                 params: { orderId: order.id },
-                
               })
             }
           >
@@ -133,17 +141,18 @@ export default function OrderDetails() {
         )}
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+          <TouchableOpacity style={styles.button} onPress={()=> console.log("update")}>
             <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
           </TouchableOpacity>
 
           {!isEditing && (
-            <TouchableOpacity style={styles.button} onPress={handleDelete}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: '#b00020' }]} onPress={handleDelete}>
               <Text style={styles.buttonText}>DELETAR</Text>
             </TouchableOpacity>
           )}
         </View>
 
+        {/* Modal Itens do Pedido */}
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -154,17 +163,15 @@ export default function OrderDetails() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.itemName}>{item.product.productName}</Text>
                       <Text style={styles.itemDetails}>
-                        {item.quantity} × R$ {item.product.price.toFixed(2)} = R${' '}
-                        {(item.quantity * item.product.price).toFixed(2)}
+                        {item.quantity} × R$ {item.product.price.toFixed(2)} = R$ {(
+                          item.quantity * item.product.price
+                        ).toFixed(2)}
                       </Text>
                     </View>
                   </View>
                 ))}
               </ScrollView>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={styles.modalCloseButton}
-              >
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalCloseButton}>
                 <Text style={styles.modalCloseText}>Fechar</Text>
               </TouchableOpacity>
             </View>

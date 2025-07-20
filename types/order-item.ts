@@ -1,12 +1,8 @@
-import Product from "./product";
-import  order  from "./order";
 
 type orderItem = {
     id: string;
-    product: Product;
+    productId: string;
     quantity: number;
-    order: order;
-
 }
 
 export default orderItem;

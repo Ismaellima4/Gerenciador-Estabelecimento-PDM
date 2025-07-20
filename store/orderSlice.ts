@@ -2,7 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { create, fetchAll, update, remove } from './genericThunk';
 import Order from '@/types/order';
+
 import { API_URL_ORDER } from './env';
+import CreateOrderPayload from '@/types/CreateOrderPayload';
 
 interface OrderState {
   list: Order[];
@@ -19,7 +21,7 @@ const initialState: OrderState = {
 export const fetchOrders = fetchAll<Order[]>('order/fetchOrders', API_URL_ORDER);
 
 
-export const createOrder = create<Order, { orderItems: { productID: string; quantity: number }[]; orderStatus: string }>(
+export const createOrder = create<Order, CreateOrderPayload>(
   'order/createOrder',
   API_URL_ORDER
 );

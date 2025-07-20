@@ -16,7 +16,6 @@ const initialState: ProductState = {
   error: null,
 };
 
-
 export const fetchProducts = fetchAll<Product[]>('product/fetchProducts', API_URL_PRODUCT);
 export const createProduct = create<Product, Omit<Product, 'id'>>('product/createProduct', API_URL_PRODUCT);
 export const updateProduct = update<Product, Product>('product/updateProduct', API_URL_PRODUCT);
