@@ -99,7 +99,7 @@ export default function ProductDetailScreen() {
         </View>
 
         <Link href={{
-          pathname: '/suppliersDetails',
+          pathname: 'suppliers/suppliersDetails',
           params: {
             id: supplier.id
           }
@@ -121,7 +121,7 @@ export default function ProductDetailScreen() {
 
       <FormActionButtons
         onSave={() => router.push({ 
-          pathname: '/productUpdate', 
+          pathname: 'products/productUpdate', 
           params: { id: product.id } 
         })}
         onCancel={handleDelete}

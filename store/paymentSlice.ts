@@ -19,7 +19,7 @@ const initialState: PaymentState = {
 export const fetchPayments = fetchAll<payment[]>('payment/fetchPayments', API_URL_PAYMENT);
 export const createPayment = create<payment, Omit<payment, 'id'>>('payment/createPayment', API_URL_PAYMENT);
 export const updatePayment = update<payment, payment>('payment/updatePayment', API_URL_PAYMENT);
-export const deletePayment = remove<string>('payment/deletePayment', API_URL_PAYMENT);
+export const deletePayment = remove('payment/deletePayment', API_URL_PAYMENT);
 
 const paymentSlice = createSlice({
   name: 'payment',

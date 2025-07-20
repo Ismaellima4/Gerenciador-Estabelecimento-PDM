@@ -1,3 +1,4 @@
+
 import { updateOrder, deleteOrder, findOrderById } from '@/store/orderSlice';
 import { RootState, AppDispatch } from '@/store/store';
 import { OrderStatus } from '@/types/enum/order-status.enum';
@@ -20,29 +21,29 @@ export default function OrderDetails() {
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
 
-  // Pega pedido do redux pelo id vindo da rota
+  
   const order = useSelector((state: RootState) => findOrderById(state, String(id)));
 
  
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Estados controlados para editar campos
+  
   const [status, setStatus] = useState(order?.orderStatus || '');
   const [customer, setCustomer] = useState(order?.payment?.customer?.id || '');
 
-  // Sincroniza estados controlados quando o pedido é carregado/alterado (evita inconsistência ao navegar entre pedidos)
+  
   useEffect(() => {
     setStatus(order?.orderStatus || '');
     setCustomer(order?.payment?.customer?.name || '');
   }, [order]);
 
-  // Calcula valor total com tratamento caso order seja undefined
-  const orderValue = order
-    ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
-    : '0.00';
+  
+  //const orderValue = order
+    //? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
+    //: '0.00';
 
-  // Caso o pedido não exista (id inválido, carregamento, etc)
+  
   if (!order) {
     return (
       <SafeAreaView style={styles.container}>
@@ -56,7 +57,7 @@ export default function OrderDetails() {
     );
   }
 
-  // Função para excluir pedido com confirmação e tratamento async
+  
   const handleDelete = () => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -85,7 +86,7 @@ export default function OrderDetails() {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <TextInput
           style={styles.input}
-          value={`R$ ${orderValue.replace('.', ',')}`}
+          //value={`R$ ${orderValue.replace('.', ',')}`}
           editable={false}
           placeholder="Valor do Pedido"
         />
@@ -152,16 +153,16 @@ export default function OrderDetails() {
           )}
         </View>
 
-        {/* Modal Itens do Pedido */}
+        
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Itens do Pedido</Text>
               <ScrollView style={{ maxHeight: 300 }}>
-                {order.orderItems.map((item) => (
+               {/*  {order.orderItems.map((item) => (
                   <View key={item.id} style={styles.itemRow}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.itemName}>{item.product.productName}</Text>
+                      <Text style={styles.itemName}>{item.productId}</Text>
                       <Text style={styles.itemDetails}>
                         {item.quantity} × R$ {item.product.price.toFixed(2)} = R$ {(
                           item.quantity * item.product.price
@@ -169,7 +170,7 @@ export default function OrderDetails() {
                       </Text>
                     </View>
                   </View>
-                ))}
+                ))}   */}
               </ScrollView>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalCloseButton}>
                 <Text style={styles.modalCloseText}>Fechar</Text>

@@ -1,6 +1,6 @@
+import { Stack } from 'expo-router';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
-import { Stack } from 'expo-router';
 
 export default function RootLayout() {
   return (
@@ -9,8 +9,8 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="productDetails" options={{ headerTitle: "Detalhes do Produto" }} />
-        <Stack.Screen name="suppliersDetails" options={{ headerTitle: "Detalhes do Fornecedor" }} />
-        <Stack.Screen name="supplierRegister" options={{ headerTitle: "Registrar Fornecedor" }} />
+        <Stack.Screen name="suppliers/suppliersDetails" options={{ headerTitle: "Detalhes do Fornecedor" }} />
+        <Stack.Screen name="suppliers/supplierRegister" options={{ headerTitle: "Registrar Fornecedor" }} />
         <Stack.Screen name="productsRegisterScreen" options={{ headerTitle: "Registrar de Produto" }} />
         <Stack.Screen name="productUpdate" options={{ headerTitle: "Atualizar Produto" }} />
         <Stack.Screen name="customerRegister" options={{ headerTitle: "Registrar Cliente" }} />

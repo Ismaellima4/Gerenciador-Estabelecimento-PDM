@@ -1,5 +1,6 @@
 import { AddButton } from '@/components/AddButton';
 import { Search } from '@/components/Search';
+import { fetchSuppliers } from '@/store/supplierSlice';
 import { listStyles } from '@/styles/listStyles';
 import { Link } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -12,7 +13,6 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store/store';
-import { fetchSuppliers } from '@/store/supplierSlice';
 
 export default function ListSuppliers() {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +26,7 @@ export default function ListSuppliers() {
     <SafeAreaView style={listStyles.container}>
       <View style={listStyles.header}>
         <Text style={listStyles.title}>Fornecedores</Text>
-          <AddButton pathname='supplierRegister'/>
+          <AddButton pathname='suppliers/supplierRegister'/>
       </View>
 
       <Search />
@@ -36,7 +36,7 @@ export default function ListSuppliers() {
         keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item }) => (
           <Link href={{
-            pathname: '/suppliersDetails',
+            pathname: 'suppliers/suppliersDetails',
             params: {
                 id: item.id,
             }

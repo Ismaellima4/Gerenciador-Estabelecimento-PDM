@@ -50,7 +50,9 @@ export default function ListOrders() {
 
           return (
             <Link
+
               href={{ pathname: '/orderDetails', params: { id: item.id } }}
+
               asChild
             >
               <TouchableOpacity>

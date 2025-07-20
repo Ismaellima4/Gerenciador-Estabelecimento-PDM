@@ -3,12 +3,14 @@ import ModalSelector from '@/components/ModalSelector';
 import { createCategory, deleteCategory, fetchAllCategories } from '@/store/categorySlice';
 import { createProduct, updateProduct } from '@/store/productSlice';
 import { AppDispatch, RootState } from '@/store/store';
+import { fetchSuppliers } from '@/store/supplierSlice';
 import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
-import Product from '@/types/product';
+import Product, { CreateProduct, UpdateProduct } from '@/types/product';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -29,7 +31,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
-  onSubmit: (product: Product) => void;
   onCancel: () => void;
   submitButtonText: string;
   onAddSupplierPress: () => void;
@@ -37,7 +38,6 @@ interface ProductFormProps {
 
 const ProductForm = ({
   initialProduct,
-  onSubmit,
   onCancel,
   submitButtonText,
   onAddSupplierPress,
@@ -68,6 +68,7 @@ const ProductForm = ({
 
   useEffect(() => {
     dispatch(fetchAllCategories());
+    dispatch(fetchSuppliers());
   }, [dispatch]);
 
   const pickImage = async () => {
@@ -136,7 +137,7 @@ const ProductForm = ({
       return;
     }
 
-    const manufacturingDateISO = (initialProduct?.manufacturingDate || new Date()).toISOString();
+    const manufacturingDateISO = (initialProduct?.manufacturingDate.toISOString() || new Date().toISOString());
 
     const productData = {
       productName,
@@ -146,22 +147,28 @@ const ProductForm = ({
       category: selectedCategory.id,
       amount: parseInt(quantity),
       expirationDate: expirationDateISO,
-      barCode: barcode.trim() === '' ? undefined : barcode,
+      barCode: barcode.trim() === '' ? '' : barcode,
       manufacturingDate: manufacturingDateISO,
       supplier: selectedSupplier.id,
     };
 
     if (initialProduct?.id) {
-      (productData as any).id = initialProduct.id;
-      dispatch(updateProduct(productData as any))
+      const updateProductData: UpdateProduct = {
+        ...productData,
+        id: initialProduct?.id
+      }
+      dispatch(updateProduct(updateProductData))
         .unwrap()
-        .then(() => onSubmit(productData as any))
         .catch(() => Alert.alert('Erro', 'Não foi possível atualizar o produto.'));
+        router.back()
     } else {
-      dispatch(createProduct(productData as any))
+      const createProductData: CreateProduct = {
+        ...productData,
+      }
+      dispatch(createProduct(createProductData))
         .unwrap()
-        .then(() => onSubmit(productData as any))
         .catch(() => Alert.alert('Erro', 'Não foi possível criar o produto.'));
+        router.back()
     }
   };
 

@@ -27,7 +27,7 @@ export default function ListPayments() {
             keyExtractor={(item, index) => `${item.id}-${index}`}
             renderItem={({ item }) => (
               <Link href={{
-                pathname: '/paymentDetails',
+                pathname: 'payments/paymentDetails',
                 params: {
                   id: item.id,
                 }
