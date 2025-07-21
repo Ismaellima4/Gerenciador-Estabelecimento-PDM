@@ -1,4 +1,4 @@
-import { RootState, AppDispatch } from '@/store/store';
+import { AppDispatch, RootState } from '@/store/store';
 import {
   findSupplierById,
   removeSupplier,
@@ -108,7 +108,7 @@ export default function SuppliersDetails() {
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.profileImageContainer}>
             <Image
-              source={require('../assets/images/icon.png')}
+              source={require('../../assets/images/icon.png')}
               style={styles.profileImage}
             />
           </View>

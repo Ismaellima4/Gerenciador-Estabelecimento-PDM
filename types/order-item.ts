@@ -1,7 +1,8 @@
+import Product from "./product";
 
 type orderItem = {
     id: string;
-    productId: string;
+    product:  Product;
     quantity: number;
 }
 

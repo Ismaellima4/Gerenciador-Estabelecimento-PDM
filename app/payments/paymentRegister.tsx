@@ -46,9 +46,10 @@ export default function PaymentRegister() {
     selectedCustomerId ? findCustomerById(state, selectedCustomerId) : undefined
   );
 
+
   const parsedItems = order?.orderItems ?? [];
   const parsedTotal = parsedItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => sum * item.quantity,
     0
   );
 

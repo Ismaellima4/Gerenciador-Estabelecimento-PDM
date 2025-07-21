@@ -39,7 +39,7 @@ export default function HomeScreen() {
         keyExtractor={(item, index) => `${item.productName}-${index}`}
         renderItem={({ item }) => (
           <Link href={{
-            pathname: '/productDetails',
+            pathname: 'products/productDetails',
             params: { id: item.id },
           }} asChild>
             <TouchableOpacity>

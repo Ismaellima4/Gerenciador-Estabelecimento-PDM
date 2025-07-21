@@ -132,7 +132,7 @@ export default function OrderDetails() {
             style={[styles.itemsButton, { backgroundColor: 'green' }]}
             onPress={() =>
               router.push({
-                pathname: '/paymentRegister',
+                pathname: 'payments/paymentRegister',
                 params: { orderId: order.id },
               })
             }

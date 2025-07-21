@@ -73,7 +73,7 @@ export default function OrderRegistration() {
     setQuantity('');
 
     router.push({
-      pathname: '/paymentRegister',
+      pathname: 'payments/paymentRegister',
       params: {
         orderId,
         orderItems: JSON.stringify(orderItems),
@@ -104,7 +104,7 @@ export default function OrderRegistration() {
       dispatch(resetOrderItems());
       setSelectedProduct(null);
       setQuantity('');
-      router.push('/listOrder');
+      router.push('orders/listOrder');
     } catch (error: any) {
       Alert.alert('Erro ao criar pedido', error.message || 'Tente novamente.');
     }

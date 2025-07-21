@@ -1,6 +1,8 @@
 import { deletePayment, findPaymentById } from "@/store/paymentSlice";
+import { findProductById } from "@/store/productSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
+import Product from "@/types/product";
 import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -27,6 +29,8 @@ export default function PaymentDetails() {
     findPaymentById(state, String(id))
   );
 
+  const products = useSelector((state: RootState) => state.product.list);
+
   const [isEditing] = useState(false);
   const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || "");
   const [paymentValueState, setPaymentValue] = useState(payment?.amount);
@@ -34,6 +38,14 @@ export default function PaymentDetails() {
   const [paymentStatusState, setPaymentStatus] = useState(payment?.paymentStatus || "");
   const [paymentCustomerState, setPaymentCustomer] = useState(payment?.customer?.name || "");
   const [modalVisible, setModalVisible] = useState(false);
+
+  if (!payment) {
+    return Alert.alert("Info", "Pagamento não encontrado");
+  }
+
+  const paymentProducts: Product[] = () => {
+      payment.order.orderItems.map((orderItem) => products.filter((product) => product.id === orderItem.id))
+  }
 
   const handleDelete = () => {
     Alert.alert(
@@ -81,10 +93,10 @@ export default function PaymentDetails() {
                 <Text style={styles.modalTitle}>Itens do Pedido</Text>
                 <ScrollView style={{ maxHeight: 300 }}>
                   {payment?.order?.orderItems?.length ? (
-                    payment.order.orderItems.map((item) => (
+                    paymentProducts.map((item) => (
                       <View key={item.id} style={styles.itemRow}>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.itemName}>{item.product.productName}</Text>
+                          <Text style={styles.itemName}>{item.productName}</Text>
                           <Text style={styles.itemDetails}>
                             {item.quantity} × R$ {item.product.price.toFixed(2)} = R${" "}
                             {(item.quantity * item.product.price).toFixed(2)}
