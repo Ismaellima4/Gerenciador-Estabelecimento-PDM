@@ -18,15 +18,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { findCustomerById } from '@/store/customerSlice';
-import { createOrder, findOrderById } from '@/store/orderSlice';
+import { findOrderById } from '@/store/orderSlice';
 import { PaymentType } from '@/types/enum/payment-type.enum';
-import { PaymentStatus } from '@/types/enum/payment-status.enum';
-import { OrderStatus } from '@/types/enum/order-status.enum';
 import { createPayment } from '@/store/paymentSlice';
-import { randomUUID } from 'expo-crypto';
 import { updateStockAfterOrder } from '@/utils/updateStock';
+import { CreateOrder } from '@/types/order';
+import { CreatePayment } from '@/types/payment';
 
 export default function PaymentRegister() {
+
+  const param = useLocalSearchParams<{ order?: string, total?: string, orderId?: string}>();
+
+  const orderPayload: CreateOrder = param.order ? JSON.parse(param.order) : null;
+  const orderId = param.orderId;
+
   const [modalVisible, setModalVisible] = useState(false);
   const [paymentTypeModalVisible, setPaymentTypeModalVisible] = useState(false);
   const [customerModalVisible, setCustomerModalVisible] = useState(false);
@@ -37,7 +42,6 @@ export default function PaymentRegister() {
   const customers = useSelector((state: RootState) => state.customer.list);
   const products = useSelector((state: RootState) => state.product.list);
 
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const order = useSelector((state: RootState) =>
     orderId ? findOrderById(state, String(orderId)) : undefined
   );
@@ -74,28 +78,18 @@ export default function PaymentRegister() {
       return Alert.alert('Erro', 'Pedido não encontrado.');
     }
 
-    const orderData = {
-      ...order,
-      orderStatus: OrderStatus.COMPLETED,
-    };
+    const paymentPayload: CreatePayment = {
+      customerId: selectedCustomer?.id,
+      order: orderPayload,
+      paymentType: selectedPaymentType as PaymentType,
+    }
 
-    const paymentData = {
-      id: randomUUID(),
-      order: orderData,
-      amount: parsedTotal,
-      date: new Date(),
-      customer: selectedCustomer ?? undefined,
-      paymentType: PaymentType[selectedPaymentType as keyof typeof PaymentType],
-      paymentStatus: PaymentStatus.COMPLETED,
-    };
-
-    dispatch(createOrder(orderData));
-    dispatch(createPayment(paymentData));
+    dispatch(createPayment(paymentPayload));
 
     updateStockAfterOrder(products, parsedItems, dispatch);
 
     Alert.alert('Pagamento realizado com sucesso!');
-    router.push('/listOrder');
+    router.push('orders/listOrder');
   };
 
   return (

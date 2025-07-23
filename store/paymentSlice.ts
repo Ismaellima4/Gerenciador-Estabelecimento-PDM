@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
-import payment from '@/types/payment';
 import { API_URL_PAYMENT } from './env';
 import { create, fetchAll, update, remove } from './genericThunk';
+import Payment, { CreatePayment } from '@/types/payment';
 
 interface PaymentState {
-  list: payment[];
+  list: Payment[];
   loading: boolean;
   error: string | null;
 }
@@ -16,9 +16,9 @@ const initialState: PaymentState = {
   error: null,
 };
 
-export const fetchPayments = fetchAll<payment[]>('payment/fetchPayments', API_URL_PAYMENT);
-export const createPayment = create<payment, Omit<payment, 'id'>>('payment/createPayment', API_URL_PAYMENT);
-export const updatePayment = update<payment, payment>('payment/updatePayment', API_URL_PAYMENT);
+export const fetchPayments = fetchAll<Payment[]>('payment/fetchPayments', API_URL_PAYMENT);
+export const createPayment = create<Payment, CreatePayment>('payment/createPayment', API_URL_PAYMENT);
+export const updatePayment = update<Payment, Payment>('payment/updatePayment', API_URL_PAYMENT);
 export const deletePayment = remove('payment/deletePayment', API_URL_PAYMENT);
 
 const paymentSlice = createSlice({

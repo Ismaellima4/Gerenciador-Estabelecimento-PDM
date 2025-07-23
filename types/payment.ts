@@ -1,17 +1,22 @@
-import customer  from "./customer";
-import { PaymentStatus } from "./enum/payment-status.enum";
+import customer from "./customer";
 import { PaymentType } from "./enum/payment-type.enum";
-import order from "./order";
+import { CreateOrder } from "./order";
 
 
-type payment = {
+type Payment = {
     id: string;
-    order: order;
+    orderId: string;
     amount: number;
     date: Date;
     customer?: customer;
     paymentType: PaymentType;
-    paymentStatus: PaymentStatus;
+    paymentStatus: string;
 }
 
-export default payment;
+export type CreatePayment = {
+    order: CreateOrder;
+    customerId?: string;
+    paymentType: PaymentType;
+}
+
+export default Payment;

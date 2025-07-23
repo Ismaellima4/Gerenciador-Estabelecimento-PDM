@@ -1,9 +1,11 @@
 
-import { updateOrder, deleteOrder, findOrderById } from '@/store/orderSlice';
-import { RootState, AppDispatch } from '@/store/store';
+import { findCustomerById } from '@/store/customerSlice';
+import { deleteOrder, findOrderById } from '@/store/orderSlice';
+import { fetchPayments, findPaymentById } from '@/store/paymentSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { OrderStatus } from '@/types/enum/order-status.enum';
-import { useLocalSearchParams, router } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -20,28 +22,37 @@ import { useDispatch, useSelector } from 'react-redux';
 export default function OrderDetails() {
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams();
-
   
   const order = useSelector((state: RootState) => findOrderById(state, String(id)));
 
+  const payment = useSelector((state: RootState) => { 
+    if(!order) return undefined;
+    console.log(order.payment);
+    return findPaymentById(state, order.payment)
+  });
+
+  const presitedCustomer =  useSelector((state: RootState) => {
+    if (!order) return undefined;
+    return findCustomerById(state, String(id));
+});
  
   const [isEditing, setIsEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   
   const [status, setStatus] = useState(order?.orderStatus || '');
-  const [customer, setCustomer] = useState(order?.payment?.customer?.id || '');
+  const [customer, setCustomer] = useState(presitedCustomer?.name || '');
 
   
   useEffect(() => {
+    dispatch(fetchPayments())
     setStatus(order?.orderStatus || '');
-    setCustomer(order?.payment?.customer?.name || '');
-  }, [order]);
+    setCustomer(presitedCustomer?.name || '');
+  }, [order, presitedCustomer, dispatch]);
 
-  
-  //const orderValue = order
-    //? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
-    //: '0.00';
+  const orderValue = order
+    ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
+    : '0.00';
 
   
   if (!order) {
@@ -86,7 +97,7 @@ export default function OrderDetails() {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <TextInput
           style={styles.input}
-          //value={`R$ ${orderValue.replace('.', ',')}`}
+          value={`R$ ${orderValue}`}
           editable={false}
           placeholder="Valor do Pedido"
         />
@@ -102,7 +113,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={order.payment?.paymentStatus || ''}
+          value={payment?.paymentStatus || ''}
           editable={false}
           placeholder="Status do pagamento"
         />
@@ -118,7 +129,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={order.payment?.paymentType || ''}
+          value={payment?.paymentType || ''}
           editable={false}
           placeholder="Tipo do pagamento"
         />
@@ -159,10 +170,10 @@ export default function OrderDetails() {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Itens do Pedido</Text>
               <ScrollView style={{ maxHeight: 300 }}>
-               {/*  {order.orderItems.map((item) => (
+               {order.orderItems.map((item) => (
                   <View key={item.id} style={styles.itemRow}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.itemName}>{item.productId}</Text>
+                      <Text style={styles.itemName}>{item.product.productName}</Text>
                       <Text style={styles.itemDetails}>
                         {item.quantity} × R$ {item.product.price.toFixed(2)} = R$ {(
                           item.quantity * item.product.price
@@ -170,7 +181,7 @@ export default function OrderDetails() {
                       </Text>
                     </View>
                   </View>
-                ))}   */}
+                ))}
               </ScrollView>
               <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalCloseButton}>
                 <Text style={styles.modalCloseText}>Fechar</Text>

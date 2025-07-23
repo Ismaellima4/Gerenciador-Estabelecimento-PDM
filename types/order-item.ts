@@ -6,4 +6,9 @@ type orderItem = {
     quantity: number;
 }
 
+export type CreateOrderItem = {
+    productID: string;
+    quantity: number;
+}
+
 export default orderItem;

@@ -1,35 +1,42 @@
+import { fetchOrders, findOrderById } from "@/store/orderSlice";
 import { deletePayment, findPaymentById } from "@/store/paymentSlice";
-import { findProductById } from "@/store/productSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
-import Product from "@/types/product";
 import { AntDesign } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Alert,
   Keyboard,
   Modal,
   Pressable,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
-  Text,
-  View,
   StyleSheet,
-  Alert,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PaymentDetails() {
   const dispatch = useDispatch<AppDispatch>();
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+
+  useEffect(() => {
+    dispatch(fetchOrders())
+  }, [dispatch]);
 
   const payment = useSelector((state: RootState) =>
-    findPaymentById(state, String(id))
+    findPaymentById(state, id)
   );
 
-  const products = useSelector((state: RootState) => state.product.list);
+  const order = useSelector((state: RootState) => {
+    if (!payment) return undefined;
+    return findOrderById(state, payment.orderId);
+  })
 
   const [isEditing] = useState(false);
   const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || "");
@@ -41,11 +48,7 @@ export default function PaymentDetails() {
 
   if (!payment) {
     return Alert.alert("Info", "Pagamento não encontrado");
-  }
-
-  const paymentProducts: Product[] = () => {
-      payment.order.orderItems.map((orderItem) => products.filter((product) => product.id === orderItem.id))
-  }
+  }  
 
   const handleDelete = () => {
     Alert.alert(
@@ -92,11 +95,11 @@ export default function PaymentDetails() {
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Itens do Pedido</Text>
                 <ScrollView style={{ maxHeight: 300 }}>
-                  {payment?.order?.orderItems?.length ? (
-                    paymentProducts.map((item) => (
+                  {order?.orderItems?.length ? (
+                    order.orderItems.map((item) => (
                       <View key={item.id} style={styles.itemRow}>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.itemName}>{item.productName}</Text>
+                          <Text style={styles.itemName}>{item.product.productName}</Text>
                           <Text style={styles.itemDetails}>
                             {item.quantity} × R$ {item.product.price.toFixed(2)} = R${" "}
                             {(item.quantity * item.product.price).toFixed(2)}

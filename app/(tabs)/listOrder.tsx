@@ -18,6 +18,9 @@ export default function ListOrders() {
   const dispatch = useDispatch<AppDispatch>();
 
   const orders = useSelector((state: RootState) => state.order.list);
+  const payments =  useSelector((state: RootState) => state.payment.list);
+
+  const payment = (id: string) => payments.find((payment) => payment.orderId === id);
 
   useEffect(() => {
     dispatch(fetchOrders());
@@ -57,7 +60,7 @@ export default function ListOrders() {
                     Total: R$ {total.toFixed(2)}
                   </Text>
                   <Text style={listStyles.cardInfo}>
-                    Pagamento: {item.payment ? item.payment.paymentType : '—'}
+                    Pagamento: { payment(item.payment)?.paymentType ?? "_" }
                   </Text>
                 </View>
               </TouchableOpacity>

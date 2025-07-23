@@ -24,7 +24,6 @@ import { addOrderItem, deleteOrderItemById, resetOrderItems } from '@/store/orde
 import { createOrder } from '@/store/orderSlice';
 import { OrderStatus } from '@/types/enum/order-status.enum';
 import { useRouter } from 'expo-router';
-import { randomUUID } from 'expo-crypto';
 import { updateStockAfterOrder } from '@/utils/updateStock';
 
 export default function OrderRegistration() {
@@ -36,6 +35,7 @@ export default function OrderRegistration() {
   const [itemsModalVisible, setItemsModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState<string>('');
+
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editedQty, setEditedQty] = useState<string>('');
@@ -60,12 +60,19 @@ export default function OrderRegistration() {
 
   const router = useRouter();
 
+  const orderPayload = () => ({
+    orderItems: orderItems.map(item => ({
+      productID: item.product.id,
+      quantity: item.quantity,
+    })),
+    orderStatus: OrderStatus.INITIATED,
+  })
+
   const handleFinishOrderAndGoToPayment = () => {
     if (orderItems.length === 0) {
       return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de pagar.');
     }
 
-    const orderId = randomUUID();
     const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
     dispatch(resetOrderItems());
@@ -75,8 +82,7 @@ export default function OrderRegistration() {
     router.push({
       pathname: 'payments/paymentRegister',
       params: {
-        orderId,
-        orderItems: JSON.stringify(orderItems),
+        order: JSON.stringify(orderPayload()),
         total: subtotal.toString(),
       },
     });
@@ -87,16 +93,9 @@ export default function OrderRegistration() {
       return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de finalizar.');
     }
 
-    const orderPayload = {
-      orderItems: orderItems.map(item => ({
-        productID: item.product.id,
-        quantity: item.quantity,
-      })),
-      orderStatus: OrderStatus.INITIATED,
-    };
 
     try {
-      await dispatch(createOrder(orderPayload)).unwrap();
+      await dispatch(createOrder(orderPayload())).unwrap();
 
       updateStockAfterOrder(products, orderItems, dispatch);
       Alert.alert('Pedido criado com sucesso!');

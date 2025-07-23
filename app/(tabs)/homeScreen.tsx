@@ -26,7 +26,7 @@ export default function HomeScreen() {
     <View style={listStyles.container}>
       <View style={listStyles.header}>
         <Text style={listStyles.title}>Produtos</Text>
-        <AddButton pathname='productsRegisterScreen' />
+        <AddButton pathname='products/productsRegisterScreen' />
       </View>
 
       <Search />

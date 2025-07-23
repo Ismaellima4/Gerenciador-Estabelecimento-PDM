@@ -1,10 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { create, fetchAll, update, remove } from './genericThunk';
-import Order from '@/types/order';
+import Order, { CreateOrder } from '@/types/order';
 
 import { API_URL_ORDER } from './env';
-import CreateOrderPayload from '@/types/CreateOrderPayload';
 
 interface OrderState {
   list: Order[];
@@ -21,7 +20,7 @@ const initialState: OrderState = {
 export const fetchOrders = fetchAll<Order[]>('order/fetchOrders', API_URL_ORDER);
 
 
-export const createOrder = create<Order, CreateOrderPayload>(
+export const createOrder = create<Order, CreateOrder>(
   'order/createOrder',
   API_URL_ORDER
 );
@@ -67,5 +66,6 @@ const orderSlice = createSlice({
 
 export const findOrderById = (state: RootState, id: string) =>
   state.order.list.find((order) => order.id === id);
+
 
 export default orderSlice.reducer;

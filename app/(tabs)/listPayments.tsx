@@ -1,18 +1,26 @@
 
 import { Search } from "@/components/Search";
-import { RootState } from "@/store/store";
+import { fetchOrders } from "@/store/orderSlice";
+import { fetchPayments } from "@/store/paymentSlice";
+import { AppDispatch, RootState } from "@/store/store";
 import { listStyles } from "@/styles/listStyles";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, FlatList, SafeAreaView, TouchableOpacity } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 
 
 export default function ListPayments() {
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const payments = useSelector((state: RootState) => state.payment.list);
 
+  useEffect(() => {
+      dispatch(fetchPayments());
+      dispatch(fetchOrders())
+    }, [dispatch]);
 
     return (
       <SafeAreaView style={listStyles.container}>
