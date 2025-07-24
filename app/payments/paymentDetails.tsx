@@ -1,5 +1,6 @@
 import { fetchOrders, findOrderById } from "@/store/orderSlice";
-import { deletePayment, findPaymentById } from "@/store/paymentSlice";
+import { deletePayment, fetchPayments, findPaymentById } from "@/store/paymentSlice";
+import { fetchCustomers, findCustomerById } from "@/store/customerSlice"; // 🆕
 import { AppDispatch, RootState } from "@/store/store";
 import { registerStyles } from "@/styles/registerStyles";
 import { AntDesign } from "@expo/vector-icons";
@@ -7,69 +8,68 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
-  Keyboard,
   Modal,
   Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
+  Keyboard,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PaymentDetails() {
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useLocalSearchParams<{ id: string }>();
-
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchOrders())
-  }, [dispatch]);
+    if (id) {
+      dispatch(fetchPayments());
+      dispatch(fetchOrders());
+      dispatch(fetchCustomers()); // 🆕
+    }
+  }, [dispatch, id]);
 
-  const payment = useSelector((state: RootState) =>
-    findPaymentById(state, id)
-  );
-
+  const payment = useSelector((state: RootState) => findPaymentById(state, id));
   const order = useSelector((state: RootState) => {
     if (!payment) return undefined;
     return findOrderById(state, payment.orderId);
-  })
+  });
 
-  const [isEditing] = useState(false);
-  const [paymentTypeState, setPaymentType] = useState(payment?.paymentType || "");
-  const [paymentValueState, setPaymentValue] = useState(payment?.amount);
-  const [paymentDateState, setPaymentDate] = useState(payment?.date || "");
-  const [paymentStatusState, setPaymentStatus] = useState(payment?.paymentStatus || "");
-  const [paymentCustomerState, setPaymentCustomer] = useState(payment?.customer?.name || "");
-  const [modalVisible, setModalVisible] = useState(false);
+  const customer = useSelector((state: RootState) => {
+    if (!payment?.customerId) return undefined;
+    return findCustomerById(state, payment.customerId); // 🆕
+  });
 
   if (!payment) {
-    return Alert.alert("Info", "Pagamento não encontrado");
-  }  
+    return (
+      <SafeAreaView style={registerStyles.safeArea}>
+        <View style={registerStyles.container}>
+          <Text>Pagamento não encontrado.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const handleDelete = () => {
     Alert.alert(
       "Confirmar Exclusão",
-      `Tem certeza que deseja excluir esse pagamento ?`,
+      `Tem certeza que deseja excluir esse pagamento?`,
       [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Excluir",
           onPress: () => {
-            if (payment) {
-              dispatch(deletePayment(payment.id)).unwrap()
-              .then(() => Alert.alert("Removido", "Pagamento excluído com sucesso!"))
-              .catch(() => Alert.alert("Erro", "Erro ao Excluir um Pagamento"));
-              router.back();
-            } else {
-              Alert.alert("Erro", "Pagamento não encontrado.");
-            }
+            dispatch(deletePayment(payment.id))
+              .unwrap()
+              .then(() => {
+                Alert.alert("Removido", "Pagamento excluído com sucesso!");
+                router.back();
+              })
+              .catch(() => Alert.alert("Erro", "Erro ao excluir o pagamento"));
           },
         },
       ],
@@ -101,8 +101,7 @@ export default function PaymentDetails() {
                         <View style={{ flex: 1 }}>
                           <Text style={styles.itemName}>{item.product.productName}</Text>
                           <Text style={styles.itemDetails}>
-                            {item.quantity} × R$ {item.product.price.toFixed(2)} = R${" "}
-                            {(item.quantity * item.product.price).toFixed(2)}
+                            {item.quantity} × R$ {item.product.price.toFixed(2)} = R$ {(item.quantity * item.product.price).toFixed(2)}
                           </Text>
                         </View>
                       </View>
@@ -122,50 +121,23 @@ export default function PaymentDetails() {
           </Modal>
 
           <Text style={registerStyles.labelItem}>Valor Total</Text>
-          <TextInput
-            style={registerStyles.input}
-            value={paymentValueState?.toString()}
-            onChangeText={(text) => setPaymentValue(Number(text))}
-            editable={false}
-            placeholder="Valor TOTAL"
-          />
+          <Text style={styles.valueText}>R$ {payment.amount}</Text>
 
           <Text style={registerStyles.labelItem}>Cliente</Text>
-          <TextInput
-            style={registerStyles.input}
-            value={paymentCustomerState}
-            onChangeText={setPaymentCustomer}
-            editable={isEditing}
-            placeholder="Cliente"
-          />
+          <Text style={styles.valueText}>
+            {customer?.name || "Não informado"}
+          </Text>
 
           <Text style={registerStyles.labelItem}>Tipo de pagamento</Text>
-          <TextInput
-            style={registerStyles.input}
-            value={paymentTypeState}
-            onChangeText={setPaymentType}
-            editable={isEditing}
-            placeholder="Tipo de pagamento"
-          />
+          <Text style={styles.valueText}>{payment.paymentType}</Text>
 
           <Text style={registerStyles.labelItem}>Data</Text>
-          <TextInput
-            style={registerStyles.input}
-            value={paymentDateState.toString()}
-            onChangeText={setPaymentDate}
-            editable={false}
-            placeholder="Data"
-            keyboardType="numeric"
-          />
+          <Text style={styles.valueText}>
+            {payment.date ? new Date(payment.date).toLocaleDateString() : "Não informada"}
+          </Text>
 
           <Text style={registerStyles.labelItem}>Status do pagamento</Text>
-          <TextInput
-            style={registerStyles.input}
-            value={paymentStatusState}
-            onChangeText={setPaymentStatus}
-            editable={isEditing}
-            placeholder="Status do pagamento"
-          />
+          <Text style={styles.valueText}>{payment.statusPayment}</Text>
 
           <TouchableOpacity style={styles.buttonDelete} onPress={handleDelete}>
             <Text style={styles.buttonTextDelete}>DELETAR</Text>
@@ -245,5 +217,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  valueText: {
+    fontSize: 16,
+    marginBottom: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#f4f4f4",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
 });

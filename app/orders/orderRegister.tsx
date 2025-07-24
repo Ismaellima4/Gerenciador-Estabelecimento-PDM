@@ -20,11 +20,10 @@ import GreenButton from '@/components/ButtonComp';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/store';
 import Product from '@/types/product';
-import { addOrderItem, deleteOrderItemById, resetOrderItems } from '@/store/orderItemSlice';
-import { createOrder } from '@/store/orderSlice';
-import { OrderStatus } from '@/types/enum/order-status.enum';
+import { addOrderItem, deleteOrderItemById } from '@/store/orderItemSlice';
 import { useRouter } from 'expo-router';
-import { updateStockAfterOrder } from '@/utils/updateStock';
+import { CreateOrderDto } from '@/types/order';
+import { createOrder } from '@/store/orderSlice';
 
 export default function OrderRegistration() {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,67 +45,71 @@ export default function OrderRegistration() {
   const handleAddProduct = () => {
     if (!selectedProduct) return Alert.alert('Selecione um produto');
     const qty = parseInt(quantity, 10);
-    if (!qty || qty <= 0) return Alert.alert('Quantidade inválida');
-    if (qty > selectedProduct.amount) {
-      return Alert.alert('Quantidade inválida', `Quantidade máxima disponível: ${selectedProduct.amount}`);
-    }
+    if (isNaN(qty) || qty <= 0) return Alert.alert('Quantidade inválida');
 
     dispatch(addOrderItem({ product: selectedProduct, quantity: qty, order: undefined } as any));
-    setSelectedProduct(null);
     setQuantity('');
+    setSelectedProduct(null);
   };
 
   const handleRemoveItem = (id: string) => dispatch(deleteOrderItemById({ id }));
 
   const router = useRouter();
 
-  const orderPayload = () => ({
+  const handleFinishOrderAndGoToPayment = async () => {
+    if (orderItems.length === 0) {
+    return Alert.alert('Erro', 'Adicione pelo menos um item antes de finalizar o pedido.');
+  }
+
+  const payload: CreateOrderDto = {
     orderItems: orderItems.map(item => ({
       productID: item.product.id,
       quantity: item.quantity,
     })),
-    orderStatus: OrderStatus.INITIATED,
-  })
-
-  const handleFinishOrderAndGoToPayment = () => {
-    if (orderItems.length === 0) {
-      return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de pagar.');
-    }
-
-    const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-
-    dispatch(resetOrderItems());
-    setSelectedProduct(null);
-    setQuantity('');
-
-    router.push({
-      pathname: 'payments/paymentRegister',
-      params: {
-        order: JSON.stringify(orderPayload()),
-        total: subtotal.toString(),
-      },
-    });
   };
+
+  try {
+    const resultAction = await dispatch(createOrder(payload));
+    if (createOrder.fulfilled.match(resultAction)) {
+      const newOrder = resultAction.payload;
+      router.push({
+        pathname: 'payments/paymentRegister',
+        params: { orderId: newOrder.id },
+      });
+    } else {
+      Alert.alert('Erro', 'Falha ao salvar pedido.');
+    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Erro inesperado', 'Tente novamente.');
+  }
+  };
+  
 
   const handleFinishOrderNotPay = async () => {
     if (orderItems.length === 0) {
-      return Alert.alert('Nenhum produto', 'Adicione produtos ao pedido antes de finalizar.');
+    return Alert.alert('Erro', 'Adicione pelo menos um item antes de finalizar o pedido.');
+  }
+
+  const payload: CreateOrderDto = {
+    orderItems: orderItems.map(item => ({
+      productID: item.product.id,
+      quantity: item.quantity,
+    })),
+  };
+
+  try {
+    const resultAction = await dispatch(createOrder(payload));
+    if (createOrder.fulfilled.match(resultAction)) {
+      Alert.alert('Sucesso', 'Pedido salvo com sucesso.');
+      router.back(); 
+    } else {
+      Alert.alert('Erro', 'Falha ao salvar pedido.');
     }
-
-
-    try {
-      await dispatch(createOrder(orderPayload())).unwrap();
-
-      updateStockAfterOrder(products, orderItems, dispatch);
-      Alert.alert('Pedido criado com sucesso!');
-
-      dispatch(resetOrderItems());
-      setSelectedProduct(null);
-      setQuantity('');
-      router.push('orders/listOrder');
-    } catch (error: any) {
-      Alert.alert('Erro ao criar pedido', error.message || 'Tente novamente.');
-    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Erro inesperado', 'Tente novamente.');
+  }
   };
 
   const handleSaveEditQty = (itemId: string, product: Product) => {

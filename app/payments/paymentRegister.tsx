@@ -16,81 +16,66 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { findCustomerById } from '@/store/customerSlice';
-import { findOrderById } from '@/store/orderSlice';
 import { PaymentType } from '@/types/enum/payment-type.enum';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { createPayment } from '@/store/paymentSlice';
-import { updateStockAfterOrder } from '@/utils/updateStock';
-import { CreateOrder } from '@/types/order';
-import { CreatePayment } from '@/types/payment';
 
 export default function PaymentRegister() {
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
-  const param = useLocalSearchParams<{ order?: string, total?: string, orderId?: string}>();
-
-  const orderPayload: CreateOrder = param.order ? JSON.parse(param.order) : null;
-  const orderId = param.orderId;
+  const order = useSelector((state: RootState) =>
+    state.order.list.find(o => o.id === orderId)
+  );
 
   const [modalVisible, setModalVisible] = useState(false);
   const [paymentTypeModalVisible, setPaymentTypeModalVisible] = useState(false);
   const [customerModalVisible, setCustomerModalVisible] = useState(false);
 
-  const [selectedPaymentType, setSelectedPaymentType] = useState<string | null>(null);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<PaymentType | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   const customers = useSelector((state: RootState) => state.customer.list);
-  const products = useSelector((state: RootState) => state.product.list);
-
-  const order = useSelector((state: RootState) =>
-    orderId ? findOrderById(state, String(orderId)) : undefined
-  );
-
-  const selectedCustomer = useSelector((state: RootState) =>
-    selectedCustomerId ? findCustomerById(state, selectedCustomerId) : undefined
-  );
-
-
-  const parsedItems = order?.orderItems ?? [];
-  const parsedTotal = parsedItems.reduce(
-    (sum, item) => sum * item.quantity,
-    0
-  );
-
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
 
   const paymentOptions = Object.entries(PaymentType).map(([key, value]) => ({
     key,
     label: PaymentType[key as keyof typeof PaymentType],
   }));
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (!selectedPaymentType) {
       return Alert.alert('Erro', 'Selecione uma forma de pagamento.');
     }
 
-    if (!parsedItems || parsedItems.length === 0) {
-      return Alert.alert('Erro', 'Itens do pedido não encontrados.');
-    }
-
-    if (!order) {
+    if (!orderId || typeof orderId !== 'string') {
       return Alert.alert('Erro', 'Pedido não encontrado.');
     }
 
-    const paymentPayload: CreatePayment = {
-      customerId: selectedCustomer?.id,
-      order: orderPayload,
-      paymentType: selectedPaymentType as PaymentType,
+    const payload = {
+      orderId: orderId,
+      paymentType: selectedPaymentType,
+      customerId: selectedCustomerId ?? undefined,
+    };
+
+    try {
+      const result = await dispatch(createPayment(payload));
+      if (createPayment.fulfilled.match(result)) {
+        Alert.alert('Pagamento confirmado', 'Pedido finalizado com sucesso!');
+        router.replace('/orders/listOrder');
+      } else {
+        Alert.alert('Erro', 'Não foi possível registrar o pagamento.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro inesperado', 'Tente novamente mais tarde.');
     }
-
-    dispatch(createPayment(paymentPayload));
-
-    updateStockAfterOrder(products, parsedItems, dispatch);
-
-    Alert.alert('Pagamento realizado com sucesso!');
-    router.push('orders/listOrder');
   };
+
+  const total = order?.orderItems.reduce(
+    (sum, item) => sum + item.quantity * item.product.price,
+    0
+  ) ?? 0;
 
   return (
     <SafeAreaView style={registerStyles.safeArea}>
@@ -116,24 +101,28 @@ export default function PaymentRegister() {
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Produtos da Compra</Text>
                 <ScrollView style={{ maxHeight: 300 }}>
-                  {parsedItems.map((item: any, index: number) => (
-                    <View key={index} style={{ marginBottom: 10 }}>
-                      <Text style={{ fontWeight: 'bold' }}>{item.product.productName}</Text>
-                      <Text>
-                        {item.quantity} × R$ {item.product.price.toFixed(2)} = R${' '}
-                        {(item.quantity * item.product.price).toFixed(2)}
+                  {order?.orderItems.map((item) => (
+                    <View key={item.id} style={{ marginBottom: 8 }}>
+                      <Text style={{ fontSize: 16 }}>
+                        {item.product.productName} - {item.quantity} x R${item.product.price.toFixed(2)}
                       </Text>
                     </View>
                   ))}
                 </ScrollView>
+                <View style={{ marginTop: 12 }}>
+                  <Text style={{ fontWeight: 'bold' }}>
+                    Total: R$ {total.toFixed(2)}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           </Modal>
 
-          
           <Text style={registerStyles.label}>Valor Total</Text>
           <View style={styles.amountBox}>
-            <Text style={styles.amountText}>R$ {parsedTotal.toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.amountText}>
+              R$ {total.toFixed(2)}
+            </Text>
           </View>
 
           <Text style={registerStyles.label}>Cliente (opcional)</Text>
@@ -142,7 +131,9 @@ export default function PaymentRegister() {
               style={styles.dropdownTextInput}
               placeholder="Selecione um cliente"
               value={
-                selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phoneNumber}` : ''
+                selectedCustomerId
+                  ? customers.find(c => c.id === selectedCustomerId)?.name ?? ''
+                  : ''
               }
               editable={false}
               pointerEvents="none"
@@ -176,7 +167,6 @@ export default function PaymentRegister() {
             </TouchableOpacity>
           </Modal>
 
-          {/* Pagamento */}
           <Text style={registerStyles.label}>Forma de Pagamento</Text>
           <TouchableOpacity style={styles.dropdown} onPress={() => setPaymentTypeModalVisible(true)}>
             <TextInput
@@ -205,7 +195,7 @@ export default function PaymentRegister() {
                   <TouchableOpacity
                     key={option.key}
                     onPress={() => {
-                      setSelectedPaymentType(option.key);
+                      setSelectedPaymentType(option.key as PaymentType);
                       setPaymentTypeModalVisible(false);
                     }}
                     style={{ paddingVertical: 10 }}
@@ -217,7 +207,6 @@ export default function PaymentRegister() {
             </TouchableOpacity>
           </Modal>
 
-          {/* Botões */}
           <View style={styles.buttonRow}>
             <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={router.back}>
               <Text style={styles.buttonText}>Cancelar</Text>

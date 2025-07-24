@@ -1,5 +1,5 @@
 
-import  orderItem, { CreateOrderItem }  from './order-item';
+import  orderItem  from './order-item';
 import  { OrderStatus }  from './enum/order-status.enum';
 type order = {
     id: string;
@@ -8,8 +8,13 @@ type order = {
     payment: string;
 }
 
-export type CreateOrder = {
-    orderItems: CreateOrderItem[];
+export interface CreateOrderItemDto {
+  productID: string;
+  quantity: number;
+}
+
+export interface CreateOrderDto {
+  orderItems: CreateOrderItemDto[];
 }
 
 export default order;

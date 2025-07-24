@@ -1,7 +1,5 @@
-
 export enum PaymentType {
-  CARD = 'CARTÃO',
-  CASH = 'DINHEIRO',
+  CARD = 'CARD',
+  CASH = 'CASH',
   PIX = 'PIX',
-  NOT_PAYED = 'NÃO PAGO',
 }

@@ -1,6 +1,4 @@
-import customer from "./customer";
 import { PaymentType } from "./enum/payment-type.enum";
-import { CreateOrder } from "./order";
 
 
 type Payment = {
@@ -8,13 +6,13 @@ type Payment = {
     orderId: string;
     amount: number;
     date: Date;
-    customer?: customer;
+    customerId?: string ;
     paymentType: PaymentType;
-    paymentStatus: string;
+    statusPayment: string;
 }
 
 export type CreatePayment = {
-    order: CreateOrder;
+    orderId: string;
     customerId?: string;
     paymentType: PaymentType;
 }
