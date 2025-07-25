@@ -1,3 +1,4 @@
+import { PaymentStatus } from "./enum/payment-status.enum";
 import { PaymentType } from "./enum/payment-type.enum";
 
 
@@ -8,7 +9,7 @@ type Payment = {
     date: Date;
     customerId?: string ;
     paymentType: PaymentType;
-    statusPayment: string;
+    statusPayment: PaymentStatus;
 }
 
 export type CreatePayment = {

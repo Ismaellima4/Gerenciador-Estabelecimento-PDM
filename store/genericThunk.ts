@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RootState } from "./store";
+import { CreateProduct } from "@/types/product";
 
 
 export interface HasId {
@@ -61,6 +62,48 @@ export function remove<Arg>(
       const state = thunkAPI.getState() as RootState;
       await axios.delete<Arg>(`${apiUrl}/${id}`, getAuthHeaders(state));
       return id;
+    }
+  );
+}
+
+export function createWithFormData<Payload>(
+  name: string,
+  apiUrl: string,
+) {
+  return createAsyncThunk<Payload, CreateProduct, { state: RootState }>(
+    name,
+    async (newData, thunkAPI) => {
+      const state = thunkAPI.getState() as RootState;
+
+      const formData = new FormData();
+
+      formData.append('productName', newData.productName);
+      if (newData.description) formData.append('description', newData.description);
+      formData.append('price', String(newData.price));
+      formData.append('category', newData.category);
+      formData.append('amount', String(newData.amount));
+      formData.append('expirationDate', newData.expirationDate);
+      formData.append('barCode', newData.barCode);
+      formData.append('manufacturingDate', newData.manufacturingDate);
+      formData.append('supplier', newData.supplier);
+
+      if (newData.file) {
+        console.log('🟢 File asset:', newData.file);
+
+        formData.append('file', {
+          uri: newData.file.uri,
+          name: newData.file.fileName || 'image.jpg',
+          type: newData.file.mimeType || 'image/jpeg',
+        } as any);
+      }
+
+     const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: getAuthHeaders(state).headers,
+      body: formData,
+    });
+
+    return await response.json();
     }
   );
 }

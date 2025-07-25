@@ -8,8 +8,8 @@ import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
 import Product, { CreateProduct, UpdateProduct } from '@/types/product';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
+import { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -58,6 +58,8 @@ const ProductForm = ({
   );
   const [barcode, setBarcode] = useState(initialProduct?.barCode || '');
 
+  const [image, setImage] = useState<ImagePickerAsset | undefined>(undefined);
+
   const [isSupplierModalVisible, setSupplierModalVisible] = useState(false);
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
 
@@ -89,32 +91,13 @@ const ProductForm = ({
     });
 
     if (!result.canceled) {
-      const originalUri = result.assets[0].uri;
-      const fileName = originalUri.split('/').pop();
-      const productImagesDir = `${FileSystem.documentDirectory}product_images/`;
-
-      const dirInfo = await FileSystem.getInfoAsync(productImagesDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(productImagesDir, { intermediates: true });
-      }
-
-      const newUri = `${productImagesDir}${fileName}`;
-
-      try {
-        await FileSystem.copyAsync({
-          from: originalUri,
-          to: newUri,
-        });
-        setSelectedImageUri(newUri);
-      } catch (error) {
-        console.error('Erro ao copiar imagem:', error);
-        Alert.alert('Erro', 'Não foi possível salvar a imagem.');
-        setSelectedImageUri(null);
-      }
+      const picked = result.assets[0];
+       setImage(picked);
+       setSelectedImageUri(picked.uri);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!productName || !supplier || !category || !price || !quantity) {
       Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
       return;
@@ -150,12 +133,13 @@ const ProductForm = ({
       barCode: barcode.trim() === '' ? '' : barcode,
       manufacturingDate: manufacturingDateISO,
       supplier: selectedSupplier.id,
+      file: image,
     };
 
     if (initialProduct?.id) {
       const updateProductData: UpdateProduct = {
         ...productData,
-        id: initialProduct?.id
+        id: initialProduct?.id,
       }
       dispatch(updateProduct(updateProductData))
         .unwrap()
@@ -167,7 +151,7 @@ const ProductForm = ({
       }
       dispatch(createProduct(createProductData))
         .unwrap()
-        .catch(() => Alert.alert('Erro', 'Não foi possível criar o produto.'));
+        .catch(() => Alert.alert('Erro', 'Não foi possível criar o produto. '));
         router.back()
     }
   };

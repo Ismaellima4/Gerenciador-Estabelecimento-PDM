@@ -29,7 +29,7 @@ export default function PaymentDetails() {
     if (id) {
       dispatch(fetchPayments());
       dispatch(fetchOrders());
-      dispatch(fetchCustomers()); // 🆕
+      dispatch(fetchCustomers());
     }
   }, [dispatch, id]);
 

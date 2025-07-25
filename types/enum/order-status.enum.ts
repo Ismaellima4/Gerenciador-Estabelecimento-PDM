@@ -1,6 +1,14 @@
 export enum OrderStatus {
-  INITIATED = 'INICIALIZADO',
-  PROCESSING = 'PROCESSANDO',
-  COMPLETED = 'COMPLETADO',
-  CANCELLED = 'CANCELADO',
+  INITIATED = 'INITIATED',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
+
+
+export const OrderStatusTranslations: Record<OrderStatus, string> = {
+  [OrderStatus.INITIATED]: 'INICIALIZADO',
+  [OrderStatus.CANCELLED]: 'CANCELADO',
+  [OrderStatus.COMPLETED]: 'COMPLETADO',
+  [OrderStatus.PROCESSING]: 'PROCESSANDO',
+};

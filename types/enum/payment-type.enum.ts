@@ -3,3 +3,9 @@ export enum PaymentType {
   CASH = 'CASH',
   PIX = 'PIX',
 }
+
+export const PaymentTypeTranslations: Record<PaymentType, string> = {
+  [PaymentType.CARD]: 'Cartão',
+  [PaymentType.CASH]: 'Dinheiro',
+  [PaymentType.PIX]: 'Pix',
+};

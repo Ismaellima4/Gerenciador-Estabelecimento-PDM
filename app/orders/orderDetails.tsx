@@ -1,5 +1,5 @@
 
-import { findCustomerById } from '@/store/customerSlice';
+import { fetchCustomers, findCustomerById } from '@/store/customerSlice';
 import { deleteOrder, findOrderById } from '@/store/orderSlice';
 import { fetchPayments, findPaymentById } from '@/store/paymentSlice';
 import { AppDispatch, RootState } from '@/store/store';
@@ -27,16 +27,15 @@ export default function OrderDetails() {
 
   const payment = useSelector((state: RootState) => { 
     if(!order) return undefined;
-    console.log(order.payment);
     return findPaymentById(state, order.payment)
   });
 
   const presitedCustomer =  useSelector((state: RootState) => {
     if (!order) return undefined;
-    return findCustomerById(state, String(id));
+    return findCustomerById(state, payment?.customerId || '');
 });
  
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   
@@ -46,7 +45,7 @@ export default function OrderDetails() {
   
   useEffect(() => {
     dispatch(fetchPayments())
-    setStatus(order?.orderStatus || '');
+    dispatch(fetchCustomers())
     setCustomer(presitedCustomer?.name || '');
   }, [order, presitedCustomer, dispatch]);
 
@@ -113,7 +112,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={payment?.paymentStatus || ''}
+          value={payment?.statusPayment || ''}
           editable={false}
           placeholder="Status do pagamento"
         />
@@ -129,7 +128,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={payment?.paymentType || ''}
+          value={payment?.paymentType ?? ''}
           editable={false}
           placeholder="Tipo do pagamento"
         />

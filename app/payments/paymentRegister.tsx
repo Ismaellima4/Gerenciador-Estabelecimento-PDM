@@ -1,5 +1,9 @@
+import { createPayment } from '@/store/paymentSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import { registerStyles } from '@/styles/registerStyles';
+import { PaymentType } from '@/types/enum/payment-type.enum';
 import { AntDesign } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -15,10 +19,6 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store/store';
-import { PaymentType } from '@/types/enum/payment-type.enum';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { createPayment } from '@/store/paymentSlice';
 
 export default function PaymentRegister() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
@@ -62,7 +62,7 @@ export default function PaymentRegister() {
       const result = await dispatch(createPayment(payload));
       if (createPayment.fulfilled.match(result)) {
         Alert.alert('Pagamento confirmado', 'Pedido finalizado com sucesso!');
-        router.replace('/orders/listOrder');
+        router.replace('/listOrder');
       } else {
         Alert.alert('Erro', 'Não foi possível registrar o pagamento.');
       }
