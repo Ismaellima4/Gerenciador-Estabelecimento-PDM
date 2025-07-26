@@ -1,6 +1,6 @@
 import { registerStyles } from '@/styles/registerStyles';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, {useState } from 'react';
 import {
   Keyboard,
   Pressable,
@@ -20,7 +20,7 @@ import GreenButton from '@/components/ButtonComp';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/store';
 import Product from '@/types/product';
-import { addOrderItem, deleteOrderItemById } from '@/store/orderItemSlice';
+import { addOrderItem, deleteOrderItemById, resetOrderItems } from '@/store/orderItemSlice';
 import { useRouter } from 'expo-router';
 import { CreateOrderDto } from '@/types/order';
 import { createOrder } from '@/store/orderSlice';
@@ -56,60 +56,76 @@ export default function OrderRegistration() {
 
   const router = useRouter();
 
+
   const handleFinishOrderAndGoToPayment = async () => {
     if (orderItems.length === 0) {
     return Alert.alert('Erro', 'Adicione pelo menos um item antes de finalizar o pedido.');
-  }
-
-  const payload: CreateOrderDto = {
-    orderItems: orderItems.map(item => ({
-      productID: item.product.id,
-      quantity: item.quantity,
-    })),
-  };
-
-  try {
-    const resultAction = await dispatch(createOrder(payload));
-    if (createOrder.fulfilled.match(resultAction)) {
-      const newOrder = resultAction.payload;
-      router.push({
-        pathname: 'payments/paymentRegister',
-        params: { orderId: newOrder.id },
-      });
-    } else {
-      Alert.alert('Erro', 'Falha ao salvar pedido.');
     }
-  } catch (error) {
-    console.error(error);
-    Alert.alert('Erro inesperado', 'Tente novamente.');
-  }
+
+    const payload: CreateOrderDto = {
+      orderItems: orderItems.map(item => ({
+        productID: item.product.id,
+        quantity: item.quantity,
+      })),
+    };
+
+    try {
+      const resultAction = await dispatch(createOrder(payload));
+      if (createOrder.fulfilled.match(resultAction)) {
+        const newOrder = resultAction.payload;
+        router.push({
+          pathname: 'payments/paymentRegister',
+          params: { orderId: newOrder.id },
+        });
+
+        dispatch(resetOrderItems());
+
+        setQuantity('');
+        setSelectedProduct(null);
+        setEditingItemId(null);
+        setEditedQty('')
+        
+      } else {
+        Alert.alert('Erro', 'Falha ao salvar pedido.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro inesperado', 'Tente novamente.');
+    }
   };
   
 
   const handleFinishOrderNotPay = async () => {
     if (orderItems.length === 0) {
     return Alert.alert('Erro', 'Adicione pelo menos um item antes de finalizar o pedido.');
-  }
-
-  const payload: CreateOrderDto = {
-    orderItems: orderItems.map(item => ({
-      productID: item.product.id,
-      quantity: item.quantity,
-    })),
-  };
-
-  try {
-    const resultAction = await dispatch(createOrder(payload));
-    if (createOrder.fulfilled.match(resultAction)) {
-      Alert.alert('Sucesso', 'Pedido salvo com sucesso.');
-      router.back(); 
-    } else {
-      Alert.alert('Erro', 'Falha ao salvar pedido.');
     }
-  } catch (error) {
-    console.error(error);
-    Alert.alert('Erro inesperado', 'Tente novamente.');
-  }
+
+    const payload: CreateOrderDto = {
+      orderItems: orderItems.map(item => ({
+        productID: item.product.id,
+        quantity: item.quantity,
+      })),
+    };
+
+    try {
+      const resultAction = await dispatch(createOrder(payload));
+      if (createOrder.fulfilled.match(resultAction)) {
+        dispatch(resetOrderItems());
+
+        setQuantity('');
+        setSelectedProduct(null);
+        setEditingItemId(null);
+        setEditedQty('');
+
+        Alert.alert('Sucesso', 'Pedido salvo com sucesso.');
+        router.back();
+      } else {
+        Alert.alert('Erro', 'Falha ao salvar pedido.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro inesperado', 'Tente novamente.');
+    }
   };
 
   const handleSaveEditQty = (itemId: string, product: Product) => {
@@ -201,7 +217,8 @@ export default function OrderRegistration() {
               <View style={{ padding: 20, flex: 1 }}>
                 <Text style={styles.modalTitle}>Escolha um produto</Text>
                 <ScrollView>
-                  {products.map((item) => (
+                  {products.filter((item) => item.amount > 0)
+                  .map((item) => (
                     <Pressable
                       key={item.id}
                       onPress={() => {
