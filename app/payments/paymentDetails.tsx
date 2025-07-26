@@ -41,7 +41,7 @@ export default function PaymentDetails() {
 
   const customer = useSelector((state: RootState) => {
     if (!payment?.customerId) return undefined;
-    return findCustomerById(state, payment.customerId); // 🆕
+    return findCustomerById(state, payment.customerId);
   });
 
   if (!payment) {

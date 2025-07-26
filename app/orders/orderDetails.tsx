@@ -1,6 +1,6 @@
 
 import { fetchCustomers, findCustomerById } from '@/store/customerSlice';
-import { deleteOrder, findOrderById } from '@/store/orderSlice';
+import { deleteOrder, fetchOrders, findOrderById } from '@/store/orderSlice';
 import { fetchPayments, findPaymentById } from '@/store/paymentSlice';
 import { AppDispatch, RootState } from '@/store/store';
 import { OrderStatus } from '@/types/enum/order-status.enum';
@@ -21,39 +21,35 @@ import { useDispatch, useSelector } from 'react-redux';
 
 export default function OrderDetails() {
   const dispatch = useDispatch<AppDispatch>();
-  const { id } = useLocalSearchParams();
-  
-  const order = useSelector((state: RootState) => findOrderById(state, String(id)));
-
-  const payment = useSelector((state: RootState) => { 
-    if(!order) return undefined;
-    return findPaymentById(state, order.payment)
-  });
-
-  const presitedCustomer =  useSelector((state: RootState) => {
-    if (!order) return undefined;
-    return findCustomerById(state, payment?.customerId || '');
-});
- 
-  const [isEditing] = useState(false);
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [modalVisible, setModalVisible] = useState(false);
 
+   useEffect(() => {
+      if (id) {
+        dispatch(fetchOrders());
+        dispatch(fetchPayments());
+        dispatch(fetchCustomers());
+      }
+    }, [dispatch, id]);
   
-  const [status, setStatus] = useState(order?.orderStatus || '');
-  const [customer, setCustomer] = useState(presitedCustomer?.name || '');
+  const order = useSelector((state: RootState) => findOrderById(state, id));
 
   
-  useEffect(() => {
-    dispatch(fetchPayments())
-    dispatch(fetchCustomers())
-    setCustomer(presitedCustomer?.name || '');
-  }, [order, presitedCustomer, dispatch]);
+  const payment = useSelector((state: RootState) => {
+    if (!order?.paymentId) return undefined;
+    return findPaymentById(state, order.paymentId);
+  });
+
+ 
+  const customer = useSelector((state: RootState) => {
+    if (!payment?.customerId) return undefined;
+    return findCustomerById(state, payment.customerId);
+  });
 
   const orderValue = order
     ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
     : '0.00';
 
-  
   if (!order) {
     return (
       <SafeAreaView style={styles.container}>
@@ -97,38 +93,37 @@ export default function OrderDetails() {
         <TextInput
           style={styles.input}
           value={`R$ ${orderValue}`}
+          
           editable={false}
           placeholder="Valor do Pedido"
         />
 
         <TextInput
           style={styles.input}
-          value={status}
-          onChangeText={setStatus}
-          editable={isEditing}
+          value={order.orderStatus}
+          editable={false}
           placeholder="Status do pedido"
           autoCapitalize="none"
         />
 
         <TextInput
           style={styles.input}
-          value={payment?.statusPayment || ''}
+          value={payment?.statusPayment}
           editable={false}
           placeholder="Status do pagamento"
         />
 
         <TextInput
           style={styles.input}
-          value={customer}
-          onChangeText={setCustomer}
-          editable={isEditing}
+          value={customer?.name}
+          editable={false}
           placeholder="Cliente (não obrigatório)"
           autoCapitalize="words"
         />
 
         <TextInput
           style={styles.input}
-          value={payment?.paymentType ?? ''}
+          value={payment?.paymentType}
           editable={false}
           placeholder="Tipo do pagamento"
         />
@@ -152,15 +147,9 @@ export default function OrderDetails() {
         )}
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={()=> console.log("update")}>
-            <Text style={styles.buttonText}>{isEditing ? 'SALVAR' : 'EDITAR'}</Text>
+          <TouchableOpacity style={[styles.button, { backgroundColor: '#b00020' }]} onPress={handleDelete}>
+            <Text style={styles.buttonText}>DELETAR</Text>
           </TouchableOpacity>
-
-          {!isEditing && (
-            <TouchableOpacity style={[styles.button, { backgroundColor: '#b00020' }]} onPress={handleDelete}>
-              <Text style={styles.buttonText}>DELETAR</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         

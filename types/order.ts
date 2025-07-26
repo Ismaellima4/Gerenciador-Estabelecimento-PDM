@@ -5,7 +5,7 @@ type order = {
     id: string;
     orderItems: orderItem[]; 
     orderStatus: OrderStatus;
-    payment: string;
+    paymentId: string;
 }
 
 export interface CreateOrderItemDto {

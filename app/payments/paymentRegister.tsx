@@ -56,12 +56,14 @@ export default function PaymentRegister() {
       orderId: orderId,
       paymentType: selectedPaymentType,
       customerId: selectedCustomerId ?? undefined,
+
     };
 
     try {
       const result = await dispatch(createPayment(payload));
       if (createPayment.fulfilled.match(result)) {
         Alert.alert('Pagamento confirmado', 'Pedido finalizado com sucesso!');
+        
         router.replace('/listOrder');
       } else {
         Alert.alert('Erro', 'Não foi possível registrar o pagamento.');

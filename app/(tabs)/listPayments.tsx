@@ -19,7 +19,6 @@ export default function ListPayments() {
 
   useEffect(() => {
       dispatch(fetchPayments());
-      dispatch(fetchOrders())
     }, [dispatch]);
 
     return (
