@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
 import { API_URL_PAYMENT } from './env';
-import { create, fetchAll, update, remove } from './genericThunk';
+import { create, fetchAll, update, remove} from './genericThunk';
 import Payment, { CreatePayment } from '@/types/payment';
 
 interface PaymentState {

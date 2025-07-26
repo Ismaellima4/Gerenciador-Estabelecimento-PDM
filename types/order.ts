@@ -17,4 +17,8 @@ export interface CreateOrderDto {
   orderItems: CreateOrderItemDto[];
 }
 
+export interface UpdateOrder {
+  id: string;
+  orderItems: CreateOrderItemDto[];
+}
 export default order;

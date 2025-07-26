@@ -1,5 +1,6 @@
 
 import { fetchCustomers, findCustomerById } from '@/store/customerSlice';
+import { setOrderItems } from '@/store/orderItemSlice';
 import { deleteOrder, fetchOrders, findOrderById } from '@/store/orderSlice';
 import { fetchPayments, findPaymentById } from '@/store/paymentSlice';
 import { AppDispatch, RootState } from '@/store/store';
@@ -143,6 +144,20 @@ export default function OrderDetails() {
             }
           >
             <Text style={styles.itemsButtonText}>Pagar</Text>
+          </TouchableOpacity>
+        )}
+        {order.orderStatus === OrderStatus.INITIATED && (
+          <TouchableOpacity
+            style={[styles.itemsButton, { backgroundColor: 'black' }]}
+            onPress={() => {
+              dispatch(setOrderItems(order.orderItems));
+              router.push({
+                pathname: 'orders/orderUpdate',
+                params: { orderId: order.id },
+              });
+            }}
+          >
+            <Text style={styles.itemsButtonText}>EDITAR</Text>
           </TouchableOpacity>
         )}
 

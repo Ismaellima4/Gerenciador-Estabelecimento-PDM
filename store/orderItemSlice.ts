@@ -25,7 +25,7 @@ const orderItemSlice =  createSlice({
             }
             state.list.push(orderItemWithId)
         },
-       setOrderItem: (state, action: PayloadAction<orderItem[]>) => {
+       setOrderItems: (state, action: PayloadAction<orderItem[]>) => {
           state.list = action.payload;
        },
        updateOrderItem: (state, action: PayloadAction<orderItem>) => {
@@ -45,12 +45,10 @@ const orderItemSlice =  createSlice({
       resetOrderItems: (state) => {
        state.list = [];
       }
-
-
     },
 });
 
 
 export const findOrderItemById = (state: RootState, id: string) => state.orderItem.list.find((orderItem) => orderItem.id === id);
-export const { addOrderItem, setOrderItem, updateOrderItem, deleteOrderItemById, resetOrderItems } = orderItemSlice.actions;
+export const { addOrderItem, setOrderItems, updateOrderItem, deleteOrderItemById, resetOrderItems } = orderItemSlice.actions;
 export default  orderItemSlice.reducer;
