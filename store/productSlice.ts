@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type Product from '@/types/product';
 import { RootState } from './store';
-import { API_URL_PRODUCT } from './env';
+import {API_URL_PRODUCT } from './env';
 import { createWithFormData, fetchAll, remove, update } from './genericThunk';
 import { UpdateProduct } from '@/types/product';
 
@@ -21,6 +21,7 @@ export const fetchProducts = fetchAll<Product[]>('product/fetchProducts', API_UR
 export const createProduct = createWithFormData<Product>('product/createProduct', API_URL_PRODUCT);
 export const updateProduct = update<Product, UpdateProduct>('product/updateProduct', API_URL_PRODUCT);
 export const deleteProduct = remove<string>('product/deleteProduct', API_URL_PRODUCT);
+
 
 const productSlice = createSlice({
   name: 'product',

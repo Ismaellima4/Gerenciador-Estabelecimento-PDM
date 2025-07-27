@@ -14,8 +14,8 @@ export default function ListCustomers() {
   const customers = useSelector((state: RootState) => state.customer.list);
 
   useEffect(() => {
-        dispatch(fetchCustomers())
-      }, [dispatch])
+    dispatch(fetchCustomers())
+  }, [dispatch])
 
   return (
 
@@ -25,7 +25,7 @@ export default function ListCustomers() {
           <AddButton pathname='customers/customerRegister'/>
       </View>
     
-      <Search />
+      <Search items={customers} searchBy="name" getDetailsPath={() => 'customers/customersDetails'}/>
 
        <FlatList
           data={customers}

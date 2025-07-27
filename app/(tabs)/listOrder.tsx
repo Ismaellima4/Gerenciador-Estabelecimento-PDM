@@ -30,7 +30,7 @@ export default function ListOrders() {
         <AddButton pathname="orders/orderRegister" />
       </View>
 
-      <Search />
+      <Search items={orders} searchBy='id' getDetailsPath={() => 'orders/orderDetails'}/>
 
       <FlatList
         data={orders}

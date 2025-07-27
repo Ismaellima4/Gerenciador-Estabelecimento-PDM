@@ -27,7 +27,7 @@ export default function ListPayments() {
           <Text style={listStyles.title}>Pagamentos</Text>
         </View>
         
-        <Search />
+        <Search items={payments} searchBy="id" getDetailsPath={() => 'payments/paymentDetails'}/>
 
           <FlatList
             data={payments}

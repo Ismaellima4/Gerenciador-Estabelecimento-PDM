@@ -88,8 +88,6 @@ export function createWithFormData<Payload>(
       formData.append('supplier', newData.supplier);
 
       if (newData.file) {
-        console.log('🟢 File asset:', newData.file);
-
         formData.append('file', {
           uri: newData.file.uri,
           name: newData.file.fileName || 'image.jpg',

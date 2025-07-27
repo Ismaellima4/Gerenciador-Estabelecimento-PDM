@@ -1,6 +1,6 @@
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { FontAwesome } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
@@ -8,8 +8,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="homeScreen"
         options={{
-          title: 'Home',
-          tabBarIcon: () => <FontAwesome name="home" size={24} color="black" />,
+          title: 'Produtos',
+          tabBarIcon: () => <FontAwesome name="shopping-basket" size={24} color="black" />,
         }}
       />
       <Tabs.Screen
@@ -31,6 +31,14 @@ export default function TabLayout() {
         options={{
           title: 'Pagamentos',
           tabBarIcon: () => <FontAwesome name="money" size={24} color="black" />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="listOrder"
+        options={{
+          title: 'Pedidos',
+          tabBarIcon: () => <AntDesign name="shoppingcart" size={24} color="black" />,
         }}
       />
     </Tabs>

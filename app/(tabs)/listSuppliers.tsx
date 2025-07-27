@@ -29,7 +29,7 @@ export default function ListSuppliers() {
           <AddButton pathname='suppliers/supplierRegister'/>
       </View>
 
-      <Search />
+      <Search items={suppliers} searchBy='supplierName' getDetailsPath={() => 'suppliers/suppliersDetails'}/>
 
       <FlatList
         data={suppliers}

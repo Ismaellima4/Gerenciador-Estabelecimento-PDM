@@ -29,7 +29,7 @@ export default function HomeScreen() {
         <AddButton pathname='products/productsRegisterScreen' />
       </View>
 
-      <Search />
+      <Search items={products} searchBy='productName' getDetailsPath={() => 'products/productDetails'}/>
 
       {loading && <Text style={{ textAlign: 'center', marginVertical: 20 }}>Carregando produtos...</Text>}
       {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 20 }}>{error}</Text>}
