@@ -228,7 +228,7 @@ export default function OrderRegistration() {
                       style={styles.modalItem}
                     >
                       <Text style={styles.modalItemText}>
-                        {item.productName} | R$ {item.price.toFixed(2)} | {item.amount} | {item.supplier.supplierName}
+                        {item.productName} | R$ {item.price } | {item.amount} | {item.supplier.supplierName}
                       </Text>
                     </Pressable>
                   ))}

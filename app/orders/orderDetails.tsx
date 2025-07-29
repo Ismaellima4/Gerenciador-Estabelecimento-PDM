@@ -4,7 +4,9 @@ import { setOrderItems } from '@/store/orderItemSlice';
 import { deleteOrder, fetchOrders, findOrderById } from '@/store/orderSlice';
 import { fetchPayments, findPaymentById } from '@/store/paymentSlice';
 import { AppDispatch, RootState } from '@/store/store';
-import { OrderStatus } from '@/types/enum/order-status.enum';
+import { OrderStatus, OrderStatusTranslations } from '@/types/enum/order-status.enum';
+import { PaymentStatusTranslations } from '@/types/enum/payment-status.enum';
+import { PaymentTypeTranslations } from '@/types/enum/payment-type.enum';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -101,7 +103,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={order.orderStatus}
+          value={OrderStatusTranslations[order.orderStatus]}
           editable={false}
           placeholder="Status do pedido"
           autoCapitalize="none"
@@ -109,7 +111,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={payment?.statusPayment}
+          value={ payment?.statusPayment ? PaymentStatusTranslations[payment.statusPayment]: '' }
           editable={false}
           placeholder="Status do pagamento"
         />
@@ -124,7 +126,7 @@ export default function OrderDetails() {
 
         <TextInput
           style={styles.input}
-          value={payment?.paymentType}
+          value={payment?.paymentType ? PaymentTypeTranslations[payment?.paymentType] : '' }
           editable={false}
           placeholder="Tipo do pagamento"
         />

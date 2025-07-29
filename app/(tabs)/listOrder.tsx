@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import { fetchOrders } from '@/store/orderSlice';
+import { OrderStatusTranslations } from '@/types/enum/order-status.enum';
 
 export default function ListOrders() {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,7 +53,7 @@ export default function ListOrders() {
                   <Text style={listStyles.cardTitle}>
                     Pedido #{item.id.slice(0, 8)}
                   </Text>
-                  <Text style={listStyles.cardInfo}>Status: {item.orderStatus}</Text>
+                  <Text style={listStyles.cardInfo}>Status: { OrderStatusTranslations[item.orderStatus]}</Text>
                   <Text style={listStyles.cardInfo}>
                     Total: R$ {total.toFixed(2)}
                   </Text>

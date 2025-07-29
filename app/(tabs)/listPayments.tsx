@@ -4,6 +4,7 @@ import { fetchOrders } from "@/store/orderSlice";
 import { fetchPayments } from "@/store/paymentSlice";
 import { AppDispatch, RootState } from "@/store/store";
 import { listStyles } from "@/styles/listStyles";
+import { PaymentTypeTranslations } from "@/types/enum/payment-type.enum";
 import { Link } from "expo-router";
 import React, { useEffect } from "react";
 import { View, Text, FlatList, SafeAreaView, TouchableOpacity } from "react-native";
@@ -45,7 +46,7 @@ export default function ListPayments() {
                         <Text style={listStyles.cardTitle}>{item.id}</Text>
                         <Text style={listStyles.cardInfo}>Valor: {item.amount}</Text>
                         <Text style={listStyles.cardInfo}>Data: {item.date.toString()}</Text>
-                        <Text style={listStyles.cardInfo}>Forma de Pagamento: {item.paymentType}</Text>
+                        <Text style={listStyles.cardInfo}>Forma de Pagamento: { PaymentTypeTranslations[item.paymentType]}</Text>
                         
                       </View>
                     </TouchableOpacity>

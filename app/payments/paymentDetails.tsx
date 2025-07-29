@@ -19,6 +19,8 @@ import {
   Keyboard,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { PaymentTypeTranslations } from "@/types/enum/payment-type.enum";
+import { PaymentStatusTranslations } from "@/types/enum/payment-status.enum";
 
 export default function PaymentDetails() {
   const dispatch = useDispatch<AppDispatch>();
@@ -129,7 +131,7 @@ export default function PaymentDetails() {
           </Text>
 
           <Text style={registerStyles.labelItem}>Tipo de pagamento</Text>
-          <Text style={styles.valueText}>{payment.paymentType}</Text>
+          <Text style={styles.valueText}>{PaymentTypeTranslations[payment.paymentType]}</Text>
 
           <Text style={registerStyles.labelItem}>Data</Text>
           <Text style={styles.valueText}>
@@ -137,7 +139,7 @@ export default function PaymentDetails() {
           </Text>
 
           <Text style={registerStyles.labelItem}>Status do pagamento</Text>
-          <Text style={styles.valueText}>{payment.statusPayment}</Text>
+          <Text style={styles.valueText}>{PaymentStatusTranslations[payment.statusPayment]}</Text>
 
           <TouchableOpacity style={styles.buttonDelete} onPress={handleDelete}>
             <Text style={styles.buttonTextDelete}>DELETAR</Text>
