@@ -50,7 +50,7 @@ export default function OrderDetails() {
   });
 
   const orderValue = order
-    ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)
+    ? order.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
     : '0.00';
 
   if (!order) {
