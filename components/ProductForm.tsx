@@ -28,6 +28,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
@@ -51,11 +53,17 @@ const ProductForm = ({
   const [price, setPrice] = useState(initialProduct?.price?.toString() || '');
   const [category, setCategory] = useState(initialProduct?.category?.name || '');
   const [quantity, setQuantity] = useState(initialProduct?.amount?.toString() || '');
-  const [expirationDate, setExpirationDate] = useState(
+
+  const [expirationDateDisplay, setExpirationDateDisplay] = useState( 
     initialProduct?.expirationDate
-      ? new Date(initialProduct.expirationDate).toLocaleDateString('pt-BR')
+      ? moment(initialProduct.expirationDate).format('DD/MM/YYYY')
       : ''
   );
+  const [expirationDateValue, setExpirationDateValue] = useState( 
+    initialProduct?.expirationDate ? new Date(initialProduct.expirationDate) : new Date()
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [barcode, setBarcode] = useState(initialProduct?.barCode || '');
 
   const [image, setImage] = useState<ImagePickerAsset | undefined>(undefined);
@@ -97,6 +105,17 @@ const ProductForm = ({
     }
   };
 
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || expirationDateValue;
+    setShowDatePicker(Platform.OS === 'ios'); // No iOS, o picker não fecha automaticamente
+    setExpirationDateValue(currentDate);
+    setExpirationDateDisplay(moment(currentDate).format('DD/MM/YYYY'));
+  };
+
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
   const handleSubmit = async () => {
     if (!productName || !supplier || !category || !price || !quantity) {
       Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
@@ -111,10 +130,9 @@ const ProductForm = ({
       return;
     }
 
-    
     let expirationDateISO: string;
     try {
-      expirationDateISO = new Date(expirationDate.split('/').reverse().join('-')).toISOString();
+      expirationDateISO = expirationDateValue.toISOString();
     } catch {
       Alert.alert('Erro', 'Data de validade inválida.');
       return;
@@ -287,13 +305,25 @@ const ProductForm = ({
               </View>
               <View style={styles.column}>
                 <Text style={registerStyles.label}>Data de Validade</Text>
-                <TextInput
-                  style={registerStyles.input}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor="#999"
-                  value={expirationDate}
-                  onChangeText={setExpirationDate}
-                />
+                <TouchableOpacity onPress={showDatePickerModal}>
+                  <TextInput
+                    style={registerStyles.input}
+                    placeholder="DD/MM/AAAA"
+                    placeholderTextColor="#999"
+                    value={expirationDateDisplay} 
+                    editable={false}
+                    pointerEvents="none"
+                  />
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={expirationDateValue} 
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                )}
               </View>
             </View>
 
@@ -304,7 +334,7 @@ const ProductForm = ({
                 placeholderTextColor="#999"
                 value={barcode}
                 onChangeText={setBarcode}
-                editable={!initialProduct} 
+                editable={!initialProduct}
               />
               <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
             </View>

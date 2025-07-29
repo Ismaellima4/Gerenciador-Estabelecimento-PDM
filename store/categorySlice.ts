@@ -1,5 +1,5 @@
 import type Category from '@/types/category';
-import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { API_URL_CATEGORY } from './env';
 import { create, fetchAll, remove } from './genericThunk';
 
@@ -15,19 +15,9 @@ const initialState: CategoryState = {
   error: null,
 };
 
-
 export const createCategory = create<Category, Omit<Category, 'id'>>('category/createCategory', API_URL_CATEGORY);
 export const fetchAllCategories = fetchAll<Category[]>('fetch/category', API_URL_CATEGORY);
 export const deleteCategory = remove('delete/category', API_URL_CATEGORY);
-
-const selectCategories = (state: { categories: { categories: Category[] } }) => state.categories.categories;
-
-export const selectCategoryByName = createSelector(
-  [selectCategories, (state, categoryName: string) => categoryName],
-  (categories: Category[], categoryName: string) => {
-    return categories.find(category => category.name.toLowerCase() === categoryName.toLowerCase());
-  }
-);
 
 const  categorySlice = createSlice({
   name: 'category',

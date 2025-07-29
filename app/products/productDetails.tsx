@@ -94,7 +94,7 @@ export default function ProductDetailScreen() {
           <Text style={styles.description}>{description}</Text>
           <View style={styles.categoryRow}>
             <Text style={styles.categoryText}>{category.name}</Text>
-            <Text style={styles.price}>R$ {price.toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.price}>R$ {price}</Text>
           </View>
         </View>
 
