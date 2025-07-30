@@ -162,12 +162,11 @@ export default function OrderDetails() {
             <Text style={styles.itemsButtonText}>EDITAR</Text>
           </TouchableOpacity>
         )}
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={[styles.button, { backgroundColor: '#b00020' }]} onPress={handleDelete}>
-            <Text style={styles.buttonText}>DELETAR</Text>
+        {order.orderStatus === OrderStatus.INITIATED && (
+          <TouchableOpacity style={[styles.itemsButton, { backgroundColor: '#b00020' }]} onPress={handleDelete}>
+            <Text style={styles.itemsButtonText}>DELETAR</Text>
           </TouchableOpacity>
-        </View>
+        )}
 
         
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
