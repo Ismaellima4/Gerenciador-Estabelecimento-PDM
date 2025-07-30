@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { RootState } from './store';
-import { create, fetchAll, update, remove} from './genericThunk';
+import { create, fetchAll, update, remove, patch} from './genericThunk';
 import Order, { CreateOrderDto, UpdateOrder } from '@/types/order';
 
 import { API_URL_ORDER } from './env';
@@ -25,7 +25,7 @@ export const createOrder = create<Order, CreateOrderDto>(
   API_URL_ORDER
 );
 
-export const updateOrder = update<Order, UpdateOrder>('order/updateOrder', API_URL_ORDER);
+export const updateOrder = patch<Order, UpdateOrder>('order/updateOrder', API_URL_ORDER);
 export const deleteOrder = remove('order/deleteOrder', API_URL_ORDER);
 
 

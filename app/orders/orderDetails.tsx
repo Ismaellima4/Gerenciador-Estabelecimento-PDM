@@ -148,7 +148,7 @@ export default function OrderDetails() {
             <Text style={styles.itemsButtonText}>Pagar</Text>
           </TouchableOpacity>
         )}
-        {order.orderStatus === OrderStatus.INITIATED && (
+        {order.orderStatus === OrderStatus.INITIATED &&  (
           <TouchableOpacity
             style={[styles.itemsButton, { backgroundColor: 'black' }]}
             onPress={() => {

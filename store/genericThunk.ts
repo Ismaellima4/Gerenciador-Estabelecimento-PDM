@@ -52,6 +52,24 @@ export function update<Payload, Arg extends HasId>(
   );
 }
 
+export function patch<Payload, Arg extends HasId>(
+  name: string,
+  apiUrl: string,
+) {
+  return createAsyncThunk<Payload, Arg, { state: RootState }>(
+    name,
+    async (updatedData: Arg, thunkAPI) => {
+      const state = thunkAPI.getState() as RootState;
+      const response = await axios.patch<Payload>(
+        `${apiUrl}/${updatedData.id}`,
+        updatedData,
+        getAuthHeaders(state)
+      );
+      return response.data;
+    }
+  );
+}
+
 export function remove<Arg>(
   name: string,
   apiUrl: string,
