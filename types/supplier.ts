@@ -9,7 +9,7 @@ type Supplier = {
 
 export interface UpdateSupplierDto {
   id: string;
-  supplierName: string;
+  supplierName?: string;
   cnpj?: string;
   phoneNumber?: string;
   email?: string;
