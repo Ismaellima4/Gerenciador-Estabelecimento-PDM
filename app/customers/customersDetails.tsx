@@ -5,7 +5,7 @@ import {
 } from '@/store/customerSlice';
 import { RootState, AppDispatch } from '@/store/store';
 import { registerStyles } from '@/styles/registerStyles';
-import Customer from '@/types/customer';
+import { UpdateCustomerDto } from '@/types/customer';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -71,15 +71,14 @@ export default function CustomersDetails() {
 
   const handleUpdate = async () => {
     if (isEditing) {
-      const updatedCustomer: Customer = {
-        id: customer.id,
-        name: customerNameState,
-        cpf: cpfState,
-        phoneNumber: phoneState,
-        email: emailState,
-        payments: customer.payments, // mantém histórico de pagamentos
-      };
+       const updatedCustomer: UpdateCustomerDto = {
+         id: customer.id,
+       };
 
+      if (customerNameState.trim()) updatedCustomer.name = customerNameState.trim();
+      if (cpfState.trim()) updatedCustomer.cpf = cpfState.trim();
+      if (phoneState.trim()) updatedCustomer.phoneNumber = phoneState.trim();
+      if (emailState.trim()) updatedCustomer.email = emailState.trim();
       try {
         await dispatch(updateCustomer(updatedCustomer)).unwrap();
         Alert.alert('Sucesso', 'Cliente atualizado com sucesso!');
