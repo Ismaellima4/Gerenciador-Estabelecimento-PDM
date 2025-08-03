@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { findProductById } from '@/store/productSlice';
-import Product from '@/types/product';
 import ProductForm from '@/components/ProductForm';
 import { Alert } from 'react-native';
 import { RootState } from '@/store/store';
@@ -10,7 +9,7 @@ import NotFoundItem from '@/components/NotFoundItem';
 export default function ProductUpdateScreen() {
   const { id } = useLocalSearchParams();
 
-  const product: Product | undefined = useSelector((state: RootState) => findProductById(state, id?.toString() || ''));
+  const product  = useSelector((state: RootState) => findProductById(state, String(id)));
 
   if (!product) {
     return <NotFoundItem />;
