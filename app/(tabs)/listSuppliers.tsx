@@ -44,14 +44,9 @@ export default function ListSuppliers() {
               <TouchableOpacity>
               <View style={listStyles.card}>
                 <Text style={listStyles.cardTitle}>{item.supplierName}</Text>
-                <Text style={listStyles.cardInfo}>Telefone: {item.phoneNumber}</Text>
+                {item.phoneNumber && <Text style={listStyles.cardInfo}>Telefone: {item.phoneNumber}</Text>}
                 {item.cnpj && <Text style={listStyles.cardInfo}>CNPJ: {item.cnpj}</Text>}
                 {item.email && <Text style={listStyles.cardInfo}>Email: {item.email}</Text>}
-                {item.additionalInformation && (
-                  <Text style={listStyles.cardInfo}>
-                    Informações adicionais: {item.additionalInformation}
-                  </Text>
-                )}
               </View>
             </TouchableOpacity>
           </Link>

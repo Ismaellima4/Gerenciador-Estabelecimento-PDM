@@ -4,7 +4,7 @@ import {
   removeSupplier,
   updateSupplier,
 } from '@/store/supplierSlice';
-import Supplier from '@/types/supplier';
+import { UpdateSupplierDto } from '@/types/supplier';
 import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import React, { useState } from 'react';
@@ -77,27 +77,32 @@ export default function SuppliersDetails() {
   };
 
   const handleUpdate = async () => {
-    if (isEditing) {
-      const updatedSupplier: Supplier = {
-        id: supplier.id,
-        supplierName: supplierNameState,
-        cnpj: cnpjState,
-        phoneNumber: phoneState,
-        email: emailState,
-        additionalInformation: descriptionState,
-      };
+  if (isEditing) {
 
-      try {
-        await dispatch(updateSupplier(updatedSupplier)).unwrap();
-        Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
-        setIsEditing(false);
-      } catch {
-        Alert.alert('Erro', 'Falha ao atualizar fornecedor.');
-      }
-    } else {
-      setIsEditing(true);
+    const updatedSupplier: UpdateSupplierDto = {
+      id: supplier.id,
+      supplierName: supplierNameState,
+    };
+
+  
+    if (cnpjState.trim()) updatedSupplier.cnpj = cnpjState.trim();
+    if (phoneState.trim()) updatedSupplier.phoneNumber = phoneState.trim();
+    if (emailState.trim()) updatedSupplier.email = emailState.trim();
+    if (descriptionState.trim()) updatedSupplier.additionalInformation = descriptionState.trim();
+
+    try {
+      console.log('Dados enviados para update:', updatedSupplier);
+      await dispatch(updateSupplier(updatedSupplier)).unwrap();
+      Alert.alert('Sucesso', 'Fornecedor atualizado com sucesso!');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Erro ao atualizar fornecedor:', error);
+      Alert.alert('Erro', 'Falha ao atualizar fornecedor.');
     }
-  };
+  } else {
+    setIsEditing(true);
+  }
+};
 
   return (
     <KeyboardAvoidingView
