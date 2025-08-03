@@ -78,13 +78,11 @@ export default function SuppliersDetails() {
 
   const handleUpdate = async () => {
   if (isEditing) {
-
     const updatedSupplier: UpdateSupplierDto = {
       id: supplier.id,
-      supplierName: supplierNameState,
     };
 
-  
+    if (supplierNameState.trim()) updatedSupplier.supplierName = supplierNameState.trim();
     if (cnpjState.trim()) updatedSupplier.cnpj = cnpjState.trim();
     if (phoneState.trim()) updatedSupplier.phoneNumber = phoneState.trim();
     if (emailState.trim()) updatedSupplier.email = emailState.trim();
