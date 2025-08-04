@@ -1,8 +1,10 @@
 import { AddButton } from '@/components/AddButton';
+import FloatingButton from '@/components/FloatingButton';
 import { Search } from '@/components/Search';
 import { fetchProducts } from '@/store/productSlice';
 import { AppDispatch, RootState } from '@/store/store';
 import { listStyles } from '@/styles/listStyles';
+import { UserRole } from '@/types/enum/roles.enum';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -13,6 +15,8 @@ import { useDispatch, useSelector } from 'react-redux';
 export default function HomeScreen() {
   
   const dispatch = useDispatch<AppDispatch>();
+
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const products = useSelector((state: RootState) => state.product.list);
   const loading = useSelector((state: RootState) => state.product.loading);
@@ -72,6 +76,7 @@ export default function HomeScreen() {
           ) : null
         }
       />
+      { user?.role === UserRole.Admin ? <FloatingButton /> : null }
     </View>
   );
 }

@@ -124,7 +124,6 @@ export function createWithFormData<Payload>(
   );
 }
 
-
 export const getAuthHeaders = (state: RootState) => {
   const token = state.auth.acessToken;
   return {

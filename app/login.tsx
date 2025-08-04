@@ -32,7 +32,7 @@ export default function LoginScreen() {
       await dispatch(login({ username, password })).unwrap();
       Alert.alert('Sucesso', 'Login realizado com sucesso!');
       router.push('/homeScreen');
-    } catch (err) {
+    } catch {
       Alert.alert('Erro', 'Credenciais inválidas.');
     }
   };
