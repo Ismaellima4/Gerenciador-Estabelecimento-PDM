@@ -43,7 +43,7 @@ Este projeto usa Docker Compose para gerenciar e iniciar todos os serviços nece
     modifique o env.ts
 
   ```typescript
-    export const API_URL = 'http://192.168.5.12:8080'; //Coloque seu IP
+    export const API_URL = 'http://<IP>:8080'; //Coloque seu IP
   ```
 
 2. **Executando a Aplicação**
