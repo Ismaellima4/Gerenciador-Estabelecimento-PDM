@@ -117,62 +117,101 @@ const ProductForm = ({
   };
 
   const handleSubmit = async () => {
-    if (!productName || !supplier || !category || !price || !quantity) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
-      return;
-    }
+  if (!productName || !supplier || !category || !price || !quantity) {
+    Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+    return;
+  }
 
-    const selectedSupplier = suppliers.find(s => s.supplierName === supplier);
-    const selectedCategory = categories.find(c => c.name === category);
+  const selectedSupplier = suppliers.find(s => s.supplierName === supplier);
+  const selectedCategory = categories.find(c => c.name === category);
 
-    if (!selectedSupplier || !selectedCategory) {
-      Alert.alert('Erro', 'Fornecedor ou categoria inválidos.');
-      return;
-    }
+  if (!selectedSupplier || !selectedCategory) {
+    Alert.alert('Erro', 'Fornecedor ou categoria inválidos.');
+    return;
+  }
 
-    let expirationDateISO: string;
-    try {
-      expirationDateISO = expirationDateValue.toISOString();
-    } catch {
-      Alert.alert('Erro', 'Data de validade inválida.');
-      return;
-    }
+  let expirationDateISO: string;
+  try {
+    expirationDateISO = expirationDateValue.toISOString();
+  } catch {
+    Alert.alert('Erro', 'Data de validade inválida.');
+    return;
+  }
 
-    const manufacturingDateISO = (initialProduct?.manufacturingDate.toISOString() || new Date().toISOString());
+  let manufacturingDateISO: string;
+  try {
+    manufacturingDateISO = initialProduct?.manufacturingDate
+      ? new Date(initialProduct.manufacturingDate).toISOString()
+      : new Date().toISOString();
+  } catch {
+    manufacturingDateISO = new Date().toISOString();
+  }
 
-    const productData = {
-      productName,
-      description,
-      productImage: selectedImageUri || '',
-      price: parseFloat(price),
-      category: selectedCategory.id,
-      amount: parseInt(quantity),
-      expirationDate: expirationDateISO,
-      barCode: barcode.trim() === '' ? '' : barcode,
-      manufacturingDate: manufacturingDateISO,
-      supplier: selectedSupplier.id,
-      file: image,
+  const productData = {
+    productName,
+    description,
+    productImage: selectedImageUri || '',
+    price: parseFloat(price),
+    category: selectedCategory.id,
+    amount: parseInt(quantity),
+    expirationDate: expirationDateISO,
+    barCode: barcode.trim() === '' ? '' : barcode,
+    manufacturingDate: manufacturingDateISO,
+    supplier: selectedSupplier.id,
+    file: image,
+  };
+
+  if (initialProduct?.id) {
+    const updatedProduct: UpdateProduct = {
+      id: initialProduct.id,
     };
 
-    if (initialProduct?.id) {
-      const updateProductData: UpdateProduct = {
-        ...productData,
-        id: initialProduct?.id,
-      }
-      dispatch(updateProduct(updateProductData))
-        .unwrap()
-        .catch(() => Alert.alert('Erro', 'Não foi possível atualizar o produto.'));
-        router.back()
-    } else {
-      const createProductData: CreateProduct = {
-        ...productData,
-      }
-      dispatch(createProduct(createProductData))
-        .unwrap()
-        .catch(() => Alert.alert('Erro', 'Não foi possível criar o produto. '));
-        router.back()
+    if (productName && productName !== initialProduct.productName) {
+      updatedProduct.productName = productName;
     }
-  };
+    if (description && description !== initialProduct.description) {
+      updatedProduct.description = description;
+    }
+    if (price && parseFloat(price) !== initialProduct.price) {
+      updatedProduct.price = parseFloat(price);
+    }
+    if (selectedCategory.id !== initialProduct.category.id) {
+      updatedProduct.category = selectedCategory.id;
+    }
+    if (quantity && parseInt(quantity) !== initialProduct.amount) {
+      updatedProduct.amount = parseInt(quantity);
+    }
+    if (expirationDateISO !== new Date(initialProduct.expirationDate).toISOString()) {
+      updatedProduct.expirationDate = expirationDateISO;
+    }
+    if (barcode && barcode !== initialProduct.barCode) {
+      updatedProduct.barCode = barcode;
+    }
+    if (selectedSupplier.id !== initialProduct.supplier.id) {
+      updatedProduct.supplier = selectedSupplier.id;
+    }
+
+    try {
+      await dispatch(updateProduct(updatedProduct)).unwrap();
+      Alert.alert('Sucesso', 'Produto atualizado com sucesso!');
+      router.back();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível atualizar o produto.');
+    }
+  } else {
+    const createProductData: CreateProduct = {
+      ...productData,
+    };
+
+    try {
+      await dispatch(createProduct(createProductData)).unwrap();
+      router.back();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível criar o produto.');
+    }
+  }
+};
+
 
   const handleSelectSupplier = (selectedSupplier: string) => {
     setSupplier(selectedSupplier);
