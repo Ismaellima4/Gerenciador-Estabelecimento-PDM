@@ -1,6 +1,6 @@
 import FormActionButtons from '@/components/FormActionButton';
-import { deleteProductById, findProductById } from '@/store/productSlice'; 
-import { RootState } from '@/store/store';
+import { deleteProduct, findProductById } from '@/store/productSlice'; 
+import { RootState, AppDispatch } from '@/store/store';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function ProductDetailScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id } = useLocalSearchParams();
 
@@ -53,10 +53,14 @@ export default function ProductDetailScreen() {
         },
         {
           text: 'Excluir',
-          onPress: () => {
-            dispatch(deleteProductById({ id: product.id }));
-            Alert.alert('Removido', 'Produto excluído com sucesso!');
-            router.back();
+          onPress: async () => {
+            try {
+              await dispatch(deleteProduct(product.id)).unwrap();
+              Alert.alert('Removido', 'Produto excluído com sucesso!');
+              router.back();
+            } catch {
+              Alert.alert('Erro', 'Não foi possível excluir o produto.');
+            }
           },
         },
       ],
@@ -90,12 +94,12 @@ export default function ProductDetailScreen() {
           <Text style={styles.description}>{description}</Text>
           <View style={styles.categoryRow}>
             <Text style={styles.categoryText}>{category.name}</Text>
-            <Text style={styles.price}>R$ {price.toFixed(2).replace('.', ',')}</Text>
+            <Text style={styles.price}>R$ {price}</Text>
           </View>
         </View>
 
         <Link href={{
-          pathname: '/suppliersDetails',
+          pathname: 'suppliers/suppliersDetails',
           params: {
             id: supplier.id
           }
@@ -117,7 +121,7 @@ export default function ProductDetailScreen() {
 
       <FormActionButtons
         onSave={() => router.push({ 
-          pathname: '/productUpdate', 
+          pathname: 'products/productUpdate', 
           params: { id: product.id } 
         })}
         onCancel={handleDelete}
@@ -133,18 +137,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 10,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    paddingTop: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerRightPlaceholder: {
-    width: 24,
   },
   scrollViewContent: {
     paddingHorizontal: 16,
@@ -259,11 +251,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginTop: 20, // Adicionei um espaçamento
+    marginTop: 20,
   },
   backButtonText: {
     color: 'white',
     fontSize: 16,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
 });

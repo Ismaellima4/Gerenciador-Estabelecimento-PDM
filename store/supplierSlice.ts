@@ -1,47 +1,66 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import type Supplier from '@/types/supplier';
-import { randomUUID } from 'expo-crypto';
 import { RootState } from './store';
+import { API_URL_SUPPLIER } from './env';
+import { create, fetchAll, patch, remove} from './genericThunk';
+import { CreateSupplier, UpdateSupplierDto } from '@/types/supplier';
 
 interface SupplierState {
   list: Supplier[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: SupplierState = {
   list: [],
+  loading: false,
+  error: null,
 };
 
-type NewSupplier = Omit<Supplier, 'id'>;
+
+export const fetchSuppliers = fetchAll<Supplier[]>('supplier/fetchSuppliers', API_URL_SUPPLIER);
+export const createSupplier = create<Supplier, CreateSupplier>('supplier/createSupplier', API_URL_SUPPLIER);
+export const updateSupplier = patch<Supplier, UpdateSupplierDto>('supplier/updateSupplier', API_URL_SUPPLIER);
+export const removeSupplier = remove<string>('supplier/removeSupplier', API_URL_SUPPLIER);
 
 const supplierSlice = createSlice({
   name: 'supplier',
   initialState,
-  reducers: {
-    addSupplier: (state, action: PayloadAction<NewSupplier>) => {
-      const supplierWithId: Supplier = {
-        ...action.payload,
-          id: randomUUID()
-        };
-      state.list.push(supplierWithId);
-    },
-    setSuppliers: (state, action: PayloadAction<Supplier[]>) => {
+  reducers: {},
+  extraReducers: builder => {
+  builder
+    .addCase(fetchSuppliers.pending, state => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchSuppliers.fulfilled, (state, action) => {
       state.list = action.payload;
-    },
-    deleteSupplierById: (state, action: PayloadAction<{id: string}>) => {
-      state.list = state.list.filter(supplier => supplier.id !== action.payload.id);
-    },
-    updateSupplier: (state, action: PayloadAction<Supplier>) => {
-      const index = state.list.findIndex((supplier) => supplier.id === action.payload.id);
-
+      state.loading = false;
+    })
+    .addCase(fetchSuppliers.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message || 'Erro ao buscar fornecedores';
+    })
+    .addCase(createSupplier.fulfilled, (state, action) => {
+      state.list.push(action.payload);
+    })
+    .addCase(updateSupplier.fulfilled, (state, action) => {
+      const updatedSupplier = action.payload;
+      const index = state.list.findIndex(s => s.id === updatedSupplier.id);
       if (index !== -1) {
-        state.list[index] = action.payload;
+        state.list[index] = updatedSupplier;
+      } else {
+        state.list.push(updatedSupplier);
       }
-      
-    },
+    })
+    .addCase(removeSupplier.fulfilled, (state, action) => {
+      state.list = state.list.filter(s => s.id !== action.payload);
+    });
+},
 
-  },
 });
 
-export const findSupplierById = (state: RootState, id: string) => state.supplier.list.find((supplier) => supplier.id === id);
-export const { addSupplier, setSuppliers, deleteSupplierById,updateSupplier} = supplierSlice.actions;
+export const findSupplierById = (state: RootState, id: string) =>
+  state.supplier.list.find(supplier => supplier.id === id);
+
 export default supplierSlice.reducer;

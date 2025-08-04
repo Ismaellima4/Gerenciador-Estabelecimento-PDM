@@ -1,13 +1,17 @@
 import FormActionButtons from '@/components/FormActionButton';
 import ModalSelector from '@/components/ModalSelector';
-import { addCategory, deleteCategory } from '@/store/categorySlice';
-import { RootState } from '@/store/store';
+import { createCategory, deleteCategory, fetchAllCategories } from '@/store/categorySlice';
+import { createProduct, updateProduct } from '@/store/productSlice';
+import { AppDispatch, RootState } from '@/store/store';
+import { fetchSuppliers } from '@/store/supplierSlice';
+import { registerStyles } from '@/styles/registerStyles';
 import Category from '@/types/category';
-import Product from '@/types/product';
+import Product, { CreateProduct, UpdateProduct } from '@/types/product';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import { ImagePickerAsset } from 'expo-image-picker';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Image,
@@ -24,10 +28,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 
 interface ProductFormProps {
   initialProduct?: Product | null;
-  onSubmit: (product: Product) => void;
   onCancel: () => void;
   submitButtonText: string;
   onAddSupplierPress: () => void;
@@ -35,13 +40,10 @@ interface ProductFormProps {
 
 const ProductForm = ({
   initialProduct,
-  onSubmit,
   onCancel,
   submitButtonText,
   onAddSupplierPress,
 }: ProductFormProps) => {
-  // Se initialProduct existe, usamos o ID dele, caso contrário, será undefined
-  // O ID será gerado na action 'addProduct' do slice, se 'initialProduct' for null
   const [productName, setProductName] = useState(initialProduct?.productName || '');
   const [description, setDescription] = useState(initialProduct?.description || '');
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(
@@ -51,12 +53,20 @@ const ProductForm = ({
   const [price, setPrice] = useState(initialProduct?.price?.toString() || '');
   const [category, setCategory] = useState(initialProduct?.category?.name || '');
   const [quantity, setQuantity] = useState(initialProduct?.amount?.toString() || '');
-  const [expirationDate, setExpirationDate] = useState(
+
+  const [expirationDateDisplay, setExpirationDateDisplay] = useState( 
     initialProduct?.expirationDate
-      ? new Date(initialProduct.expirationDate).toLocaleDateString('pt-BR')
+      ? moment(initialProduct.expirationDate).format('DD/MM/YYYY')
       : ''
   );
+  const [expirationDateValue, setExpirationDateValue] = useState( 
+    initialProduct?.expirationDate ? new Date(initialProduct.expirationDate) : new Date()
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [barcode, setBarcode] = useState(initialProduct?.barCode || '');
+
+  const [image, setImage] = useState<ImagePickerAsset | undefined>(undefined);
 
   const [isSupplierModalVisible, setSupplierModalVisible] = useState(false);
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
@@ -64,7 +74,12 @@ const ProductForm = ({
   const suppliers = useSelector((state: RootState) => state.supplier.list);
   const categories = useSelector((state: RootState) => state.category.list);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchAllCategories());
+    dispatch(fetchSuppliers());
+  }, [dispatch]);
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -84,70 +99,119 @@ const ProductForm = ({
     });
 
     if (!result.canceled) {
-      const originalUri = result.assets[0].uri;
-      const fileName = originalUri.split('/').pop();
-      const productImagesDir = `${FileSystem.documentDirectory}product_images/`;
-
-      const dirInfo = await FileSystem.getInfoAsync(productImagesDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(productImagesDir, { intermediates: true });
-      }
-
-      const newUri = `${productImagesDir}${fileName}`;
-
-      try {
-        await FileSystem.copyAsync({
-          from: originalUri,
-          to: newUri,
-        });
-        setSelectedImageUri(newUri);
-      } catch (error) {
-        console.error('Erro ao copiar imagem:', error);
-        Alert.alert('Erro', 'Não foi possível salvar a imagem.');
-        setSelectedImageUri(null);
-      }
+      const picked = result.assets[0];
+       setImage(picked);
+       setSelectedImageUri(picked.uri);
     }
   };
 
-  const handleSubmit = () => {
-    if (!productName || !supplier || !category || !price || !quantity) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
-      return;
-    }
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || expirationDateValue;
+    setShowDatePicker(Platform.OS === 'ios'); // No iOS, o picker não fecha automaticamente
+    setExpirationDateValue(currentDate);
+    setExpirationDateDisplay(moment(currentDate).format('DD/MM/YYYY'));
+  };
 
-    const selectedSupplier = suppliers.find(s => s.supplierName === supplier);
-    const selectedCategory = categories.find(c => c.name === category);
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
 
-    if (!selectedSupplier || !selectedCategory) {
-      Alert.alert('Erro', 'Fornecedor ou categoria inválidos.');
-      return;
-    }
+  const handleSubmit = async () => {
+  if (!productName || !supplier || !category || !price || !quantity) {
+    Alert.alert('Erro', 'Preencha todos os campos obrigatórios.');
+    return;
+  }
 
-    // Ajuste aqui para incluir o 'id' se 'initialProduct' existir
-    // Se for um novo produto, 'id' será undefined neste ponto, o que é esperado
-    // porque ele será gerado na action 'addProduct' no slice.
-    const productData: Omit<Product, 'id'> & { id?: string } = { // Ajustado para aceitar id opcionalmente
-      productName,
-      description,
-      productImage: selectedImageUri || '',
-      price: parseFloat(price),
-      category: selectedCategory,
-      amount: parseInt(quantity),
-      // Assumindo que expirationDate é string "DD/MM/AAAA", converter para Date
-      // Pode ser necessário uma biblioteca para parsing robusto de datas
-      expirationDate: new Date(expirationDate.split('/').reverse().join('-')), // Converte para YYYY-MM-DD para Date
-      barCode: barcode,
-      manufacturingDate: initialProduct?.manufacturingDate || new Date(), // Mantém a data de fabricação ou cria uma nova
-      supplier: selectedSupplier,
+  const selectedSupplier = suppliers.find(s => s.supplierName === supplier);
+  const selectedCategory = categories.find(c => c.name === category);
+
+  if (!selectedSupplier || !selectedCategory) {
+    Alert.alert('Erro', 'Fornecedor ou categoria inválidos.');
+    return;
+  }
+
+  let expirationDateISO: string;
+  try {
+    expirationDateISO = expirationDateValue.toISOString();
+  } catch {
+    Alert.alert('Erro', 'Data de validade inválida.');
+    return;
+  }
+
+  let manufacturingDateISO: string;
+  try {
+    manufacturingDateISO = initialProduct?.manufacturingDate
+      ? new Date(initialProduct.manufacturingDate).toISOString()
+      : new Date().toISOString();
+  } catch {
+    manufacturingDateISO = new Date().toISOString();
+  }
+
+  const productData = {
+    productName,
+    description,
+    productImage: selectedImageUri || '',
+    price: parseFloat(price),
+    category: selectedCategory.id,
+    amount: parseInt(quantity),
+    expirationDate: expirationDateISO,
+    barCode: barcode.trim() === '' ? '' : barcode,
+    manufacturingDate: manufacturingDateISO,
+    supplier: selectedSupplier.id,
+    file: image,
+  };
+
+  if (initialProduct?.id) {
+    const updatedProduct: UpdateProduct = {
+      id: initialProduct.id,
     };
 
-    if (initialProduct?.id) {
-      // Se estamos editando, adicione o ID existente
-      (productData as Product).id = initialProduct.id;
+    if (productName && productName !== initialProduct.productName) {
+      updatedProduct.productName = productName;
+    }
+    if (description && description !== initialProduct.description) {
+      updatedProduct.description = description;
+    }
+    if (price && parseFloat(price) !== initialProduct.price) {
+      updatedProduct.price = parseFloat(price);
+    }
+    if (selectedCategory.id !== initialProduct.category.id) {
+      updatedProduct.category = selectedCategory.id;
+    }
+    if (quantity && parseInt(quantity) !== initialProduct.amount) {
+      updatedProduct.amount = parseInt(quantity);
+    }
+    if (expirationDateISO !== new Date(initialProduct.expirationDate).toISOString()) {
+      updatedProduct.expirationDate = expirationDateISO;
+    }
+    if (barcode && barcode !== initialProduct.barCode) {
+      updatedProduct.barCode = barcode;
+    }
+    if (selectedSupplier.id !== initialProduct.supplier.id) {
+      updatedProduct.supplier = selectedSupplier.id;
     }
 
-    onSubmit(productData as Product); // Garante que o tipo final é Product
-  };
+    try {
+      await dispatch(updateProduct(updatedProduct)).unwrap();
+      Alert.alert('Sucesso', 'Produto atualizado com sucesso!');
+      router.back();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível atualizar o produto.');
+    }
+  } else {
+    const createProductData: CreateProduct = {
+      ...productData,
+    };
+
+    try {
+      await dispatch(createProduct(createProductData)).unwrap();
+      router.back();
+    } catch {
+      Alert.alert('Erro', 'Não foi possível criar o produto.');
+    }
+  }
+};
+
 
   const handleSelectSupplier = (selectedSupplier: string) => {
     setSupplier(selectedSupplier);
@@ -159,19 +223,35 @@ const ProductForm = ({
     setCategoryModalVisible(false);
   };
 
-  const handleAddCategorySubmit = (newCategory: string) => {
-    const category: Category = {
+  const handleAddCategorySubmit = async (newCategory: string) => {
+    const category: Omit<Category, 'id'> = {
       name: newCategory,
     };
-    dispatch(addCategory(category));
-    handleSelectCategory(newCategory);
-    setCategoryModalVisible(false);
+    try {
+      await dispatch(createCategory(category)).unwrap();
+      handleSelectCategory(newCategory);
+      setCategoryModalVisible(false);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleDeleteCategory = (categoryName: string) => {
-    dispatch(deleteCategory(categoryName));
-    if (category === categoryName) {
-      setCategory('');
+  const handleDeleteCategory = async (categoryNameToDelete: string) => {
+    const categoryToDelete = categories.find(
+      (c) => c.name.toLowerCase() === categoryNameToDelete.toLowerCase()
+    );
+
+    if (!categoryToDelete) return;
+
+    try {
+      await dispatch(deleteCategory(categoryToDelete.id)).unwrap();
+
+      if (categoryToDelete.name === category) {
+        setCategory('');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível excluir a categoria.');
+      console.error(error);
     }
   };
 
@@ -181,19 +261,19 @@ const ProductForm = ({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={registerStyles.safeArea}>
         <Pressable onPress={Keyboard.dismiss}>
-          <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.label}>Nome do produto <Text style={styles.required}>*</Text></Text>
+          <ScrollView contentContainerStyle={registerStyles.container}>
+            <Text style={registerStyles.label}>Nome do produto <Text style={registerStyles.required}>*</Text></Text>
             <TextInput
-              style={styles.input}
+              style={registerStyles.input}
               placeholder="Digite o nome do produto"
               placeholderTextColor="#999"
               value={productName}
               onChangeText={setProductName}
             />
 
-            <Text style={styles.label}>Descrição</Text>
+            <Text style={registerStyles.label}>Descrição</Text>
             <TextInput
               style={styles.textArea}
               multiline
@@ -202,7 +282,7 @@ const ProductForm = ({
               onChangeText={setDescription}
             />
 
-            <Text style={styles.label}>Add. Imagens</Text>
+            <Text style={registerStyles.label}>Add. Imagens</Text>
             <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
               {selectedImageUri ? (
                 <Image source={{ uri: selectedImageUri }} style={styles.uploadedImage} />
@@ -211,7 +291,7 @@ const ProductForm = ({
               )}
             </TouchableOpacity>
 
-            <Text style={styles.label}>Fornecedor</Text>
+            <Text style={registerStyles.label}>Fornecedor</Text>
             <TouchableOpacity style={styles.dropdown} onPress={() => setSupplierModalVisible(true)}>
               <TextInput
                 style={styles.dropdownTextInput}
@@ -224,7 +304,7 @@ const ProductForm = ({
             </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Preço</Text>
+                <Text style={registerStyles.label}>Preço</Text>
                 <View style={styles.priceInputContainer}>
                   <Text style={styles.currency}>R$</Text>
                   <TextInput
@@ -237,7 +317,7 @@ const ProductForm = ({
                 </View>
               </View>
               <View style={styles.column}>
-                <Text style={styles.label}>Categoria</Text>
+                <Text style={registerStyles.label}>Categoria</Text>
                 <TouchableOpacity style={styles.dropdown} onPress={() => setCategoryModalVisible(true)}>
                   <TextInput
                     style={styles.dropdownTextInput}
@@ -253,9 +333,9 @@ const ProductForm = ({
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Qtd. em Estoque</Text>
+                <Text style={registerStyles.label}>Qtd. em Estoque</Text>
                 <TextInput
-                  style={styles.input}
+                  style={registerStyles.input}
                   keyboardType="numeric"
                   placeholderTextColor="#999"
                   value={quantity}
@@ -263,25 +343,37 @@ const ProductForm = ({
                 />
               </View>
               <View style={styles.column}>
-                <Text style={styles.label}>Data de Validade</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor="#999"
-                  value={expirationDate}
-                  onChangeText={setExpirationDate}
-                />
+                <Text style={registerStyles.label}>Data de Validade</Text>
+                <TouchableOpacity onPress={showDatePickerModal}>
+                  <TextInput
+                    style={registerStyles.input}
+                    placeholder="DD/MM/AAAA"
+                    placeholderTextColor="#999"
+                    value={expirationDateDisplay} 
+                    editable={false}
+                    pointerEvents="none"
+                  />
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={expirationDateValue} 
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                )}
               </View>
             </View>
 
-            <Text style={styles.label}>Código de Barras</Text>
+            <Text style={registerStyles.label}>Código de Barras</Text>
             <View style={styles.barcodeInputContainer}>
               <TextInput
                 style={styles.barcodeInput}
                 placeholderTextColor="#999"
                 value={barcode}
                 onChangeText={setBarcode}
-                editable={!initialProduct} // Barcode só é editável para novos produtos
+                editable={!initialProduct}
               />
               <MaterialIcons name="qr-code-scanner" size={24} color="#666" style={styles.barcodeIcon} />
             </View>
@@ -323,33 +415,6 @@ const ProductForm = ({
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  required: {
-    color: 'red',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 15,
-    backgroundColor: '#fff',
-  },
   textArea: {
     borderWidth: 1,
     borderColor: '#ccc',

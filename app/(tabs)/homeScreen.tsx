@@ -1,41 +1,51 @@
+import { AddButton } from '@/components/AddButton';
+import FloatingButton from '@/components/FloatingButton';
 import { Search } from '@/components/Search';
-import { RootState } from '@/store/store';
+import { fetchProducts } from '@/store/productSlice';
+import { AppDispatch, RootState } from '@/store/store';
+import { listStyles } from '@/styles/listStyles';
+import { UserRole } from '@/types/enum/roles.enum';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 export default function HomeScreen() {
+  
+  const dispatch = useDispatch<AppDispatch>();
 
-  const product = useSelector((state : RootState) => state.product.list)
+  const user = useSelector((state: RootState) => state.auth.user);
 
+  const products = useSelector((state: RootState) => state.product.list);
+  const loading = useSelector((state: RootState) => state.product.loading);
+  const error = useSelector((state: RootState) => state.product.error);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Produtos</Text>
-        <Link href='/productsRegisterScreen' asChild>
-          <TouchableOpacity style={styles.addButton}>
-            <Text style={styles.addText}>ADICIONAR</Text>
-          </TouchableOpacity>
-        </Link>
+    <View style={listStyles.container}>
+      <View style={listStyles.header}>
+        <Text style={listStyles.title}>Produtos</Text>
+        <AddButton pathname='products/productsRegisterScreen' />
       </View>
 
-      <Search />
+      <Search items={products} searchBy='productName' getDetailsPath={() => 'products/productDetails'}/>
+
+      {loading && <Text style={{ textAlign: 'center', marginVertical: 20 }}>Carregando produtos...</Text>}
+      {error && <Text style={{ color: 'red', textAlign: 'center', marginVertical: 20 }}>{error}</Text>}
 
       <FlatList
-        data={product}
+        data={products}
         keyExtractor={(item, index) => `${item.productName}-${index}`}
         renderItem={({ item }) => (
           <Link href={{
-            pathname:'/productDetails',
-            params:{
-             id: item.id,
-            }
-          }}  
-          asChild>
+            pathname: 'products/productDetails',
+            params: { id: item.id },
+          }} asChild>
             <TouchableOpacity>
               <View style={styles.card}>
                 <View style={styles.cardInfo}>
@@ -47,10 +57,10 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.imagePlaceholder}>
                   {item.productImage ? (
-                    <Image style={styles.image} source={{
-                        uri: item.productImage
-                      }
-                    }/>
+                    <Image
+                      style={styles.image}
+                      source={{ uri: item.productImage }}
+                    />
                   ) : (
                     <Ionicons name="image-outline" size={50} color="#ccc" />
                   )}
@@ -60,52 +70,18 @@ export default function HomeScreen() {
           </Link>
         )}
         contentContainerStyle={styles.productList}
-        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum produto cadastrado.</Text>}
+        ListEmptyComponent={
+          !loading && !error ? (
+            <Text style={styles.emptyText}>Nenhum produto cadastrado.</Text>
+          ) : null
+        }
       />
+      { user?.role === UserRole.Admin ? <FloatingButton /> : null }
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    paddingHorizontal: 16, 
-    paddingTop: 24, 
-    backgroundColor: '#fff' 
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,  
-  },
-  title: {
-    fontSize: 20, 
-    fontWeight: 'bold',
-    paddingHorizontal : 10
-  },
-  addButton: {
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  addText: {
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  mainBanner: {
-    flex: 1,
-    backgroundColor: '#ddd',
-    height: 120,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  sideBanner: {
-    width: 60,
-    backgroundColor: '#ddd',
-    borderRadius: 30,
-  },
   productList: {
     paddingBottom: 16,
   },
@@ -153,11 +129,11 @@ const styles = StyleSheet.create({
 
   image: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
-   emptyText: { 
+  emptyText: {
     textAlign: 'center',
-    marginTop: 20, 
-    color: '#999' 
+    marginTop: 20,
+    color: '#999',
   },
 });
