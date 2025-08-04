@@ -1,4 +1,4 @@
-export const API_URL = 'http://192.168.5.12:8080';
+export const API_URL = 'http://<IP>:8080';
 export const API_URL_CATEGORY = `${API_URL}/categories`;
 export const API_URL_SUPPLIER = `${API_URL}/suppliers`;
 export const API_URL_PRODUCT = `${API_URL}/products`;
