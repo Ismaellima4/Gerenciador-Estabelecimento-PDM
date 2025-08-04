@@ -3,7 +3,7 @@ import type Customer from '@/types/customer';
 import { RootState } from './store';
 import { API_URL_CUSTOMER } from './env';
 import { create, fetchAll,remove, patch } from './genericThunk';
-import { UpdateCustomerDto } from '@/types/customer';
+import { CreateCustomer, UpdateCustomerDto } from '@/types/customer';
 
 
 interface CustomerState {
@@ -21,7 +21,7 @@ const initialState: CustomerState = {
 
 
 export const fetchCustomers = fetchAll<Customer[]>('customer/fetchCustomers', API_URL_CUSTOMER);
-export const createCustomer = create<Customer, Omit<Customer, 'id'>>('customer/createCustomer', API_URL_CUSTOMER);
+export const createCustomer = create<Customer, CreateCustomer>('customer/createCustomer', API_URL_CUSTOMER);
 export const updateCustomer = patch<Customer, UpdateCustomerDto>('customer/updateCustomer', API_URL_CUSTOMER);
 export const removeCustomer = remove<string>('customer/removeCustomer', API_URL_CUSTOMER);
 

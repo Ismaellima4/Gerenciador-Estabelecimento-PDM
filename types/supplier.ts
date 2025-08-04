@@ -7,6 +7,15 @@ type Supplier = {
     additionalInformation?: string;
 }
 
+
+export type CreateSupplier = {
+    supplierName: string;
+    cnpj?: string;
+    phoneNumber: string;
+    email?: string;
+    additionalInformation?: string;
+}
+
 export interface UpdateSupplierDto {
   id: string;
   supplierName?: string;

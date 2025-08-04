@@ -1,21 +1,31 @@
 import { RootState } from '@/store/store';
 import { UserRole } from '@/types/enum/roles.enum';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { router, Tabs, usePathname } from 'expo-router';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 export default function TabLayout() {
   const user = useSelector((state: RootState) => state.auth.user);
-
   const hasRole = (role: UserRole) => user?.role === role;
 
+  const pathname = usePathname();
+  
   const isAdmin = hasRole(UserRole.Admin);
   const isAdminStock = hasRole(UserRole.Admin_Stock);
   const isAdminCashier = hasRole(UserRole.Admin_cashier);
 
+ 
+  useEffect(() => {
+    if (isAdminCashier && pathname === '/homeScreen') {
+      router.replace('/listCustomers');
+    }
+  }, [isAdminCashier, pathname]);
+
+
   return (
     <Tabs screenOptions={{ headerShown: false }}>
+
       <Tabs.Screen
         name="homeScreen"
         options={{
@@ -32,7 +42,6 @@ export default function TabLayout() {
           href: (isAdmin || isAdminStock) ? 'listSuppliers' : null,
         }}
       />
-
       <Tabs.Screen
         name="listCustomers"
         options={{

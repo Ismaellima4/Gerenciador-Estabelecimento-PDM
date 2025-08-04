@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
-import { AxiosError } from "axios";
 
 export default function CustomerRegistration() {
   const [customerName, setCustomerName] = useState("");
@@ -29,20 +28,17 @@ export default function CustomerRegistration() {
       return;
     }
 
-    const newCustomer = {
-      name: customerName,
-      cpf,
-      phoneNumber,
-      email,
-      payments: [],
-    };
-
     try {
-      await dispatch(createCustomer(newCustomer)).unwrap();
+      await dispatch(createCustomer({
+        name: customerName,
+        cpf: cpf || undefined,
+        phoneNumber: phoneNumber || undefined,
+        email: email || undefined,
+      })).unwrap();
       Alert.alert("Sucesso", "Cliente salvo com sucesso!");
       router.back();
     } catch (error) {
-      console.error((error as AxiosError).response);
+      console.error(error);
       Alert.alert("Erro", "Erro ao salvar cliente.");
     }
   };

@@ -9,6 +9,13 @@ type customer = {
     payments: payment[];
 }
 
+export type CreateCustomer = {
+    name: string;
+    cpf?: string;
+    email?: string;
+    phoneNumber?: string;
+}
+
 export interface UpdateCustomerDto {
   id: string;
   name?: string;

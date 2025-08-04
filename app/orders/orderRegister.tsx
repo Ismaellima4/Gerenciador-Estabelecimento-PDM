@@ -1,6 +1,6 @@
 import { registerStyles } from '@/styles/registerStyles';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import React, {useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Keyboard,
   Pressable,
@@ -24,6 +24,7 @@ import { addOrderItem, deleteOrderItemById, resetOrderItems } from '@/store/orde
 import { useRouter } from 'expo-router';
 import { CreateOrderDto } from '@/types/order';
 import { createOrder } from '@/store/orderSlice';
+import { fetchProducts } from '@/store/productSlice';
 
 export default function OrderRegistration() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,6 +42,11 @@ export default function OrderRegistration() {
 
   const totalQuantity = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+
+  useEffect(() => {
+    dispatch(fetchProducts())
+  }, [dispatch]);
 
   const handleAddProduct = () => {
     if (!selectedProduct) return Alert.alert('Selecione um produto');
@@ -203,7 +209,7 @@ export default function OrderRegistration() {
                 <Text style={registerStyles.label}>Sub‑total</Text>
                 <View style={styles.priceContainer}>
                   <Text style={styles.currency}>R$</Text>
-                  <TextInput style={styles.price} editable={false} value={subtotal.toFixed(2).replace('.', ',')} />
+                  <TextInput style={styles.price} editable={false} value={subtotal.toString()} />
                 </View>
               </View>
             </View>
@@ -256,8 +262,8 @@ export default function OrderRegistration() {
                           />
                         ) : (
                           <Text style={styles.itemDetails}>
-                            {item.quantity} × R$ {item.product.price.toFixed(2)} = R${' '}
-                            {(item.quantity * item.product.price).toFixed(2)}
+                            {item.quantity} × R$ {item.product.price } = R${' '}
+                            {(item.quantity * item.product.price)}
                           </Text>
                         )}
                       </View>

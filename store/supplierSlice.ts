@@ -3,7 +3,7 @@ import type Supplier from '@/types/supplier';
 import { RootState } from './store';
 import { API_URL_SUPPLIER } from './env';
 import { create, fetchAll, patch, remove} from './genericThunk';
-import { UpdateSupplierDto } from '@/types/supplier';
+import { CreateSupplier, UpdateSupplierDto } from '@/types/supplier';
 
 interface SupplierState {
   list: Supplier[];
@@ -19,7 +19,7 @@ const initialState: SupplierState = {
 
 
 export const fetchSuppliers = fetchAll<Supplier[]>('supplier/fetchSuppliers', API_URL_SUPPLIER);
-export const createSupplier = create<Supplier, Omit<Supplier, 'id'>>('supplier/createSupplier', API_URL_SUPPLIER);
+export const createSupplier = create<Supplier, CreateSupplier>('supplier/createSupplier', API_URL_SUPPLIER);
 export const updateSupplier = patch<Supplier, UpdateSupplierDto>('supplier/updateSupplier', API_URL_SUPPLIER);
 export const removeSupplier = remove<string>('supplier/removeSupplier', API_URL_SUPPLIER);
 
