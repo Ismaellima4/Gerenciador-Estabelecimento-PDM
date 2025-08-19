@@ -50,6 +50,6 @@ Este projeto usa Docker Compose para gerenciar e iniciar todos os serviços nece
      ```bash
        pnpm start
     ```
-### Link dos backend e serviço de upload de imagens
+### Link do backend e serviço de upload de imagens
 1. [Backend](https://github.com/Ismaellima4/Gerenciador-estabelecimento-pdm-backend)
 2. [Serviço de Upload](https://github.com/Ismaellima4/upload-file-api-ge)
